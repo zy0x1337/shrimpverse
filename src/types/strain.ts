@@ -23,4 +23,5 @@ export interface FilterState {
   popularOnly: boolean;
   stableOnly: boolean;
   catalogView: boolean;
+  orbitView: boolean;
 }
