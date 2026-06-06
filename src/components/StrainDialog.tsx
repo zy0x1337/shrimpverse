@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import type { Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 
@@ -14,6 +15,17 @@ const LEVEL_LABELS: Record<string, string> = {
 };
 
 export function StrainDialog({ strain, onClose }: Props) {
+  useEffect(() => {
+    if (!strain) return;
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [strain, onClose]);
+
   if (!strain) return null;
   const color = familyColors[strain.family] ?? "#888";
 
@@ -26,7 +38,9 @@ export function StrainDialog({ strain, onClose }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
           <motion.div
             className="dialog"
@@ -38,7 +52,6 @@ export function StrainDialog({ strain, onClose }: Props) {
             aria-modal="true"
             aria-labelledby="dialog-title"
           >
-            {/* Header */}
             <div className="dialog-header">
               <div className="dialog-header-left">
                 <div
@@ -49,16 +62,21 @@ export function StrainDialog({ strain, onClose }: Props) {
                     border: `1px solid ${color}44`,
                   }}
                 >
-                  <span style={{
-                    display: "inline-block",
-                    width: 6, height: 6,
-                    borderRadius: "50%",
-                    background: color,
-                    boxShadow: `0 0 6px ${color}`,
-                  }} />
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: color,
+                      boxShadow: `0 0 6px ${color}`,
+                    }}
+                  />
                   {strain.family}
                 </div>
-                <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
+                <h2 id="dialog-title" className="dialog-title">
+                  {strain.name}
+                </h2>
               </div>
               <button className="dialog-close" onClick={onClose} aria-label="Schließen">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -68,14 +86,12 @@ export function StrainDialog({ strain, onClose }: Props) {
             </div>
 
             <div className="dialog-body">
-              {/* Color swatch */}
               <div className="dialog-swatch">
                 {strain.colors.map((c, i) => (
                   <div key={i} className="dialog-swatch-seg" style={{ background: c }} />
                 ))}
               </div>
 
-              {/* Metadata grid */}
               <div className="dialog-meta-grid">
                 {[
                   ["Familie", strain.family],
@@ -90,13 +106,11 @@ export function StrainDialog({ strain, onClose }: Props) {
                 ))}
               </div>
 
-              {/* Summary */}
               <div className="dialog-section">
                 <div className="dialog-section-label">Beschreibung</div>
                 <p>{strain.summary}</p>
               </div>
 
-              {/* Breeding notes */}
               {strain.breeding && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Zuchthinweise</div>
@@ -104,13 +118,14 @@ export function StrainDialog({ strain, onClose }: Props) {
                 </div>
               )}
 
-              {/* Tags */}
               {strain.tags && strain.tags.length > 0 && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Tags</div>
                   <div className="dialog-tags">
                     {strain.tags.map((tag) => (
-                      <span key={tag} className="dialog-tag">{tag}</span>
+                      <span key={tag} className="dialog-tag">
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 </div>

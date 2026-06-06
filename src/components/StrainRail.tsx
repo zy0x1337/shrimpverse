@@ -34,6 +34,7 @@ export function StrainRail({ family, strains, onSelect, onClose }: Props) {
             onClick={() => onSelect(strain.id)}
             role="listitem"
             aria-label={`Open ${strain.name}`}
+            aria-pressed="false"
             style={{ "--card-accent": color } as React.CSSProperties}
           >
             <div className="strain-card-swatch">
