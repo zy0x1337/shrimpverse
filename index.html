@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Neocaridina davidi Strain Map</title>
+    <meta
+      name="description"
+      content="Interactive overview of common Neocaridina davidi color varieties, strains, patterns, and breeding lines."
+    />
+    <link rel="icon" href="assets/neocaridina-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="Neocaridina davidi strain map">
+        <aside class="control-panel">
+          <div class="brand-lockup">
+            <img src="assets/neocaridina-mark.svg" width="52" height="52" alt="" />
+            <div>
+              <p class="eyebrow">Neocaridina davidi</p>
+              <h1>Strain Map</h1>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="search">Search</label>
+            <div class="search-wrap">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+              </svg>
+              <input id="search" type="search" placeholder="Blue Dream, Rili, yellow..." autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Color family</label>
+            <div class="segmented" id="familyFilters" role="group" aria-label="Filter by color family"></div>
+          </div>
+
+          <div class="field split">
+            <label for="patternFilter">Pattern</label>
+            <select id="patternFilter">
+              <option value="all">All patterns</option>
+            </select>
+          </div>
+
+          <div class="field split">
+            <label for="levelFilter">Keeper level</label>
+            <select id="levelFilter">
+              <option value="all">All levels</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Collector">Collector</option>
+            </select>
+          </div>
+
+          <div class="toggles">
+            <label class="toggle-row">
+              <input id="popularOnly" type="checkbox" />
+              <span>Only especially popular strains</span>
+            </label>
+            <label class="toggle-row">
+              <input id="stableOnly" type="checkbox" />
+              <span>Only color-stable colonies</span>
+            </label>
+          </div>
+
+          <div class="quick-stats" aria-label="Current selection">
+            <div>
+              <strong id="visibleCount">0</strong>
+              <span>visible</span>
+            </div>
+            <div>
+              <strong id="popularCount">0</strong>
+              <span>popular</span>
+            </div>
+            <div>
+              <strong id="riliCount">0</strong>
+              <span>Rili</span>
+            </div>
+          </div>
+        </aside>
+
+        <section class="content-panel">
+          <div class="toolbar">
+            <div>
+              <p class="eyebrow">Living Strain System</p>
+              <h2>Color families as orbits, strains as planets</h2>
+            </div>
+            <div class="toolbar-actions">
+              <button id="mapViewBtn" class="icon-button active" type="button" aria-label="Show orbit view" title="Orbit view">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" />
+                  <path d="M3 12c2.3-5.8 6.1-8.1 11.2-6.7 5.2 1.4 7.8 4.4 7 8.1-.8 3.8-4.5 6.1-9.9 6.1-5.4 0-8.4-2.4-8.3-7.5Z" />
+                </svg>
+              </button>
+              <button id="lineViewBtn" class="icon-button" type="button" aria-label="Show catalog view" title="Catalog view">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M3 7h7v7H3V7Zm11 0h7v7h-7V7ZM3 17h7v4H3v-4Zm11 0h7v4h-7v-4Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <section id="orbitSystem" class="orbit-system" aria-label="Interactive Neocaridina orbit map"></section>
+          <section id="strainGrid" class="strain-grid catalog-view" aria-live="polite"></section>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="strainDialog" class="strain-dialog">
+      <div class="dialog-layout">
+        <button class="icon-button close-button" id="closeDialog" type="button" aria-label="Close details" title="Close">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <div id="dialogArt" class="dialog-art"></div>
+        <div class="dialog-copy">
+          <p class="eyebrow" id="dialogFamily"></p>
+          <h3 id="dialogTitle"></h3>
+          <p id="dialogSummary"></p>
+          <div class="detail-grid">
+            <div><span>Pattern</span><strong id="dialogPattern"></strong></div>
+            <div><span>Keeper Level</span><strong id="dialogLevel"></strong></div>
+            <div><span>Stability</span><strong id="dialogStability"></strong></div>
+            <div><span>Popularity</span><strong id="dialogPopularity"></strong></div>
+          </div>
+          <div class="note-box">
+            <strong>Breeding note</strong>
+            <p id="dialogBreeding"></p>
+          </div>
+          <div class="tag-row" id="dialogTags"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
