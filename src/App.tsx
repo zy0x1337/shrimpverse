@@ -1,11 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMemo, useState } from "react";
 import { FilterPanel } from "./components/FilterPanel";
-<<<<<<< HEAD
 import { FamilyOrbitExplorer } from "./components/FamilyOrbitExplorer";
-=======
-import { OrbitStage } from "./components/OrbitStage";
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
 import { StrainAtlas } from "./components/StrainAtlas";
 import { StrainDialog } from "./components/StrainDialog";
 import { StrainGrid } from "./components/StrainGrid";
@@ -37,10 +33,6 @@ export default function App() {
     [selectedId],
   );
 
-<<<<<<< HEAD
-=======
-  // Aktiver View: orbit hat Vorrang, dann catalog, dann atlas
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
   const activeView = state.orbitView ? "orbit" : state.catalogView ? "catalog" : "atlas";
 
   return (
@@ -67,75 +59,43 @@ export default function App() {
                 <h2>Color families and documented strains</h2>
               </div>
               <div className="toolbar-actions">
-                {/* Atlas-View */}
                 <button
-<<<<<<< HEAD
                   className="icon-button mobile-filter-toggle"
                   type="button"
                   aria-label="Toggle filters"
                   onClick={() => setFiltersOpen((current) => !current)}
-=======
-                  className={`icon-button ${activeView === "atlas" ? "active" : ""}`}
-                  type="button"
-                  aria-label="Show atlas view"
-                  title="Atlas view"
-                  onClick={() => { setCatalogView(false); setOrbitView(false); }}
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </button>
 
-                {/* Catalog-View */}
                 <button
-<<<<<<< HEAD
                   className={`icon-button ${activeView === "atlas" ? "active" : ""}`}
                   type="button"
                   aria-label="List view"
-                  onClick={() => {
-                    setCatalogView(false);
-                    setOrbitView(false);
-                  }}
+                  onClick={() => { setCatalogView(false); setOrbitView(false); }}
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </button>
+
                 <button
                   className={`icon-button ${activeView === "catalog" ? "active" : ""}`}
                   type="button"
                   aria-label="Grid view"
-                  onClick={() => {
-                    setCatalogView(true);
-                    setOrbitView(false);
-                  }}
-=======
-                  className={`icon-button ${activeView === "catalog" ? "active" : ""}`}
-                  type="button"
-                  aria-label="Show catalog view"
-                  title="Catalog view"
                   onClick={() => { setCatalogView(true); setOrbitView(false); }}
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24">
                     <path d="M3 7h7v7H3V7Zm11 0h7v7h-7V7ZM3 17h7v4H3v-4Zm11 0h7v4h-7v-4Z" />
                   </svg>
                 </button>
-<<<<<<< HEAD
+
                 <button
                   className={`icon-button ${activeView === "orbit" ? "active" : ""}`}
                   type="button"
                   aria-label="Orbit view"
-=======
-
-                {/* Orbit-View */}
-                <button
-                  className={`icon-button ${activeView === "orbit" ? "active" : ""}`}
-                  type="button"
-                  aria-label="Show orbit view"
-                  title="Orbit view"
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
                   onClick={() => setOrbitView(true)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -160,11 +120,7 @@ export default function App() {
                     exit="exit"
                     transition={withReducedMotion(reduced, fadeTransition)}
                   >
-<<<<<<< HEAD
                     <FamilyOrbitExplorer visibleStrains={visibleStrains} onSelect={setSelectedId} />
-=======
-                    <OrbitStage visibleStrains={visibleStrains} onSelect={setSelectedId} />
->>>>>>> d6d35624177297bce54b0b48398c1e268e6f366a
                   </motion.div>
                 ) : activeView === "atlas" ? (
                   <motion.div
