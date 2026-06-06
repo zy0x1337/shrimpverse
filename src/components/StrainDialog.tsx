@@ -16,7 +16,6 @@ const LEVEL_LABELS: Record<string, string> = {
 export function StrainDialog({ strain, onClose }: Props) {
   if (!strain) return null;
   const color = familyColors[strain.family] ?? "#888";
-  const isDark = ["Yellow", "White"].includes(strain.family);
 
   return (
     <AnimatePresence>
