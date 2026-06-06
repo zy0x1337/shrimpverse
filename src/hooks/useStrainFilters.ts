@@ -11,6 +11,7 @@ const initialState: FilterState = {
   popularOnly: false,
   stableOnly: false,
   catalogView: false,
+  orbitView: true,
 };
 
 export function useStrainFilters() {
@@ -21,8 +22,8 @@ export function useStrainFilters() {
   const stats = useMemo(
     () => ({
       visible: visibleStrains.length,
-      popular: visibleStrains.filter((strain) => strain.popularity >= 4).length,
-      rili: visibleStrains.filter((strain) => strain.pattern === "Rili").length,
+      popular: visibleStrains.filter((s) => s.popularity >= 4).length,
+      rili: visibleStrains.filter((s) => s.pattern === "Rili").length,
     }),
     [visibleStrains],
   );
@@ -31,12 +32,15 @@ export function useStrainFilters() {
     state,
     visibleStrains,
     stats,
-    setFamily: (family: string) => setState((current) => ({ ...current, family })),
-    setPattern: (pattern: string) => setState((current) => ({ ...current, pattern })),
-    setLevel: (level: string) => setState((current) => ({ ...current, level })),
-    setQuery: (query: string) => setState((current) => ({ ...current, query })),
-    setPopularOnly: (popularOnly: boolean) => setState((current) => ({ ...current, popularOnly })),
-    setStableOnly: (stableOnly: boolean) => setState((current) => ({ ...current, stableOnly })),
-    setCatalogView: (catalogView: boolean) => setState((current) => ({ ...current, catalogView })),
+    setFamily: (family: string) => setState((c) => ({ ...c, family })),
+    setPattern: (pattern: string) => setState((c) => ({ ...c, pattern })),
+    setLevel: (level: string) => setState((c) => ({ ...c, level })),
+    setQuery: (query: string) => setState((c) => ({ ...c, query })),
+    setPopularOnly: (popularOnly: boolean) => setState((c) => ({ ...c, popularOnly })),
+    setStableOnly: (stableOnly: boolean) => setState((c) => ({ ...c, stableOnly })),
+    setCatalogView: (catalogView: boolean) =>
+      setState((c) => ({ ...c, catalogView, orbitView: false })),
+    setOrbitView: (orbitView: boolean) =>
+      setState((c) => ({ ...c, orbitView, catalogView: orbitView ? false : c.catalogView })),
   };
 }
