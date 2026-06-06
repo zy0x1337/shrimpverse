@@ -486,36 +486,6 @@ function renderGrid() {
   riliCount.textContent = visible.filter((strain) => strain.pattern === "Rili").length;
 }
 
-function renderLineageMap() {
-  return renderOrbitSystem();
-  const visible = filteredStrains();
-  const lines = [...new Set(visible.map((strain) => strain.line))];
-  lineageMap.innerHTML = lines.length
-    ? lines
-    .map((line) => {
-      const lineStrains = visible.filter((strain) => strain.line === line);
-      return `
-        <div class="line-row">
-          <div class="line-label">${line}</div>
-          <div class="node-track">
-            ${lineStrains
-              .map(
-                (strain) => `
-                  <button class="node" type="button" data-id="${strain.id}" style="border-left: 8px solid ${strain.colors[0]}">
-                    <strong>${strain.name}</strong>
-                    <span>${strain.pattern} · ${strain.stable ? "stable" : "variable"}</span>
-                  </button>
-                `,
-              )
-              .join("")}
-          </div>
-        </div>
-      `;
-    })
-    .join("")
-    : '<div class="empty-state">No line matches the current filters.</div>';
-}
-
 function renderOrbitSystem() {
   const visible = filteredStrains();
   if (!visible.length) {
