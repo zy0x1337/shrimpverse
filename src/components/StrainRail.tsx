@@ -17,7 +17,7 @@ export function StrainRail({ family, strains, onSelect, onClose }: Props) {
         <div className="strain-rail-family">
           <span className="strain-rail-dot" style={{ background: color, boxShadow: `0 0 8px ${color}60` }} />
           <span className="strain-rail-name">{family}</span>
-          <span className="strain-rail-count">{strains.length} strains</span>
+          <span className="strain-rail-count">{strains.length} strain{strains.length === 1 ? "" : "s"}</span>
         </div>
         <button className="rail-close" onClick={onClose} aria-label="Close">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">

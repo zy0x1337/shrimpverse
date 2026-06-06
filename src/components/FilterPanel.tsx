@@ -30,17 +30,12 @@ export function FilterPanel({
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <svg className="sidebar-logo-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            {/* Shrimp silhouette SVG logo */}
             <circle cx="18" cy="18" r="17" stroke="rgba(47,196,181,0.3)" strokeWidth="0.8" />
             <circle cx="18" cy="18" r="12" stroke="rgba(232,160,32,0.2)" strokeWidth="0.5" strokeDasharray="2 4" />
-            {/* Body */}
             <path d="M10 22 Q12 16 18 14 Q24 12 26 16 Q27 20 24 22 Q20 24 16 23 Q12 22 10 22Z" fill="rgba(47,196,181,0.7)" />
-            {/* Tail fan */}
             <path d="M10 22 L7 26 M10 22 L9 27 M10 22 L11 27" stroke="rgba(47,196,181,0.5)" strokeWidth="1" strokeLinecap="round" />
-            {/* Antennae */}
             <path d="M22 14 Q26 10 28 8" stroke="rgba(232,160,32,0.6)" strokeWidth="0.7" strokeLinecap="round" fill="none" />
             <path d="M20 14 Q23 9 25 7" stroke="rgba(232,160,32,0.4)" strokeWidth="0.5" strokeLinecap="round" fill="none" />
-            {/* Eye */}
             <circle cx="23" cy="15" r="1.2" fill="rgba(232,160,32,0.8)" />
           </svg>
           <div>
@@ -54,7 +49,7 @@ export function FilterPanel({
       <div className="filter-panel">
         {/* Search */}
         <div className="filter-section">
-          <div className="filter-label">Suche</div>
+          <div className="filter-label">Search</div>
           <div className="filter-search">
             <svg className="filter-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <circle cx="7" cy="7" r="4.5" />
@@ -62,17 +57,17 @@ export function FilterPanel({
             </svg>
             <input
               type="search"
-              placeholder="Blue Dream, Rili, yellow…"
+              placeholder="Blue Dream, Rili, Yellow…"
               value={state.query}
               onChange={(e) => onQueryChange(e.target.value)}
-              aria-label="Stämme suchen"
+              aria-label="Search strains"
             />
           </div>
         </div>
 
         {/* Color family pills */}
         <div className="filter-section">
-          <div className="filter-label">Farbfamilie</div>
+          <div className="filter-label">Color Family</div>
           <div className="family-pills">
             {families.map((fam) => {
               const isActive = state.family === fam;
@@ -92,7 +87,7 @@ export function FilterPanel({
                   } : {}}
                   aria-pressed={isActive}
                 >
-                  {fam === "All" ? "Alle" : fam}
+                  {fam}
                 </button>
               );
             })}
@@ -101,13 +96,13 @@ export function FilterPanel({
 
         {/* Pattern */}
         <div className="filter-section">
-          <div className="filter-label">Muster</div>
+          <div className="filter-label">Pattern</div>
           <select
             className="filter-select"
             value={state.pattern}
             onChange={(e) => onPatternChange(e.target.value)}
           >
-            <option value="all">Alle Muster</option>
+            <option value="all">All patterns</option>
             {patterns.map((p) => (
               <option key={p} value={p}>{p}</option>
             ))}
@@ -116,16 +111,16 @@ export function FilterPanel({
 
         {/* Level */}
         <div className="filter-section">
-          <div className="filter-label">Pflegelevel</div>
+          <div className="filter-label">Care level</div>
           <select
             className="filter-select"
             value={state.level}
             onChange={(e) => onLevelChange(e.target.value)}
           >
-            <option value="all">Alle Level</option>
-            <option value="Beginner">Einsteiger</option>
-            <option value="Intermediate">Fortgeschritten</option>
-            <option value="Expert">Experte</option>
+            <option value="all">All levels</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Collector">Collector</option>
           </select>
         </div>
 
@@ -137,7 +132,7 @@ export function FilterPanel({
               checked={state.popularOnly}
               onChange={(e) => onPopularOnlyChange(e.target.checked)}
             />
-            Nur besonders beliebte Stämme
+            Popular strains only
           </label>
           <label className="filter-checkbox" style={{ marginTop: "var(--s2)" }}>
             <input
@@ -145,7 +140,7 @@ export function FilterPanel({
               checked={state.stableOnly}
               onChange={(e) => onStableOnlyChange(e.target.checked)}
             />
-            Nur farbstabile Kolonien
+            Colour-stable colonies only
           </label>
         </div>
       </div>
@@ -154,15 +149,15 @@ export function FilterPanel({
       <div className="sidebar-stats">
         <div className="stat-cell">
           <span className="stat-value">{stats.visible}</span>
-          <span className="stat-label">sichtbar</span>
+          <span className="stat-label">visible</span>
         </div>
         <div className="stat-cell">
           <span className="stat-value">{stats.popular}</span>
-          <span className="stat-label">beliebt</span>
+          <span className="stat-label">popular</span>
         </div>
         <div className="stat-cell">
           <span className="stat-value">{stats.rili}</span>
-          <span className="stat-label">Rili</span>
+          <span className="stat-label">rili</span>
         </div>
       </div>
     </div>

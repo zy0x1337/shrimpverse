@@ -9,19 +9,17 @@ interface Props {
 }
 
 const LEVEL_LABELS: Record<string, string> = {
-  Beginner: "Einsteiger",
-  Intermediate: "Fortgeschritten",
-  Expert: "Experte",
+  Beginner: "Beginner",
+  Intermediate: "Intermediate",
+  Collector: "Collector",
 };
 
 export function StrainDialog({ strain, onClose }: Props) {
   useEffect(() => {
     if (!strain) return;
-
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [strain, onClose]);
@@ -38,9 +36,7 @@ export function StrainDialog({ strain, onClose }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) onClose();
-          }}
+          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
           <motion.div
             className="dialog"
@@ -74,11 +70,9 @@ export function StrainDialog({ strain, onClose }: Props) {
                   />
                   {strain.family}
                 </div>
-                <h2 id="dialog-title" className="dialog-title">
-                  {strain.name}
-                </h2>
+                <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
               </div>
-              <button className="dialog-close" onClick={onClose} aria-label="Schließen">
+              <button className="dialog-close" onClick={onClose} aria-label="Close">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                   <path d="M3 3l10 10M13 3L3 13" />
                 </svg>
@@ -94,10 +88,10 @@ export function StrainDialog({ strain, onClose }: Props) {
 
               <div className="dialog-meta-grid">
                 {[
-                  ["Familie", strain.family],
-                  ["Muster", strain.pattern],
-                  ["Linie", strain.line],
-                  ["Pflegelevel", LEVEL_LABELS[strain.level] ?? strain.level],
+                  ["Family", strain.family],
+                  ["Pattern", strain.pattern],
+                  ["Line", strain.line],
+                  ["Care level", LEVEL_LABELS[strain.level] ?? strain.level],
                 ].map(([k, v]) => (
                   <div key={k} className="dialog-meta-cell">
                     <div className="dialog-meta-key">{k}</div>
@@ -107,13 +101,13 @@ export function StrainDialog({ strain, onClose }: Props) {
               </div>
 
               <div className="dialog-section">
-                <div className="dialog-section-label">Beschreibung</div>
+                <div className="dialog-section-label">Description</div>
                 <p>{strain.summary}</p>
               </div>
 
               {strain.breeding && (
                 <div className="dialog-section">
-                  <div className="dialog-section-label">Zuchthinweise</div>
+                  <div className="dialog-section-label">Breeding notes</div>
                   <p>{strain.breeding}</p>
                 </div>
               )}
@@ -123,9 +117,7 @@ export function StrainDialog({ strain, onClose }: Props) {
                   <div className="dialog-section-label">Tags</div>
                   <div className="dialog-tags">
                     {strain.tags.map((tag) => (
-                      <span key={tag} className="dialog-tag">
-                        {tag}
-                      </span>
+                      <span key={tag} className="dialog-tag">{tag}</span>
                     ))}
                   </div>
                 </div>

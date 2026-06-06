@@ -49,7 +49,6 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
       if (!grouped.has(s.family)) grouped.set(s.family, []);
       grouped.get(s.family)!.push(s);
     }
-
     return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => ({
       family: f,
       strains: grouped.get(f)!,
@@ -62,8 +61,6 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const activeStrains = activeFamily
     ? families.find((f) => f.family === activeFamily)?.strains ?? []
     : [];
-
-  const centerStrain = visibleStrains.find((s) => s.family === "Natural") ?? null;
 
   const handleFamilyClick = useCallback((family: string) => {
     setActiveFamily((prev) => (prev === family ? null : family));
@@ -79,7 +76,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
   return (
     <div className="orbit-explorer">
-      <div className="orbit-stats" aria-label="Aktuelle Statistiken der sichtbaren Linien">
+      <div className="orbit-stats" aria-label="Visible strain statistics">
         <div className="orbit-stat">
           <span className="orbit-stat-value">{totalVisible}</span>
           <span className="orbit-stat-label">Visible</span>
@@ -114,7 +111,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         viewBox={`${-VB / 2} ${-VB / 2} ${VB} ${VB}`}
         width="100%"
         height="100%"
-        aria-label="Radiale Karte der Neocaridina Farbfamilien"
+        aria-label="Radial map of Neocaridina colour families"
       >
         <defs>
           <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
@@ -142,9 +139,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         <circle cx="0" cy="0" r={VB} fill="url(#bg-grad)" />
 
         <motion.circle
-          cx="0"
-          cy="0"
-          r={R}
+          cx="0" cy="0" r={R}
           fill="none"
           stroke="rgba(47,196,181,0.12)"
           strokeWidth="0.6"
@@ -154,9 +149,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           style={{ transformOrigin: "0px 0px" }}
         />
         <motion.circle
-          cx="0"
-          cy="0"
-          r={R * 0.45}
+          cx="0" cy="0" r={R * 0.45}
           fill="none"
           stroke="rgba(47,196,181,0.06)"
           strokeWidth="0.4"
@@ -174,10 +167,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           return (
             <motion.line
               key={`spoke-${item.family}`}
-              x1={0}
-              y1={0}
-              x2={nx}
-              y2={ny}
+              x1={0} y1={0} x2={nx} y2={ny}
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
               transition={{ duration: 0.55, delay: i * 0.05, ease: "easeOut" }}
@@ -214,7 +204,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               onHoverStart={() => setHovered(item.family)}
               onHoverEnd={() => setHovered(null)}
               role="button"
-              aria-label={`${item.family} Farbfamilie, ${item.strains.length} Stämme`}
+              aria-label={`${item.family} colour family, ${item.strains.length} strain${item.strains.length === 1 ? "" : "s"}`}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family);
@@ -223,9 +213,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             >
               {isActive && (
                 <motion.circle
-                  cx={nx}
-                  cy={ny}
-                  r={NODE_R + 6}
+                  cx={nx} cy={ny} r={NODE_R + 6}
                   fill="none"
                   stroke={item.color}
                   strokeWidth="0.8"
@@ -237,9 +225,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
               {(isActive || isHov) && (
                 <circle
-                  cx={nx}
-                  cy={ny}
-                  r={NODE_R + 5}
+                  cx={nx} cy={ny} r={NODE_R + 5}
                   fill={item.color}
                   opacity={isActive ? 0.18 : 0.1}
                   filter={`url(#glow-${item.family})`}
@@ -247,9 +233,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               )}
 
               <circle
-                cx={nx}
-                cy={ny}
-                r={NODE_R}
+                cx={nx} cy={ny} r={NODE_R}
                 fill={item.color}
                 stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
                 strokeWidth={isActive ? 1.2 : 0.5}
@@ -257,35 +241,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               />
 
               <text
-                x={nx}
-                y={ny}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="9"
-                fontWeight="700"
+                x={nx} y={ny}
+                textAnchor="middle" dominantBaseline="central"
+                fontSize="9" fontWeight="700"
                 fontFamily="'IBM Plex Sans', sans-serif"
-                fill={item.textColor}
-                opacity="0.95"
+                fill={item.textColor} opacity="0.95"
                 style={{ pointerEvents: "none", userSelect: "none" }}
               >
                 {item.family[0]}
               </text>
 
               <circle
-                cx={nx + NODE_R - 2}
-                cy={ny - NODE_R + 2}
-                r={5}
-                fill="#080c10"
-                stroke={item.color}
-                strokeWidth="0.6"
+                cx={nx + NODE_R - 2} cy={ny - NODE_R + 2} r={5}
+                fill="#080c10" stroke={item.color} strokeWidth="0.6"
               />
               <text
-                x={nx + NODE_R - 2}
-                y={ny - NODE_R + 2}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize="3.8"
-                fontWeight="700"
+                x={nx + NODE_R - 2} y={ny - NODE_R + 2}
+                textAnchor="middle" dominantBaseline="central"
+                fontSize="3.8" fontWeight="700"
                 fontFamily="'IBM Plex Mono', monospace"
                 fill={item.color}
                 style={{ pointerEvents: "none", userSelect: "none" }}
@@ -294,10 +267,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               </text>
 
               <text
-                x={lx}
-                y={ly}
-                textAnchor={anchor}
-                dominantBaseline="central"
+                x={lx} y={ly}
+                textAnchor={anchor} dominantBaseline="central"
                 fontSize="5.5"
                 fontWeight={isActive ? "600" : "400"}
                 fontFamily="'Cormorant Garamond', serif"
@@ -311,14 +282,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           );
         })}
 
-        {centerStrain && (
+        {visibleStrains.find((s) => s.family === "Natural") && (
           <motion.g
             onClick={handleCenterClick}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.98 }}
             style={{ cursor: "pointer" }}
             role="button"
-            aria-label={`Zentrum ${centerStrain.name}`}
+            aria-label="Centre — Natural line"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") handleCenterClick();
@@ -327,21 +298,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             <circle cx="0" cy="0" r="44" fill="rgba(120,180,80,0.1)" filter="url(#center-glow)" />
             <circle cx="0" cy="0" r="32" fill={familyColors.Natural ?? "#6f8"} stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
             <text
-              x="0"
-              y="-4"
-              textAnchor="middle"
-              fontSize="8"
-              fontWeight="600"
-              fontFamily="'Cormorant Garamond', serif"
-              fill="#fff"
+              x="0" y="-4"
+              textAnchor="middle" fontSize="8" fontWeight="600"
+              fontFamily="'Cormorant Garamond', serif" fill="#fff"
             >
               Natural
             </text>
             <text
-              x="0"
-              y="10"
-              textAnchor="middle"
-              fontSize="4.5"
+              x="0" y="10"
+              textAnchor="middle" fontSize="4.5"
               fontFamily="'IBM Plex Mono', monospace"
               fill="rgba(255,255,255,0.7)"
             >

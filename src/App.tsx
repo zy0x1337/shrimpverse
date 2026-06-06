@@ -29,7 +29,7 @@ export default function App() {
   return (
     <>
       <main className="app-shell">
-        <section className="workspace" aria-label="Neocaridina davidi Stammkarte">
+        <section className="workspace" aria-label="Neocaridina davidi strain map">
 
           <div className={`filter-container${filtersOpen ? " open" : ""}`}>
             <FilterPanel
@@ -48,13 +48,13 @@ export default function App() {
             <div className="toolbar">
               <div>
                 <p className="eyebrow">Reference Atlas</p>
-                <h2>Farbfamilien und dokumentierte Stämme</h2>
+                <h2>Color families &amp; documented strains</h2>
               </div>
               <div className="toolbar-actions">
                 <button
                   className="icon-button mobile-filter-toggle"
                   type="button"
-                  aria-label="Filter öffnen"
+                  aria-label="Open filters"
                   onClick={() => setFiltersOpen((v) => !v)}
                 >
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
