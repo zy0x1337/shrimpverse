@@ -334,7 +334,6 @@ select {
   position: relative;
   display: grid;
   min-height: 720px;
-  margin-top: 18px;
   overflow: auto;
   border: 1px solid color-mix(in srgb, var(--primary) 24%, white);
   border-radius: var(--radius-lg);
@@ -539,8 +538,14 @@ select {
   background: var(--legend-color);
 }
 
-.catalog-view {
-  display: none;
+.view-stage {
+  position: relative;
+  min-height: 720px;
+  margin-top: 18px;
+}
+
+.view-panel {
+  width: 100%;
 }
 
 @keyframes drift {
@@ -563,7 +568,6 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 14px;
-  padding-top: 18px;
 }
 
 .strain-card {
@@ -693,20 +697,36 @@ select {
   text-align: center;
 }
 
+.strain-dialog-root {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.strain-dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(10, 20, 18, 0.38);
+  cursor: pointer;
+}
+
 .strain-dialog {
+  position: relative;
+  z-index: 1;
   width: min(860px, calc(100vw - 28px));
   padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
+  background: #fff;
 }
 
 .strain-dialog:focus-visible {
   outline: none;
-}
-
-.strain-dialog::backdrop {
-  background: rgba(10, 20, 18, 0.38);
 }
 
 .dialog-layout {
@@ -805,6 +825,7 @@ select {
     align-self: flex-end;
   }
 
+  .view-stage,
   .orbit-system {
     min-height: 660px;
   }
@@ -829,6 +850,7 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .view-stage,
   .orbit-system {
     min-height: 600px;
   }

@@ -1,0 +1,574 @@
+[
+  {
+    "id": "wild",
+    "name": "Wildform",
+    "family": "Natural",
+    "pattern": "Mottled",
+    "line": "Base",
+    "level": "Beginner",
+    "popularity": 2,
+    "stable": true,
+    "colors": [
+      "#6d5945",
+      "#b7a27d",
+      "#38483d"
+    ],
+    "summary": "Brownish to translucent with mottling. Useful as a reference because mixed color lines often drift back toward this look.",
+    "breeding": "Keep show colonies separate. In mixed-color tanks, wild-type offspring commonly reappear over generations.",
+    "tags": [
+      "wild type",
+      "robust",
+      "reference"
+    ]
+  },
+  {
+    "id": "red-cherry",
+    "name": "Red Cherry",
+    "family": "Red",
+    "pattern": "Solid",
+    "line": "Red",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#d81f2f",
+      "#f26866",
+      "#95131f"
+    ],
+    "summary": "The classic starter shrimp: red coloration, often with clearer patches, and very forgiving for new keepers.",
+    "breeding": "The red line responds well to selection. Remove pale animals if you want the colony to become more intense.",
+    "tags": [
+      "Cherry",
+      "classic",
+      "easy"
+    ]
+  },
+  {
+    "id": "red-sakura",
+    "name": "Red Sakura",
+    "family": "Red",
+    "pattern": "Solid",
+    "line": "Red",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#eb2333",
+      "#ff7a73",
+      "#a9091b"
+    ],
+    "summary": "More densely colored than basic Cherry shrimp and very common in the trade.",
+    "breeding": "Sakura is a strong balance of price, color, and stability. Do not mix it with other color lines if offspring should stay red.",
+    "tags": [
+      "Sakura",
+      "popular",
+      "good coverage"
+    ]
+  },
+  {
+    "id": "fire-red",
+    "name": "Fire Red",
+    "family": "Red",
+    "pattern": "Solid",
+    "line": "Red",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#c90019",
+      "#ff332d",
+      "#6b0010"
+    ],
+    "summary": "A stronger, more opaque red. Often sold as a higher red grade than Cherry or Sakura.",
+    "breeding": "Regular selection keeps the color dense. Dark substrate makes the animals look more saturated.",
+    "tags": [
+      "Fire",
+      "opaque",
+      "great starter"
+    ]
+  },
+  {
+    "id": "painted-fire-red",
+    "name": "Painted Fire Red",
+    "family": "Red",
+    "pattern": "Solid",
+    "line": "Red",
+    "level": "Intermediate",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#ab0015",
+      "#e51023",
+      "#4e000b"
+    ],
+    "summary": "A very high red grade with strong coverage across the shell, legs, and body.",
+    "breeding": "High grades benefit from strict selection. Cull translucent patches and weak leg coloration consistently.",
+    "tags": [
+      "high grade",
+      "colored legs",
+      "selection"
+    ]
+  },
+  {
+    "id": "bloody-mary",
+    "name": "Bloody Mary",
+    "family": "Red",
+    "pattern": "Translucent",
+    "line": "Mary",
+    "level": "Intermediate",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#8f0018",
+      "#cf1233",
+      "#ff697d"
+    ],
+    "summary": "A deep wine-red look created by colored tissue under a more translucent shell.",
+    "breeding": "Not every dark red shrimp is Bloody Mary. For true lines, check origin and offspring stability.",
+    "tags": [
+      "dark red",
+      "translucent",
+      "line-dependent"
+    ]
+  },
+  {
+    "id": "red-rili",
+    "name": "Red Rili",
+    "family": "Red",
+    "pattern": "Rili",
+    "line": "Rili",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#e6222d",
+      "#f9f2e6",
+      "#bd101d"
+    ],
+    "summary": "Red head and tail sections with a pale to transparent middle body.",
+    "breeding": "The Rili pattern varies. Breed from shrimp with a clear middle and clean red end sections.",
+    "tags": [
+      "Rili",
+      "contrast",
+      "pattern selection"
+    ]
+  },
+  {
+    "id": "red-blue-rili",
+    "name": "Red Blue Rili",
+    "family": "Red",
+    "pattern": "Rili",
+    "line": "Rili",
+    "level": "Collector",
+    "popularity": 3,
+    "stable": false,
+    "colors": [
+      "#d91f32",
+      "#83c4db",
+      "#f5fbff"
+    ],
+    "summary": "A Rili variant with red head and tail sections plus a blue-tinted middle body.",
+    "breeding": "Attractive but often variable. Best kept as its own project line instead of mixing with Blue Jelly.",
+    "tags": [
+      "Rili",
+      "blue body",
+      "project line"
+    ]
+  },
+  {
+    "id": "yellow-fire",
+    "name": "Yellow Fire",
+    "family": "Yellow",
+    "pattern": "Solid",
+    "line": "Yellow",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#f2c230",
+      "#ffe36d",
+      "#a97900"
+    ],
+    "summary": "A bright yellow variety, very common in the trade and excellent for colorful species tanks.",
+    "breeding": "Yellow lines look intense on dark substrate. Remove pale or greenish animals from the breeding group.",
+    "tags": [
+      "Yellow",
+      "bright",
+      "stable"
+    ]
+  },
+  {
+    "id": "yellow-neon",
+    "name": "Yellow Neon",
+    "family": "Yellow",
+    "pattern": "Back stripe",
+    "line": "Yellow",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#ffd526",
+      "#fff07b",
+      "#c49300"
+    ],
+    "summary": "A yellow line with a pale dorsal stripe, often sold as Goldenback or Neon.",
+    "breeding": "Select for the dorsal stripe if it is part of your breeding goal. Without selection it becomes less consistent.",
+    "tags": [
+      "Goldenback",
+      "back stripe",
+      "bright"
+    ]
+  },
+  {
+    "id": "yellow-rili",
+    "name": "Yellow Rili",
+    "family": "Yellow",
+    "pattern": "Rili",
+    "line": "Yellow",
+    "level": "Intermediate",
+    "popularity": 3,
+    "stable": false,
+    "colors": [
+      "#f2c735",
+      "#fff8df",
+      "#ce9900"
+    ],
+    "summary": "A yellow Rili pattern with a transparent middle section. Less common than Red or Orange Rili.",
+    "breeding": "The pattern needs selection over several generations. Stabilize it as a separate line.",
+    "tags": [
+      "Rili",
+      "yellow",
+      "less common"
+    ]
+  },
+  {
+    "id": "orange-sakura",
+    "name": "Orange Sakura",
+    "family": "Orange",
+    "pattern": "Solid",
+    "line": "Orange",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#f06f1d",
+      "#ffae48",
+      "#ad3f00"
+    ],
+    "summary": "Rich orange animals, often also sold as Sunkist or Orange Fire.",
+    "breeding": "Avoid mixing orange lines with red lines if you want to preserve a clean orange tone.",
+    "tags": [
+      "Sunkist",
+      "Orange Fire",
+      "warm"
+    ]
+  },
+  {
+    "id": "pumpkin-orange",
+    "name": "Pumpkin Orange",
+    "family": "Orange",
+    "pattern": "Solid",
+    "line": "Orange",
+    "level": "Intermediate",
+    "popularity": 3,
+    "stable": true,
+    "colors": [
+      "#d95811",
+      "#ff8c31",
+      "#7a2d05"
+    ],
+    "summary": "A darker pumpkin-orange tone with strong coverage.",
+    "breeding": "Watch for even color. Separate animals that are too yellow or too red if you want a tight color range.",
+    "tags": [
+      "Pumpkin",
+      "rich",
+      "selected"
+    ]
+  },
+  {
+    "id": "orange-rili",
+    "name": "Orange Rili",
+    "family": "Orange",
+    "pattern": "Rili",
+    "line": "Orange",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#f47b20",
+      "#fff2df",
+      "#c94a0a"
+    ],
+    "summary": "Orange head and tail sections with a clear middle body. A common Rili strain for colorful aquascapes.",
+    "breeding": "A clean split between orange and transparent areas is the goal. Partly solid animals weaken the pattern.",
+    "tags": [
+      "Rili",
+      "Sunkist",
+      "high contrast"
+    ]
+  },
+  {
+    "id": "green-jade",
+    "name": "Green Jade",
+    "family": "Green",
+    "pattern": "Solid",
+    "line": "Green",
+    "level": "Intermediate",
+    "popularity": 5,
+    "stable": false,
+    "colors": [
+      "#15945c",
+      "#4ec47e",
+      "#0d593d"
+    ],
+    "summary": "Ranges from olive to emerald green. Very popular, but often less uniform than red, yellow, or blue lines.",
+    "breeding": "Green can vary strongly in quality and offspring. Good starter stock and consistent selection are worth it.",
+    "tags": [
+      "Jade",
+      "Emerald",
+      "variable"
+    ]
+  },
+  {
+    "id": "green-rili",
+    "name": "Green Rili",
+    "family": "Green",
+    "pattern": "Rili",
+    "line": "Green",
+    "level": "Collector",
+    "popularity": 2,
+    "stable": false,
+    "colors": [
+      "#168a55",
+      "#eef9e9",
+      "#3fbf78"
+    ],
+    "summary": "A green Rili variant, much rarer and usually more project-like than Red or Orange Rili.",
+    "breeding": "Stabilize it patiently. Offspring can vary widely between green, clear, and wild-type looks.",
+    "tags": [
+      "Rili",
+      "rare",
+      "project"
+    ]
+  },
+  {
+    "id": "blue-dream",
+    "name": "Blue Dream",
+    "family": "Blue",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#0d4f9e",
+      "#2e87d1",
+      "#061d4f"
+    ],
+    "summary": "A strong blue variety and one of the most popular modern Neocaridina strains.",
+    "breeding": "Do not casually cross Blue Dream with Blue Velvet or Blue Jelly. Trade names are sometimes used loosely.",
+    "tags": [
+      "Blue Dream",
+      "high demand",
+      "dark substrate"
+    ]
+  },
+  {
+    "id": "blue-velvet",
+    "name": "Blue Velvet",
+    "family": "Blue",
+    "pattern": "Solid",
+    "line": "Blue/Rili",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#328fd4",
+      "#78c7ef",
+      "#145a9d"
+    ],
+    "summary": "A light to medium blue strain with a clean, bright aquarium presence.",
+    "breeding": "Blue Velvet and Blue Dream can be different lines depending on origin. Keep them separate for stable color.",
+    "tags": [
+      "Velvet",
+      "light blue",
+      "popular"
+    ]
+  },
+  {
+    "id": "blue-jelly",
+    "name": "Blue Jelly",
+    "family": "Blue",
+    "pattern": "Translucent",
+    "line": "Blue/Rili",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#79c5e8",
+      "#d9f6ff",
+      "#2c8bbf"
+    ],
+    "summary": "A translucent pale blue, often connected to Rili-related lines.",
+    "breeding": "Reddish markings can appear. Breed only suitable animals if you want a clear Jelly blue.",
+    "tags": [
+      "Jelly",
+      "translucent",
+      "bright"
+    ]
+  },
+  {
+    "id": "blue-diamond",
+    "name": "Blue Diamond",
+    "family": "Blue",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Intermediate",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#12316f",
+      "#2456a8",
+      "#081733"
+    ],
+    "summary": "A dark, deep-blue appearance, often associated with black/blue lineages.",
+    "breeding": "Select for even dark coverage and separate very pale offspring.",
+    "tags": [
+      "Diamond",
+      "dark blue",
+      "selected"
+    ]
+  },
+  {
+    "id": "blue-carbon-rili",
+    "name": "Blue Carbon Rili",
+    "family": "Blue",
+    "pattern": "Rili",
+    "line": "Blue/Black",
+    "level": "Intermediate",
+    "popularity": 4,
+    "stable": false,
+    "colors": [
+      "#1d2630",
+      "#62a8d7",
+      "#e7f7ff"
+    ],
+    "summary": "Dark head and tail sections with a blue or transparent body area.",
+    "breeding": "The balance of black, blue, and clear areas varies. Good line management matters more than the name.",
+    "tags": [
+      "Carbon",
+      "Rili",
+      "high contrast"
+    ]
+  },
+  {
+    "id": "oe-blue-dream",
+    "name": "OE Blue Dream",
+    "family": "Blue",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Collector",
+    "popularity": 3,
+    "stable": false,
+    "colors": [
+      "#0d448e",
+      "#f09b2d",
+      "#071c44"
+    ],
+    "summary": "Blue Dream animals with orange eyes. Eye-catching, but less common than standard Blue Dream.",
+    "breeding": "Maintain Orange Eyes separately. When buying, check whether eye color and body color breed true.",
+    "tags": [
+      "Orange Eyes",
+      "collector",
+      "rare"
+    ]
+  },
+  {
+    "id": "black-rose",
+    "name": "Black Rose",
+    "family": "Black",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Beginner",
+    "popularity": 5,
+    "stable": true,
+    "colors": [
+      "#111315",
+      "#36393b",
+      "#000000"
+    ],
+    "summary": "Very dark to black Neocaridina, popular in bright planted tanks.",
+    "breeding": "Brownish or bluish offspring can appear. Select for dense shell color if you want a rich black colony.",
+    "tags": [
+      "Black",
+      "high contrast",
+      "popular"
+    ]
+  },
+  {
+    "id": "black-sakura",
+    "name": "Black Sakura",
+    "family": "Black",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Intermediate",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#1c1f20",
+      "#45494a",
+      "#090a0a"
+    ],
+    "summary": "A dark Sakura/Fire-style interpretation with high coverage, often close to Black Rose depending on seller.",
+    "breeding": "Names overlap. Judge the line rather than the trade label and remove pale animals.",
+    "tags": [
+      "Sakura",
+      "dark",
+      "opaque"
+    ]
+  },
+  {
+    "id": "chocolate",
+    "name": "Chocolate",
+    "family": "Brown",
+    "pattern": "Solid",
+    "line": "Blue/Black",
+    "level": "Beginner",
+    "popularity": 4,
+    "stable": true,
+    "colors": [
+      "#5b2f20",
+      "#9b6445",
+      "#2a140e"
+    ],
+    "summary": "A warm brown to chocolate-colored variety. Less flashy, but excellent in natural-style layouts.",
+    "breeding": "Do not confuse it with wild type. Good Chocolate lines are clearly more even and richer brown.",
+    "tags": [
+      "Chocolate",
+      "natural",
+      "warm"
+    ]
+  },
+  {
+    "id": "snowball",
+    "name": "Snowball / White Pearl",
+    "family": "White",
+    "pattern": "Translucent",
+    "line": "White",
+    "level": "Beginner",
+    "popularity": 3,
+    "stable": true,
+    "colors": [
+      "#f3f7f4",
+      "#ffffff",
+      "#c8d7d3"
+    ],
+    "summary": "White to milky-translucent Neocaridina. Popular in the hobby, though not always treated cleanly as davidi in taxonomy.",
+    "breeding": "For strict davidi collections, verify origin. In practice it is often kept alongside davidi color strains as a Neo variety.",
+    "tags": [
+      "White Pearl",
+      "Snowball",
+      "verify origin"
+    ]
+  }
+]
