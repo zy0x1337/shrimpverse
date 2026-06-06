@@ -1,32 +1,27 @@
 import { motion, useReducedMotion } from "motion/react";
-import { cardVariants, springTransition, staggerDelay, withReducedMotion } from "../lib/motion";
+import { cardVariants, fadeTransition, withReducedMotion } from "../lib/motion";
 import { toneStyle } from "../lib/strainUtils";
 import type { Strain } from "../types/strain";
 import { ShrimpVisual } from "./ShrimpVisual";
 
 interface StrainCardProps {
   strain: Strain;
-  index: number;
   onSelect: (id: string) => void;
 }
 
-export function StrainCard({ strain, index, onSelect }: StrainCardProps) {
+export function StrainCard({ strain, onSelect }: StrainCardProps) {
   const reduced = useReducedMotion();
 
   return (
     <motion.button
       className="strain-card"
       type="button"
-      layout
       style={toneStyle(strain)}
       variants={cardVariants}
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={withReducedMotion(reduced, {
-        ...springTransition,
-        delay: staggerDelay(reduced, index),
-      })}
+      transition={withReducedMotion(reduced, fadeTransition)}
       onClick={() => onSelect(strain.id)}
     >
       <div className="card-art">

@@ -15,9 +15,7 @@ export function StrainGrid({ strains, onSelect }: StrainGridProps) {
     <section className="strain-grid" aria-live="polite">
       <AnimatePresence mode="popLayout">
         {strains.length ? (
-          strains.map((strain, index) => (
-            <StrainCard key={strain.id} strain={strain} index={index} onSelect={onSelect} />
-          ))
+          strains.map((strain) => <StrainCard key={strain.id} strain={strain} onSelect={onSelect} />)
         ) : (
           <motion.div
             key="empty"

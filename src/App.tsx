@@ -1,12 +1,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMemo, useState } from "react";
 import { FilterPanel } from "./components/FilterPanel";
-import { OrbitMap } from "./components/OrbitMap";
+import { StrainAtlas } from "./components/StrainAtlas";
 import { StrainDialog } from "./components/StrainDialog";
 import { StrainGrid } from "./components/StrainGrid";
 import { useStrainFilters } from "./hooks/useStrainFilters";
-import { fadeTransition, viewVariants, withReducedMotion } from "./lib/motion";
 import { strains } from "./lib/constants";
+import { fadeTransition, viewVariants, withReducedMotion } from "./lib/motion";
 
 export default function App() {
   const {
@@ -48,20 +48,19 @@ export default function App() {
           <section className="content-panel">
             <div className="toolbar">
               <div>
-                <p className="eyebrow">Living Strain System</p>
-                <h2>Color families as orbits, strains as planets</h2>
+                <p className="eyebrow">Reference Atlas</p>
+                <h2>Color families and documented strains</h2>
               </div>
               <div className="toolbar-actions">
                 <button
                   className={`icon-button ${!state.catalogView ? "active" : ""}`}
                   type="button"
-                  aria-label="Show orbit view"
-                  title="Orbit view"
+                  aria-label="Show atlas view"
+                  title="Atlas view"
                   onClick={() => setCatalogView(false)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" />
-                    <path d="M3 12c2.3-5.8 6.1-8.1 11.2-6.7 5.2 1.4 7.8 4.4 7 8.1-.8 3.8-4.5 6.1-9.9 6.1-5.4 0-8.4-2.4-8.3-7.5Z" />
+                    <path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </button>
                 <button
@@ -82,7 +81,7 @@ export default function App() {
               <AnimatePresence mode="wait" initial={false}>
                 {!state.catalogView ? (
                   <motion.div
-                    key="orbit-view"
+                    key="atlas-view"
                     className="view-panel"
                     variants={viewVariants}
                     initial="initial"
@@ -90,7 +89,7 @@ export default function App() {
                     exit="exit"
                     transition={withReducedMotion(reduced, fadeTransition)}
                   >
-                    <OrbitMap visibleStrains={visibleStrains} onSelect={setSelectedId} />
+                    <StrainAtlas visibleStrains={visibleStrains} onSelect={setSelectedId} />
                   </motion.div>
                 ) : (
                   <motion.div
