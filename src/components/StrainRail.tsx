@@ -1,48 +1,58 @@
-import { motion } from "motion/react";
-import type { Strain } from "../types/strain";
-import { ShrimpVisual } from "./ShrimpVisual";
+import { type Strain } from "../types/strain";
+import { familyColors } from "../lib/constants";
 
-interface StrainRailProps {
+interface Props {
   family: string;
   strains: Strain[];
   onSelect: (id: string) => void;
   onClose: () => void;
 }
 
-export function StrainRail({ family, strains, onSelect, onClose }: StrainRailProps) {
+export function StrainRail({ family, strains, onSelect, onClose }: Props) {
+  const color = familyColors[family] ?? "#888";
+
   return (
-    <motion.div
-      className="strain-rail-container"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 30 }}
-      transition={{ type: "spring", stiffness: 340, damping: 28 }}
-    >
+    <div className="strain-rail">
       <div className="strain-rail-header">
-        <div className="strain-rail-title">
-          <h3>{family} Family</h3>
-          <span>{strains.length} documented</span>
+        <div className="strain-rail-family">
+          <span className="strain-rail-dot" style={{ background: color, boxShadow: `0 0 8px ${color}60` }} />
+          <span className="strain-rail-name">{family}</span>
+          <span className="strain-rail-count">{strains.length} strains</span>
         </div>
-        <button className="strain-rail-close" type="button" onClick={onClose} aria-label="Close family rail">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" />
+        <button className="rail-close" onClick={onClose} aria-label="Close">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M3 3l10 10M13 3L3 13" />
           </svg>
         </button>
       </div>
 
-      <div className="strain-rail-scroll">
+      <div className="strain-rail-scroll" role="list">
         {strains.map((strain) => (
-          <button key={strain.id} className="strain-rail-card" type="button" onClick={() => onSelect(strain.id)}>
-            <div className="strain-rail-card-visual">
-              <ShrimpVisual strain={strain} className="h-full" />
+          <button
+            key={strain.id}
+            className="strain-card"
+            onClick={() => onSelect(strain.id)}
+            role="listitem"
+            aria-label={`Open ${strain.name}`}
+            style={{ "--card-accent": color } as React.CSSProperties}
+          >
+            <div className="strain-card-swatch">
+              {strain.colors.map((c, i) => (
+                <span key={i} className="strain-card-swatch-seg" style={{ background: c }} />
+              ))}
             </div>
-            <div className="strain-rail-card-info">
-              <h4>{strain.name}</h4>
-              <p>{strain.level} • {strain.pattern}</p>
+            <div className="strain-card-name">{strain.name}</div>
+            <div className="strain-card-meta">
+              <span className="strain-card-level">{strain.level}</span>
+              <div className="strain-card-pop">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <span key={i} className={`pop-dot${i < strain.popularity ? " filled" : ""}`} />
+                ))}
+              </div>
             </div>
           </button>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

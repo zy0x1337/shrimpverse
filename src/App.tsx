@@ -29,7 +29,7 @@ export default function App() {
   return (
     <>
       <main className="app-shell">
-        <section className="workspace" aria-label="Neocaridina davidi strain map">
+        <section className="workspace" aria-label="Neocaridina davidi Stammkarte">
 
           <div className={`filter-container${filtersOpen ? " open" : ""}`}>
             <FilterPanel
@@ -48,31 +48,37 @@ export default function App() {
             <div className="toolbar">
               <div>
                 <p className="eyebrow">Reference Atlas</p>
-                <h2>Color families and documented strains</h2>
+                <h2>Farbfamilien und dokumentierte Stämme</h2>
               </div>
               <div className="toolbar-actions">
                 <button
                   className="icon-button mobile-filter-toggle"
                   type="button"
-                  aria-label="Toggle filters"
+                  aria-label="Filter öffnen"
                   onClick={() => setFiltersOpen((v) => !v)}
                 >
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M4 6h16M4 12h16M4 18h10" />
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M3 5h14M6 10h8M9 15h2" />
                   </svg>
                 </button>
               </div>
             </div>
 
             <div className="view-stage">
-              <FamilyOrbitExplorer visibleStrains={visibleStrains} onSelect={setSelectedId} />
+              <FamilyOrbitExplorer
+                visibleStrains={visibleStrains}
+                onSelect={setSelectedId}
+              />
             </div>
           </section>
 
         </section>
       </main>
 
-      <StrainDialog strain={selectedStrain} onClose={() => setSelectedId(null)} />
+      <StrainDialog
+        strain={selectedStrain}
+        onClose={() => setSelectedId(null)}
+      />
     </>
   );
 }
