@@ -97,10 +97,12 @@ export function FamilyNode3D({
     ? "rgba(221,216,204,0.10)"
     : hovered
     ? "rgba(221,216,204,0.9)"
-    : "rgba(221,216,204,0.45)";
+    : isMobile
+    ? "rgba(221,216,204,0.88)"
+    : "rgba(221,216,204,0.60)";
 
   const labelSize = isMobile
-    ? (isActive ? 0.34 : 0.26)
+    ? (isActive ? 0.38 : 0.30)
     : (isActive ? 0.27 : 0.20);
 
   const segments = isMobile ? 32 : 48;
@@ -217,7 +219,7 @@ export function FamilyNode3D({
       </animated.group>
 
       <Text
-        position={[position[0], position[1] + (isMobile ? 1.12 : 0.88), position[2]]}
+        position={[position[0], position[1] + (isMobile ? 1.28 : 0.88), position[2]]}
         fontSize={labelSize}
         color={isMobile && !isDimmed ? (isActive ? color : "rgba(221,216,204,0.7)") : labelColor}
         anchorX="center"
