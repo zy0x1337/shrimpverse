@@ -1,96 +1,94 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
-import { familyColors } from "../lib/constants";
+import { familyColors, familyGenus } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
 
-const FAMILY_ORDER = [
-  "Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White",
-  "Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo",
-];
+const NEO_ORDER    = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
+const CARIDINA_ORDER = ["Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo"];
+const FAMILY_ORDER = [...NEO_ORDER, ...CARIDINA_ORDER];
+
+const CARIDINA_SET = new Set(CARIDINA_ORDER);
 
 const FAMILY_GLOW: Record<string, string> = {
-  Red: "rgba(216,31,47,0.45)",
-  Orange: "rgba(240,111,29,0.45)",
-  Yellow: "rgba(242,194,48,0.4)",
-  Green: "rgba(21,148,92,0.45)",
-  Blue: "rgba(52,152,219,0.45)",
-  Black: "rgba(180,180,200,0.35)",
-  Brown: "rgba(180,100,40,0.45)",
-  White: "rgba(220,220,240,0.4)",
-  Natural: "rgba(120,180,80,0.4)",
-  Crystal: "rgba(168,212,248,0.50)",
-  "Taiwan Bee": "rgba(42,80,224,0.50)",
-  Tiger: "rgba(224,120,32,0.45)",
-  Sulawesi: "rgba(224,24,40,0.55)",
-  Amano: "rgba(122,170,80,0.40)",
-  Bamboo: "rgba(154,112,64,0.40)",
+  Red:          "rgba(216,31,47,0.45)",
+  Orange:       "rgba(240,111,29,0.45)",
+  Yellow:       "rgba(242,194,48,0.4)",
+  Green:        "rgba(21,148,92,0.45)",
+  Blue:         "rgba(52,152,219,0.45)",
+  Black:        "rgba(180,180,200,0.35)",
+  Brown:        "rgba(180,100,40,0.45)",
+  White:        "rgba(220,220,240,0.4)",
+  Natural:      "rgba(120,180,80,0.4)",
+  Crystal:      "rgba(168,212,248,0.55)",
+  "Taiwan Bee": "rgba(42,80,224,0.55)",
+  Tiger:        "rgba(224,120,32,0.45)",
+  Sulawesi:     "rgba(224,24,40,0.60)",
+  Amano:        "rgba(122,170,80,0.40)",
+  Bamboo:       "rgba(154,112,64,0.40)",
 };
 
 const FAMILY_TEXT: Record<string, string> = {
-  Red: "#fff",
-  Orange: "#fff",
-  Yellow: "#1a1a1a",
-  Green: "#fff",
-  Blue: "#fff",
-  Black: "#fff",
-  Brown: "#fff",
-  White: "#1a1a1a",
-  Natural: "#fff",
-  Crystal: "#1a1a1a",
-  "Taiwan Bee": "#fff",
-  Tiger: "#fff",
-  Sulawesi: "#fff",
-  Amano: "#fff",
-  Bamboo: "#fff",
+  Red: "#fff", Orange: "#fff", Yellow: "#1a1a1a", Green: "#fff",
+  Blue: "#fff", Black: "#fff", Brown: "#fff", White: "#1a1a1a",
+  Natural: "#fff", Crystal: "#1a1a1a", "Taiwan Bee": "#fff",
+  Tiger: "#fff", Sulawesi: "#fff", Amano: "#fff", Bamboo: "#fff",
 };
 
-// 2.2: Staggered orbit radii — primary colours closer, rare/mono further out
+// Inner ring: Neocaridina — outer ring: Caridina & exotics
 const FAMILY_ORBIT_RADIUS: Record<string, number> = {
-  // Neocaridina — inner ring
-  Red: 178,
-  Orange: 172,
-  Yellow: 178,
-  Green: 190,
-  Blue: 178,
-  Black: 200,
-  Brown: 205,
-  White: 200,
-  Natural: 0, // centre node
-  // Caridina + exotics — outer ring (radii tuned to fit VB=620)
-  Crystal: 235,
-  "Taiwan Bee": 245,
-  Tiger: 228,
-  Sulawesi: 255,
-  Amano: 220,
-  Bamboo: 218,
+  Red: 175, Orange: 168, Yellow: 175, Green: 188,
+  Blue: 175, Black: 198, Brown: 204, White: 198,
+  Natural: 0,
+  Crystal: 235, "Taiwan Bee": 248, Tiger: 228,
+  Sulawesi: 258, Amano: 220, Bamboo: 216,
 };
 
-const VB = 640;
+const VB      = 640;
 const NODE_R_BASE = 20;
-const NODE_R_MAX = 34;
+const NODE_R_MAX  = 34;
 
 function nodeRadius(count: number): number {
   return Math.max(NODE_R_BASE, Math.min(NODE_R_MAX, NODE_R_BASE + count * 2));
 }
 
-// 2.4: Pre-generated deterministic starfield — 100 stars, varied sizes & opacities
+// Deterministic starfield — two zones: between rings and outside outer ring
 const STARS: { x: number; y: number; r: number; op: number }[] = (() => {
-  const stars = [];
+  const stars: { x: number; y: number; r: number; op: number }[] = [];
   let seed = 42;
   const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
-  for (let i = 0; i < 130; i++) {
+  // Outer ring stars
+  for (let i = 0; i < 110; i++) {
     const angle = rand() * Math.PI * 2;
-    const dist = 275 + rand() * 40; // outside outer Caridina orbit ring
-    const x = Math.round(Math.cos(angle) * dist * 10) / 10;
-    const y = Math.round(Math.sin(angle) * dist * 10) / 10;
-    const r = rand() < 0.2 ? 1.4 : rand() < 0.5 ? 1.0 : 0.7;
-    const op = 0.15 + rand() * 0.5;
-    stars.push({ x, y, r, op });
+    const dist  = 278 + rand() * 38;
+    stars.push({
+      x: Math.round(Math.cos(angle) * dist * 10) / 10,
+      y: Math.round(Math.sin(angle) * dist * 10) / 10,
+      r: rand() < 0.2 ? 1.4 : rand() < 0.5 ? 1.0 : 0.7,
+      op: 0.15 + rand() * 0.48,
+    });
+  }
+  // Between-ring stars (sparse)
+  for (let i = 0; i < 20; i++) {
+    const angle = rand() * Math.PI * 2;
+    const dist  = 212 + rand() * 16;
+    stars.push({
+      x: Math.round(Math.cos(angle) * dist * 10) / 10,
+      y: Math.round(Math.sin(angle) * dist * 10) / 10,
+      r: 0.5,
+      op: 0.08 + rand() * 0.12,
+    });
   }
   return stars;
 })();
+
+function hexPoints(cx: number, cy: number, r: number): string {
+  return Array.from({ length: 6 }, (_, k) => {
+    const a = (k / 6) * Math.PI * 2 - Math.PI / 6;
+    return `${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`;
+  }).join(" ");
+}
 
 interface Props {
   visibleStrains: Strain[];
@@ -99,23 +97,39 @@ interface Props {
 
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [hovered, setHovered]           = useState<string | null>(null);
 
+  // Build family entries with per-ring angle positions
   const families = useMemo(() => {
     const grouped = new Map<string, Strain[]>();
     for (const s of visibleStrains) {
       if (!grouped.has(s.family)) grouped.set(s.family, []);
       grouped.get(s.family)!.push(s);
     }
-    return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => ({
-      family: f,
-      strains: grouped.get(f)!,
-      color: familyColors[f] ?? "#888",
-      glow: FAMILY_GLOW[f] ?? "rgba(255,255,255,0.3)",
-      textColor: FAMILY_TEXT[f] ?? "#fff",
-      nodeR: nodeRadius(grouped.get(f)!.length),
-      orbitR: FAMILY_ORBIT_RADIUS[f] ?? 185,
-    }));
+
+    const neoGroup = NEO_ORDER.filter((f) => grouped.has(f));
+    const cariGroup = CARIDINA_ORDER.filter((f) => grouped.has(f));
+
+    return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => {
+      const isC    = CARIDINA_SET.has(f);
+      const group  = isC ? cariGroup : neoGroup;
+      const idx    = group.indexOf(f);
+      const total  = group.length;
+      const orbitR = FAMILY_ORBIT_RADIUS[f] ?? 185;
+      const angle  = total > 0 ? (idx / total) * 2 * Math.PI - Math.PI / 2 : 0;
+      const nx     = Math.cos(angle) * orbitR;
+      const ny     = Math.sin(angle) * orbitR;
+      return {
+        family:     f,
+        strains:    grouped.get(f)!,
+        color:      familyColors[f]  ?? "#888",
+        glow:       FAMILY_GLOW[f]   ?? "rgba(255,255,255,0.3)",
+        textColor:  FAMILY_TEXT[f]   ?? "#fff",
+        nodeR:      nodeRadius(grouped.get(f)!.length),
+        orbitR, angle, nx, ny,
+        isCaridina: isC,
+      };
+    });
   }, [visibleStrains]);
 
   const activeStrains = activeFamily
@@ -126,15 +140,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     setActiveFamily((prev) => (prev === family ? null : family));
   }, []);
 
-  const handleCenterClick = useCallback(() => {
-    setActiveFamily(null);
-  }, []);
+  const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family) && s.family !== "Natural").length;
+  const caridineCount = visibleStrains.filter((s) => CARIDINA_SET.has(s.family)).length;
+  const totalCount    = visibleStrains.length;
 
-  const totalVisible = visibleStrains.length;
-  const totalPopular = visibleStrains.filter((s) => s.popularity >= 4).length;
-  const riliCount = visibleStrains.filter((s) => s.pattern?.toLowerCase().includes("rili")).length;
-
-  // Empty state: no families to show
   if (families.length === 0) {
     return (
       <div className="orbit-explorer orbit-explorer--empty">
@@ -149,18 +158,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
   return (
     <div className="orbit-explorer">
+      {/* Stats bar */}
       <div className="orbit-stats" aria-label="Visible strain statistics">
         <div className="orbit-stat">
-          <span className="orbit-stat-value">{totalVisible}</span>
-          <span className="orbit-stat-label">Visible</span>
+          <span className="orbit-stat-value">{totalCount}</span>
+          <span className="orbit-stat-label">Total</span>
         </div>
         <div className="orbit-stat">
-          <span className="orbit-stat-value">{totalPopular}</span>
-          <span className="orbit-stat-label">Popular</span>
+          <span className="orbit-stat-value">{neoCount}</span>
+          <span className="orbit-stat-label">Neocaridina</span>
         </div>
         <div className="orbit-stat">
-          <span className="orbit-stat-value">{riliCount}</span>
-          <span className="orbit-stat-label">Rili</span>
+          <span className="orbit-stat-value">{caridineCount}</span>
+          <span className="orbit-stat-label">Caridina</span>
         </div>
       </div>
 
@@ -173,8 +183,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
+            style={{ color: familyColors[activeFamily] }}
           >
             {activeFamily}
+            {familyGenus[activeFamily] && (
+              <span className="orbit-active-genus">{familyGenus[activeFamily]}</span>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -184,13 +198,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         viewBox={`${-VB / 2} ${-VB / 2} ${VB} ${VB}`}
         width="100%"
         height="100%"
-        aria-label="Radial map of Neocaridina colour families"
+        aria-label="Shrimpverse — freshwater shrimp species atlas"
       >
         <defs>
-          <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(47,196,181,0.05)" />
-            <stop offset="100%" stopColor="rgba(47,196,181,0)" />
+          {/* Sun radial gradient */}
+          <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="rgba(255,220,60,0.30)" />
+            <stop offset="60%"  stopColor="rgba(255,170,20,0.10)" />
+            <stop offset="100%" stopColor="rgba(255,140,0,0)" />
           </radialGradient>
+          {/* Family glow filters */}
           {families.map((item) => (
             <filter key={`glow-${item.family}`} id={`glow-${item.family}`} x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="7" result="blur" />
@@ -200,8 +217,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               </feMerge>
             </filter>
           ))}
-          <filter id="center-glow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+          <filter id="sun-glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -209,20 +226,18 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           </filter>
         </defs>
 
-        <circle cx="0" cy="0" r={VB} fill="url(#bg-grad)" />
-
-        {/* 2.4: SVG starfield — deterministic, outside orbit ring */}
+        {/* Starfield */}
         <g aria-hidden="true">
           {STARS.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#ddd8cc" opacity={s.op} />
           ))}
         </g>
 
-        {/* Inner Neo orbit ring */}
+        {/* Inner Neocaridina orbit ring */}
         <motion.circle
-          cx="0" cy="0" r={192}
+          cx="0" cy="0" r={190}
           fill="none"
-          stroke="rgba(47,196,181,0.12)"
+          stroke="rgba(47,196,181,0.14)"
           strokeWidth="0.6"
           strokeDasharray="4 6"
           animate={{ rotate: 360 }}
@@ -231,61 +246,53 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         />
         {/* Outer Caridina orbit ring */}
         <motion.circle
-          cx="0" cy="0" r={240}
+          cx="0" cy="0" r={242}
           fill="none"
-          stroke="rgba(100,160,255,0.10)"
+          stroke="rgba(100,150,255,0.11)"
           strokeWidth="0.6"
-          strokeDasharray="3 8"
+          strokeDasharray="3 9"
           animate={{ rotate: -360 }}
-          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-          style={{ transformOrigin: "0px 0px" }}
-        />
-        <motion.circle
-          cx="0" cy="0" r={192 * 0.45}
-          fill="none"
-          stroke="rgba(47,196,181,0.06)"
-          strokeWidth="0.4"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 130, repeat: Infinity, ease: "linear" }}
           style={{ transformOrigin: "0px 0px" }}
         />
 
+        {/* Spoke lines from center to each node */}
         {families.map((item, i) => {
-          const angle = (i / families.length) * 2 * Math.PI - Math.PI / 2;
-          const nx = Math.cos(angle) * item.orbitR;
-          const ny = Math.sin(angle) * item.orbitR;
           const isActive = activeFamily === item.family;
-          const isHov = hovered === item.family;
+          const isHov    = hovered === item.family;
           return (
             <motion.line
               key={`spoke-${item.family}`}
-              x1={0} y1={0} x2={nx} y2={ny}
+              x1={0} y1={0} x2={item.nx} y2={item.ny}
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.55, delay: i * 0.05, ease: "easeOut" }}
-              stroke={isActive || isHov ? item.color : "rgba(47,196,181,0.07)"}
+              transition={{ duration: 0.55, delay: i * 0.04, ease: "easeOut" }}
+              stroke={
+                isActive || isHov
+                  ? item.color
+                  : item.isCaridina
+                  ? "rgba(100,150,255,0.07)"
+                  : "rgba(47,196,181,0.07)"
+              }
               strokeWidth={isActive ? 0.8 : 0.35}
               style={{ transition: "all 250ms ease" }}
             />
           );
         })}
 
+        {/* Family planet nodes */}
         {families.map((item, i) => {
-          const angle = (i / families.length) * 2 * Math.PI - Math.PI / 2;
-          const nx = Math.cos(angle) * item.orbitR;
-          const ny = Math.sin(angle) * item.orbitR;
+          const { nx, ny, nodeR: nr, isCaridina } = item;
           const isActive = activeFamily === item.family;
-          const isHov = hovered === item.family;
+          const isHov    = hovered === item.family;
           const isDimmed = activeFamily !== null && !isActive;
-          const nr = item.nodeR;
 
           const labelDist = item.orbitR + nr + 22;
-          const lx = Math.cos(angle) * labelDist;
-          const ly = Math.sin(angle) * labelDist;
+          const lx     = Math.cos(item.angle) * labelDist;
+          const ly     = Math.sin(item.angle) * labelDist;
           const anchor = Math.abs(nx) < 10 ? "middle" : nx < 0 ? "end" : "start";
 
-          // 2.3: Pick the most popular strain's colors for active node swatches
-          const topStrain = [...item.strains].sort((a, b) => b.popularity - a.popularity)[0];
+          const topStrain   = [...item.strains].sort((a, b) => b.popularity - a.popularity)[0];
           const swatchColors = topStrain?.colors ?? [];
 
           return (
@@ -296,18 +303,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 opacity: isDimmed ? 0.18 : 1,
                 scale: isActive ? 1.15 : isHov ? 1.08 : 1,
               }}
-              transition={{ delay: i * 0.06, type: "spring", stiffness: 380, damping: 26 }}
+              transition={{ delay: i * 0.05, type: "spring", stiffness: 380, damping: 26 }}
               onClick={() => handleFamilyClick(item.family)}
               onHoverStart={() => setHovered(item.family)}
               onHoverEnd={() => setHovered(null)}
               role="button"
-              aria-label={`${item.family} colour family, ${item.strains.length} strain${item.strains.length === 1 ? "" : "s"}`}
+              aria-label={`${item.family}, ${item.strains.length} variet${item.strains.length === 1 ? "y" : "ies"}`}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family);
               }}
               style={{ cursor: "pointer", transformOrigin: `${nx}px ${ny}px` }}
             >
+              {/* Active pulse ring */}
               {isActive && (
                 <motion.circle
                   cx={nx} cy={ny} r={nr + 6}
@@ -315,36 +323,72 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   stroke={item.color}
                   strokeWidth="0.8"
                   initial={{ r: nr + 4, opacity: 0.8 }}
-                  animate={{ r: nr + 20, opacity: 0 }}
+                  animate={{ r: nr + 22, opacity: 0 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
                 />
               )}
 
+              {/* Hover / active glow */}
               {(isActive || isHov) && (
                 <circle
-                  cx={nx} cy={ny} r={nr + 6}
+                  cx={nx} cy={ny} r={nr + 7}
                   fill={item.color}
-                  opacity={isActive ? 0.18 : 0.1}
+                  opacity={isActive ? 0.18 : 0.10}
                   filter={`url(#glow-${item.family})`}
                 />
               )}
 
-              <circle
-                cx={nx} cy={ny} r={nr}
-                fill={item.color}
-                stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
-                strokeWidth={isActive ? 1.2 : 0.5}
-                filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
-              />
+              {/* === Sulawesi planetary ring === */}
+              {item.family === "Sulawesi" && (
+                <>
+                  <ellipse
+                    cx={nx} cy={ny}
+                    rx={nr * 2.2} ry={nr * 0.42}
+                    fill="none"
+                    stroke={item.color}
+                    strokeWidth="1.8"
+                    opacity={isDimmed ? 0.06 : isActive ? 0.60 : 0.35}
+                    transform={`rotate(-18, ${nx}, ${ny})`}
+                  />
+                  <ellipse
+                    cx={nx} cy={ny}
+                    rx={nr * 2.85} ry={nr * 0.55}
+                    fill="none"
+                    stroke="rgba(255,255,255,0.4)"
+                    strokeWidth="0.8"
+                    opacity={isDimmed ? 0.03 : isActive ? 0.35 : 0.15}
+                    transform={`rotate(-18, ${nx}, ${ny})`}
+                  />
+                </>
+              )}
 
-              {/* 2.3: Three colour swatches inside node when active — three arc segments */}
+              {/* === Caridina: hexagon node === */}
+              {isCaridina ? (
+                <polygon
+                  points={hexPoints(nx, ny, nr)}
+                  fill={item.color}
+                  stroke={isActive ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
+                  strokeWidth={isActive ? 1.2 : 0.6}
+                  filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
+                />
+              ) : (
+                /* === Neocaridina: circle node === */
+                <circle
+                  cx={nx} cy={ny} r={nr}
+                  fill={item.color}
+                  stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
+                  strokeWidth={isActive ? 1.2 : 0.5}
+                  filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
+                />
+              )}
+
+              {/* Colour swatches when active */}
               {isActive && swatchColors.length >= 3 && (
                 <>
                   {swatchColors.slice(0, 3).map((col, ci) => {
-                    // Each segment covers 120° of the inner ring
-                    const segAngle = (2 * Math.PI) / 3;
+                    const segAngle  = (2 * Math.PI) / 3;
                     const startAngle = ci * segAngle - Math.PI / 2;
-                    const endAngle = startAngle + segAngle - 0.12; // small gap
+                    const endAngle   = startAngle + segAngle - 0.12;
                     const r2 = nr - 5;
                     const x1 = nx + r2 * Math.cos(startAngle);
                     const y1 = ny + r2 * Math.sin(startAngle);
@@ -367,13 +411,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 </>
               )}
 
+              {/* Letter label inside node */}
               <text
                 x={nx} y={ny}
                 textAnchor="middle" dominantBaseline="central"
                 fontSize={nr > 26 ? "9" : "8"}
                 fontWeight="700"
                 fontFamily="'IBM Plex Sans', sans-serif"
-                fill={item.textColor} opacity={isActive ? 0 : 0.95}
+                fill={item.textColor}
+                opacity={isActive ? 0 : 0.95}
                 style={{ pointerEvents: "none", userSelect: "none", transition: "opacity 200ms ease" }}
               >
                 {item.family[0]}
@@ -395,10 +441,11 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 {item.strains.length}
               </text>
 
+              {/* Family name label outside ring */}
               <text
                 x={lx} y={ly}
                 textAnchor={anchor} dominantBaseline="central"
-                fontSize="5.5"
+                fontSize={isCaridina ? "5.2" : "5.5"}
                 fontWeight={isActive ? "600" : "400"}
                 fontFamily="'Cormorant Garamond', serif"
                 letterSpacing="0.03em"
@@ -411,40 +458,71 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           );
         })}
 
-        {visibleStrains.find((s) => s.family === "Natural") && (
-          <motion.g
-            onClick={handleCenterClick}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ cursor: "pointer" }}
-            role="button"
-            aria-label="Centre — Natural line"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") handleCenterClick();
-            }}
+        {/* ===== Central golden sun — always visible ===== */}
+        <motion.g
+          onClick={() => setActiveFamily(null)}
+          whileHover={{ scale: 1.06 }}
+          whileTap={{ scale: 0.97 }}
+          style={{ cursor: "pointer" }}
+          role="button"
+          aria-label="Shrimpverse — reset to overview"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setActiveFamily(null);
+          }}
+        >
+          {/* Outer diffuse glow */}
+          <circle cx="0" cy="0" r="72" fill="url(#sun-grad)" />
+
+          {/* Pulsing corona ring */}
+          <motion.circle
+            cx="0" cy="0" r="38"
+            fill="none"
+            stroke="rgba(255,210,70,0.22)"
+            strokeWidth="1.2"
+            animate={{ r: [38, 52, 38], opacity: [0.4, 0.0, 0.4] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          {/* Ray lines — 8 radiating outward */}
+          {Array.from({ length: 8 }, (_, k) => {
+            const a  = (k / 8) * Math.PI * 2;
+            const r1 = 32, r2 = 44;
+            return (
+              <line
+                key={k}
+                x1={Math.cos(a) * r1} y1={Math.sin(a) * r1}
+                x2={Math.cos(a) * r2} y2={Math.sin(a) * r2}
+                stroke="rgba(255,215,60,0.45)"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            );
+          })}
+
+          {/* Core glow halo */}
+          <circle cx="0" cy="0" r="30" fill="rgba(255,190,30,0.18)" filter="url(#sun-glow)" />
+
+          {/* Core body */}
+          <circle cx="0" cy="0" r="24" fill="#ffe060" filter="url(#sun-glow)" />
+          <circle cx="0" cy="0" r="20" fill="#fff27a" />
+
+          {/* Shrimpverse wordmark */}
+          <text
+            x="0" y="-2"
+            textAnchor="middle" dominantBaseline="central"
+            fontSize="5.8" fontWeight="700"
+            fontFamily="'Cormorant Garamond', serif"
+            letterSpacing="0.04em"
+            fill="rgba(80,40,0,0.75)"
+            style={{ pointerEvents: "none", userSelect: "none" }}
           >
-            <circle cx="0" cy="0" r="44" fill="rgba(120,180,80,0.1)" filter="url(#center-glow)" />
-            <circle cx="0" cy="0" r="32" fill={familyColors.Natural ?? "#6f8"} stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-            <text
-              x="0" y="-4"
-              textAnchor="middle" fontSize="8" fontWeight="600"
-              fontFamily="'Cormorant Garamond', serif" fill="#fff"
-            >
-              Natural
-            </text>
-            <text
-              x="0" y="10"
-              textAnchor="middle" fontSize="4.5"
-              fontFamily="'IBM Plex Mono', monospace"
-              fill="rgba(255,255,255,0.7)"
-            >
-              root line
-            </text>
-          </motion.g>
-        )}
+            Shrimpverse
+          </text>
+        </motion.g>
       </svg>
 
+      {/* Strain detail rail */}
       <AnimatePresence>
         {activeFamily && activeStrains.length > 0 && (
           <motion.div
