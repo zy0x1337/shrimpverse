@@ -49,6 +49,11 @@ export function FamilyNode3D({
     }
   });
 
+  // Derive label color string from spring value — Text doesn't accept SpringValue
+  const labelColor = isDimmed
+    ? isActive ? color : "rgba(221,216,204,0.18)"
+    : isActive ? color : "rgba(221,216,204,0.7)";
+
   return (
     <Float
       speed={1.2 + Math.random() * 0.8}
@@ -130,19 +135,17 @@ export function FamilyNode3D({
         </Text>
       </animated.group>
 
-      {/* Label — always visible, world-space */}
-      <animated.group opacity={opacity}>
-        <Text
-          position={[position[0], position[1] + 1.05, position[2]]}
-          fontSize={isActive ? 0.32 : 0.24}
-          color={isActive ? color : "rgba(221,216,204,0.7)"}
-          anchorX="center"
-          anchorY="middle"
-          renderOrder={1}
-        >
-          {family}
-        </Text>
-      </animated.group>
+      {/* Label — world-space, opacity via static color string derived from spring state */}
+      <Text
+        position={[position[0], position[1] + 1.05, position[2]]}
+        fontSize={isActive ? 0.32 : 0.24}
+        color={labelColor}
+        anchorX="center"
+        anchorY="middle"
+        renderOrder={1}
+      >
+        {family}
+      </Text>
     </Float>
   );
 }
