@@ -8,11 +8,19 @@ export function toneStyle(strain: Strain): CSSProperties {
   };
 }
 
+// Neocaridina families default to hard water if not explicitly set
+const effectiveWaterType = (strain: Strain): string =>
+  strain.waterType ?? "hard";
+
 export function filterStrains(strains: Strain[], state: FilterState): Strain[] {
   const query = state.query.trim().toLowerCase();
 
   return strains.filter((strain) => {
-    const haystack = [strain.name, strain.family, strain.pattern, strain.line, strain.summary, ...strain.tags]
+    const haystack = [
+      strain.name, strain.family, strain.pattern, strain.line,
+      strain.summary, strain.genus ?? "", strain.species ?? "",
+      ...strain.tags,
+    ]
       .join(" ")
       .toLowerCase();
 
@@ -22,6 +30,7 @@ export function filterStrains(strains: Strain[], state: FilterState): Strain[] {
       (state.level === "all" || strain.level === state.level) &&
       (!state.popularOnly || strain.popularity >= 4) &&
       (!state.stableOnly || strain.stable) &&
+      (state.waterType === "all" || effectiveWaterType(strain) === state.waterType) &&
       (!query || haystack.includes(query))
     );
   });

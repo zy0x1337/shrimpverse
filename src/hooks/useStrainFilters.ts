@@ -10,6 +10,7 @@ const initialState: FilterState = {
   query: "",
   popularOnly: false,
   stableOnly: false,
+  waterType: "all",
   catalogView: false,
   orbitView: true,
 };
@@ -38,6 +39,7 @@ export function useStrainFilters() {
     setQuery: (query: string) => setState((c) => ({ ...c, query })),
     setPopularOnly: (popularOnly: boolean) => setState((c) => ({ ...c, popularOnly })),
     setStableOnly: (stableOnly: boolean) => setState((c) => ({ ...c, stableOnly })),
+    setWaterType: (waterType: string) => setState((c) => ({ ...c, waterType })),
     setCatalogView: (catalogView: boolean) =>
       setState((c) => ({ ...c, catalogView, orbitView: false })),
     setOrbitView: (orbitView: boolean) =>

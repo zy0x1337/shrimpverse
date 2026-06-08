@@ -2,7 +2,27 @@ import { Float, Text } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useSpring, animated } from "@react-spring/three";
 import { useRef, useState } from "react";
+import * as THREE from "three";
 import type { Mesh } from "three";
+
+export type PlanetMaterial = "rocky" | "icy" | "metallic" | "ringed" | "gas" | "organic";
+
+interface MaterialParams {
+  roughness: number;
+  metalness: number;
+  opacity: number;
+  emissiveMult: number;
+  sizeMult: number;
+}
+
+const MATERIAL_PARAMS: Record<PlanetMaterial, MaterialParams> = {
+  rocky:    { roughness: 0.72, metalness: 0.18, opacity: 1.00, emissiveMult: 1.00, sizeMult: 1.00 },
+  icy:      { roughness: 0.04, metalness: 0.06, opacity: 0.78, emissiveMult: 1.55, sizeMult: 0.92 },
+  metallic: { roughness: 0.04, metalness: 0.96, opacity: 1.00, emissiveMult: 0.72, sizeMult: 0.98 },
+  ringed:   { roughness: 0.58, metalness: 0.28, opacity: 1.00, emissiveMult: 1.30, sizeMult: 0.85 },
+  gas:      { roughness: 0.92, metalness: 0.00, opacity: 1.00, emissiveMult: 0.78, sizeMult: 1.50 },
+  organic:  { roughness: 0.88, metalness: 0.04, opacity: 1.00, emissiveMult: 0.85, sizeMult: 1.00 },
+};
 
 interface Props {
   position: [number, number, number];
@@ -12,6 +32,7 @@ interface Props {
   isActive: boolean;
   isDimmed: boolean;
   isMobile: boolean;
+  materialType?: PlanetMaterial;
   onClick: () => void;
 }
 
@@ -23,12 +44,17 @@ export function FamilyNode3D({
   isActive,
   isDimmed,
   isMobile,
+  materialType = "rocky",
   onClick,
 }: Props) {
   const [hovered, setHovered] = useState(false);
   const ringRef = useRef<Mesh>(null);
+  const satRing1Ref = useRef<Mesh>(null);
+  const satRing2Ref = useRef<Mesh>(null);
 
-  const sphereR = isMobile ? 0.62 : 0.46;
+  const mat = MATERIAL_PARAMS[materialType];
+  const baseR = isMobile ? 0.62 : 0.46;
+  const sphereR = baseR * mat.sizeMult;
 
   const { scale } = useSpring({
     scale: isActive ? 1.38 : hovered ? 1.12 : isDimmed ? 0.82 : 1.0,
@@ -36,20 +62,32 @@ export function FamilyNode3D({
   });
 
   const { emissiveIntensity } = useSpring({
-    emissiveIntensity: isActive ? 2.4 : hovered ? 1.6 : isDimmed ? 0.0 : 0.55,
+    emissiveIntensity: isActive
+      ? 2.4 * mat.emissiveMult
+      : hovered
+      ? 1.6 * mat.emissiveMult
+      : isDimmed
+      ? 0.0
+      : 0.55 * mat.emissiveMult,
     config: { tension: 180, friction: 32 },
   });
 
   const { opacity } = useSpring({
-    opacity: isDimmed ? 0.28 : 1.0,
+    opacity: isDimmed ? 0.28 * mat.opacity : mat.opacity,
     config: { tension: 180, friction: 32 },
   });
 
   useFrame((state, delta) => {
     if (ringRef.current && isActive) {
-      ringRef.current.rotation.x =
-        Math.sin(state.clock.elapsedTime * 0.6) * 0.4;
+      ringRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.6) * 0.4;
       ringRef.current.rotation.z += delta * 0.5;
+    }
+    // Sulawesi rings slowly drift
+    if (satRing1Ref.current) {
+      satRing1Ref.current.rotation.z += delta * 0.12;
+    }
+    if (satRing2Ref.current) {
+      satRing2Ref.current.rotation.z -= delta * 0.07;
     }
   });
 
@@ -64,6 +102,8 @@ export function FamilyNode3D({
   const labelSize = isMobile
     ? (isActive ? 0.34 : 0.26)
     : (isActive ? 0.27 : 0.20);
+
+  const segments = isMobile ? 32 : 48;
 
   return (
     <Float
@@ -89,6 +129,7 @@ export function FamilyNode3D({
           }
         }}
       >
+        {/* Active selection ring */}
         {isActive && (
           <mesh ref={ringRef}>
             <torusGeometry args={[sphereR * 1.7, 0.008, 6, 80]} />
@@ -96,19 +137,70 @@ export function FamilyNode3D({
           </mesh>
         )}
 
+        {/* === Special layers beneath main sphere === */}
+
+        {/* Icy inner glowing core */}
+        {materialType === "icy" && (
+          <mesh>
+            <sphereGeometry args={[sphereR * 0.58, isMobile ? 20 : 32, isMobile ? 20 : 32]} />
+            <meshBasicMaterial
+              color="#d8f4ff"
+              transparent
+              opacity={isDimmed ? 0.08 : isActive ? 0.55 : 0.38}
+            />
+          </mesh>
+        )}
+
+        {/* Gas giant outer atmospheric shell */}
+        {materialType === "gas" && (
+          <mesh>
+            <sphereGeometry args={[sphereR * 1.12, isMobile ? 18 : 28, isMobile ? 18 : 28]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={isDimmed ? 0.02 : 0.11}
+              side={THREE.BackSide}
+            />
+          </mesh>
+        )}
+
+        {/* === Main planet sphere === */}
         <animated.mesh>
-          <sphereGeometry args={[sphereR, isMobile ? 32 : 48, isMobile ? 32 : 48]} />
+          <sphereGeometry args={[sphereR, segments, segments]} />
           <animated.meshStandardMaterial
             color={color}
             emissive={color}
             emissiveIntensity={emissiveIntensity}
-            roughness={0.12}
-            metalness={0.55}
-            transparent
+            roughness={mat.roughness}
+            metalness={mat.metalness}
+            transparent={mat.opacity < 1}
             opacity={opacity}
           />
         </animated.mesh>
 
+        {/* === Saturn-style rings for Sulawesi === */}
+        {materialType === "ringed" && (
+          <>
+            <mesh ref={satRing1Ref} rotation={[1.1, 0.08, 0.18]}>
+              <torusGeometry args={[sphereR * 2.05, sphereR * 0.19, 3, 90]} />
+              <animated.meshBasicMaterial
+                color={color}
+                transparent
+                opacity={isDimmed ? 0.07 : 0.42}
+              />
+            </mesh>
+            <mesh ref={satRing2Ref} rotation={[1.1, 0.08, 0.18]}>
+              <torusGeometry args={[sphereR * 2.72, sphereR * 0.09, 3, 90]} />
+              <meshBasicMaterial
+                color="#ffffff"
+                transparent
+                opacity={isDimmed ? 0.03 : 0.16}
+              />
+            </mesh>
+          </>
+        )}
+
+        {/* Strain count when active */}
         {isActive && (
           <Text
             position={[0, 0, sphereR + 0.08]}

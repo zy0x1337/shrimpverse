@@ -1,19 +1,21 @@
-/**
- * The orbit ring: single hairline torus.
- * No glow, no gradient — just a precise geometric guide
- * that tells the eye where the nodes live.
- * Opacity is low enough that it reads as structure,
- * not as decoration.
- */
-export function OrbitRing({ radius }: { radius: number }) {
+interface Props {
+  radius: number;
+  color?: string;
+  opacity?: number;
+  tilt?: number;
+  dashScale?: number;
+}
+
+export function OrbitRing({
+  radius,
+  color = "#2fc4b5",
+  opacity = 0.12,
+  tilt = Math.PI * 0.18,
+}: Props) {
   return (
-    <mesh rotation={[Math.PI * 0.18, 0, 0]}>
-      <torusGeometry args={[radius, 0.007, 4, 160]} />
-      <meshBasicMaterial
-        color="#2fc4b5"
-        transparent
-        opacity={0.12}
-      />
+    <mesh rotation={[tilt, 0, 0]}>
+      <torusGeometry args={[radius, 0.007, 4, 180]} />
+      <meshBasicMaterial color={color} transparent opacity={opacity} />
     </mesh>
   );
 }

@@ -23,6 +23,7 @@ export default function App() {
     setQuery,
     setPopularOnly,
     setStableOnly,
+    setWaterType,
   } = useStrainFilters();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -65,7 +66,7 @@ export default function App() {
   return (
     <>
       <main className="app-shell">
-        <section className="workspace" aria-label="Neocaridina davidi strain map">
+        <section className="workspace" aria-label="Shrimpverse — shrimp species explorer">
 
           {/* Mobile backdrop */}
           {isMobile && filtersOpen && (
@@ -86,6 +87,7 @@ export default function App() {
               onQueryChange={setQuery}
               onPopularOnlyChange={setPopularOnly}
               onStableOnlyChange={setStableOnly}
+              onWaterTypeChange={setWaterType}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
             />
           </div>
@@ -93,8 +95,8 @@ export default function App() {
           <section className="content-panel">
             <div className="toolbar">
               <div>
-                <p className="eyebrow">Reference Atlas</p>
-                <h2>Color families &amp; documented strains</h2>
+                <p className="eyebrow">Species Atlas</p>
+                <h2>Genera, species &amp; documented varieties</h2>
               </div>
               <div className="toolbar-actions">
                 <ViewToggle mode={viewMode} onChange={setViewMode} />

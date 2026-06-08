@@ -9,32 +9,64 @@ import {
   useState,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { familyColors } from "../../lib/constants";
+import { familyColors, familyGenus } from "../../lib/constants";
 import type { Strain } from "../../types/strain";
 import { UniverseBackground } from "./UniverseBackground";
 import { FamilyNode3D } from "./FamilyNode3D";
+import type { PlanetMaterial } from "./FamilyNode3D";
 import { OrbitRing } from "./OrbitRing";
 import { EffectPipeline } from "./EffectPipeline";
 import { StrainOrbit } from "./StrainOrbit";
+import { Sun3D } from "./Sun3D";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
-const FAMILY_ORDER = [
-  "Red", "Orange", "Yellow", "Green",
-  "Blue", "Black", "Brown", "White",
-];
+// Families that orbit the outer Caridina ring
+const CARIDINA_FAMILIES = new Set([
+  "Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo",
+]);
 
-const SCENE = {
-  desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number, number, number], fov: 48 },
-  mobile:  { orbitR: 3.8, camPos: [0, 1.4, 16] as [number, number, number], fov: 50 },
+const NEO_FAMILY_ORDER = [
+  "Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White",
+];
+const CARIDINA_FAMILY_ORDER = [
+  "Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo",
+];
+const FAMILY_ORDER = [...NEO_FAMILY_ORDER, ...CARIDINA_FAMILY_ORDER];
+
+// Visual material profile per family
+const FAMILY_MATERIAL: Record<string, PlanetMaterial> = {
+  Red: "rocky", Orange: "rocky", Yellow: "rocky", Green: "organic",
+  Blue: "rocky", Black: "rocky", Brown: "organic", White: "icy",
+  Crystal: "icy", "Taiwan Bee": "metallic", Tiger: "rocky",
+  Sulawesi: "ringed", Amano: "organic", Bamboo: "gas",
+};
+
+interface Scene {
+  innerR: number;
+  outerR: number;
+  camPos: [number, number, number];
+  fov: number;
+}
+
+const SCENE: { desktop: Scene; mobile: Scene } = {
+  desktop: { innerR: 5.0, outerR: 8.8, camPos: [0, 4.5, 22], fov: 48 },
+  mobile:  { innerR: 3.4, outerR: 6.2, camPos: [0, 3.2, 26], fov: 50 },
 };
 
 function getFamilyPosition(
-  index: number,
-  total: number,
-  radius: number,
+  family: string,
+  neoFamilies: string[],
+  caridineFamilies: string[],
+  innerR: number,
+  outerR: number,
 ): [number, number, number] {
-  const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
-  const yOffset = Math.sin(angle * 2) * 0.45;
+  const isOuter = CARIDINA_FAMILIES.has(family);
+  const group = isOuter ? caridineFamilies : neoFamilies;
+  const radius = isOuter ? outerR : innerR;
+  const idx = group.indexOf(family);
+  const total = group.length;
+  const angle = (idx / total) * Math.PI * 2 - Math.PI / 2;
+  const yOffset = Math.sin(angle * (isOuter ? 1.2 : 2)) * (isOuter ? 0.55 : 0.38);
   return [Math.cos(angle) * radius, yOffset, Math.sin(angle) * radius];
 }
 
@@ -52,11 +84,12 @@ function SceneCamera({
     if (!ctrl) return;
 
     if (activePos) {
-      const zOffset = isMobile ? 6.5 : 7;
-      const xFactor = isMobile ? 0.3 : 0.45;
+      const isOuter = Math.sqrt(activePos[0] ** 2 + activePos[2] ** 2) > 7;
+      const zOffset = isMobile ? (isOuter ? 8 : 6.5) : (isOuter ? 9.5 : 7.5);
+      const xFactor = isMobile ? 0.3 : 0.42;
       ctrl.setLookAt(
         activePos[0] * xFactor,
-        activePos[1] + (isMobile ? 1.8 : 2.5),
+        activePos[1] + (isMobile ? 2.0 : 2.8),
         activePos[2] * xFactor + zOffset,
         activePos[0], activePos[1], activePos[2],
         true,
@@ -73,10 +106,10 @@ function SceneCamera({
       enabled
       dampingFactor={0.08}
       draggingDampingFactor={0.12}
-      minDistance={isMobile ? 5 : 3}
-      maxDistance={isMobile ? 22 : 22}
-      minPolarAngle={isMobile ? Math.PI * 0.3 : 0}
-      maxPolarAngle={isMobile ? Math.PI * 0.7 : Math.PI}
+      minDistance={isMobile ? 6 : 4}
+      maxDistance={isMobile ? 30 : 28}
+      minPolarAngle={isMobile ? Math.PI * 0.28 : 0}
+      maxPolarAngle={isMobile ? Math.PI * 0.72 : Math.PI}
       verticalDragToForward={false}
       dollyToCursor={false}
     />
@@ -107,7 +140,7 @@ function ControlsHint({ isMobile }: { isMobile: boolean }) {
         <>
           <HintRow icon="drag"  label="Drag" desc="rotate view" />
           <HintRow icon="pinch" label="Pinch" desc="zoom" />
-          <HintRow icon="tap"   label="Tap star" desc="open family" />
+          <HintRow icon="tap"   label="Tap planet" desc="open family" />
         </>
       ) : (
         <>
@@ -192,25 +225,37 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
       family: f,
       strains: grouped.get(f)!,
       color: familyColors[f] ?? "#888",
+      materialType: FAMILY_MATERIAL[f] ?? "rocky",
     }));
   }, [visibleStrains]);
 
-  const handleFamilyClick = useCallback(
-    (family: string) => {
-      setHintDismissed(true);
-      setActiveFamily((prev) => (prev === family ? null : family));
-    },
-    [],
+  // Ordered lists of present families per ring
+  const neoPresent = useMemo(
+    () => NEO_FAMILY_ORDER.filter((f) => families.some((e) => e.family === f)),
+    [families],
+  );
+  const caridinePresent = useMemo(
+    () => CARIDINA_FAMILY_ORDER.filter((f) => families.some((e) => e.family === f)),
+    [families],
   );
 
+  const handleFamilyClick = useCallback((family: string) => {
+    setHintDismissed(true);
+    setActiveFamily((prev) => (prev === family ? null : family));
+  }, []);
+
   const activeFamilyEntry = families.find((f) => f.family === activeFamily);
-  const activeFamilyIndex = activeFamilyEntry
-    ? families.indexOf(activeFamilyEntry)
-    : -1;
-  const activePos =
-    activeFamilyIndex >= 0
-      ? getFamilyPosition(activeFamilyIndex, families.length, scene.orbitR)
-      : null;
+
+  const activePos = useMemo((): [number, number, number] | null => {
+    if (!activeFamily) return null;
+    return getFamilyPosition(
+      activeFamily,
+      neoPresent,
+      caridinePresent,
+      scene.innerR,
+      scene.outerR,
+    );
+  }, [activeFamily, neoPresent, caridinePresent, scene]);
 
   return (
     <div className="universe-canvas-wrapper">
@@ -234,27 +279,52 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         <AdaptiveEvents />
 
         <Suspense fallback={null}>
-          <ambientLight intensity={0.06} />
+          {/* Ambient + atmospheric fill */}
+          <ambientLight intensity={0.04} />
           <pointLight
-            position={[0, -8, 0]}
+            position={[0, -10, 0]}
             color="#1ad4e8"
-            intensity={isMobile ? 3 : 4}
-            distance={22}
+            intensity={isMobile ? 2.5 : 3.5}
+            distance={28}
             decay={2}
           />
           <pointLight
-            position={[0, 12, 6]}
-            color="#e8f4ff"
-            intensity={0.4}
-            distance={30}
+            position={[0, 14, 8]}
+            color="#c8e8ff"
+            intensity={0.3}
+            distance={35}
             decay={2}
           />
 
           <UniverseBackground isMobile={isMobile} />
-          <OrbitRing radius={scene.orbitR} />
 
-          {families.map((item, i) => {
-            const pos = getFamilyPosition(i, families.length, scene.orbitR);
+          {/* The sun at center */}
+          <Sun3D isMobile={isMobile} />
+
+          {/* Inner orbit ring — Neocaridina */}
+          <OrbitRing
+            radius={scene.innerR}
+            color="#2fc4b5"
+            opacity={0.13}
+            tilt={Math.PI * 0.15}
+          />
+          {/* Outer orbit ring — Caridina & exotics */}
+          <OrbitRing
+            radius={scene.outerR}
+            color="#6090ff"
+            opacity={0.09}
+            tilt={Math.PI * 0.10}
+          />
+
+          {/* Family planets */}
+          {families.map((item) => {
+            const pos = getFamilyPosition(
+              item.family,
+              neoPresent,
+              caridinePresent,
+              scene.innerR,
+              scene.outerR,
+            );
             return (
               <FamilyNode3D
                 key={item.family}
@@ -265,13 +335,21 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
                 isActive={activeFamily === item.family}
                 isDimmed={activeFamily !== null && activeFamily !== item.family}
                 isMobile={isMobile}
+                materialType={item.materialType}
                 onClick={() => handleFamilyClick(item.family)}
               />
             );
           })}
 
-          {families.map((item, i) => {
-            const pos = getFamilyPosition(i, families.length, scene.orbitR);
+          {/* Strain moons orbiting each family planet */}
+          {families.map((item) => {
+            const pos = getFamilyPosition(
+              item.family,
+              neoPresent,
+              caridinePresent,
+              scene.innerR,
+              scene.outerR,
+            );
             const isActive = activeFamily === item.family;
             const isDimmedByOther = activeFamily !== null && !isActive;
             return (
@@ -293,6 +371,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         </Suspense>
       </Canvas>
 
+      {/* HUD */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -307,9 +386,16 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             >
               {activeFamily}
               {activeFamilyEntry && (
-                <span className="universe-active-count">
-                  {activeFamilyEntry.strains.length}
-                </span>
+                <>
+                  <span className="universe-active-count">
+                    {activeFamilyEntry.strains.length}
+                  </span>
+                  {familyGenus[activeFamily] && (
+                    <span className="universe-active-genus">
+                      {familyGenus[activeFamily]}
+                    </span>
+                  )}
+                </>
               )}
             </motion.div>
           )}
@@ -319,7 +405,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <>
             <div className="universe-stat">
               <span className="universe-stat-val">{visibleStrains.length}</span>
-              <span className="universe-stat-lbl">Strains</span>
+              <span className="universe-stat-lbl">Varieties</span>
             </div>
             <div className="universe-stat">
               <span className="universe-stat-val">{families.length}</span>
@@ -348,7 +434,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 3L5 8l5 5" />
             </svg>
-            All families
+            All planets
           </motion.button>
         )}
       </AnimatePresence>

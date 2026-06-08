@@ -5,7 +5,10 @@ import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
 
-const FAMILY_ORDER = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
+const FAMILY_ORDER = [
+  "Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White",
+  "Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo",
+];
 
 const FAMILY_GLOW: Record<string, string> = {
   Red: "rgba(216,31,47,0.45)",
@@ -17,6 +20,12 @@ const FAMILY_GLOW: Record<string, string> = {
   Brown: "rgba(180,100,40,0.45)",
   White: "rgba(220,220,240,0.4)",
   Natural: "rgba(120,180,80,0.4)",
+  Crystal: "rgba(168,212,248,0.50)",
+  "Taiwan Bee": "rgba(42,80,224,0.50)",
+  Tiger: "rgba(224,120,32,0.45)",
+  Sulawesi: "rgba(224,24,40,0.55)",
+  Amano: "rgba(122,170,80,0.40)",
+  Bamboo: "rgba(154,112,64,0.40)",
 };
 
 const FAMILY_TEXT: Record<string, string> = {
@@ -29,10 +38,17 @@ const FAMILY_TEXT: Record<string, string> = {
   Brown: "#fff",
   White: "#1a1a1a",
   Natural: "#fff",
+  Crystal: "#1a1a1a",
+  "Taiwan Bee": "#fff",
+  Tiger: "#fff",
+  Sulawesi: "#fff",
+  Amano: "#fff",
+  Bamboo: "#fff",
 };
 
 // 2.2: Staggered orbit radii — primary colours closer, rare/mono further out
 const FAMILY_ORBIT_RADIUS: Record<string, number> = {
+  // Neocaridina — inner ring
   Red: 178,
   Orange: 172,
   Yellow: 178,
@@ -42,9 +58,16 @@ const FAMILY_ORBIT_RADIUS: Record<string, number> = {
   Brown: 205,
   White: 200,
   Natural: 0, // centre node
+  // Caridina + exotics — outer ring (radii tuned to fit VB=620)
+  Crystal: 235,
+  "Taiwan Bee": 245,
+  Tiger: 228,
+  Sulawesi: 255,
+  Amano: 220,
+  Bamboo: 218,
 };
 
-const VB = 520;
+const VB = 640;
 const NODE_R_BASE = 20;
 const NODE_R_MAX = 34;
 
@@ -55,12 +78,11 @@ function nodeRadius(count: number): number {
 // 2.4: Pre-generated deterministic starfield — 100 stars, varied sizes & opacities
 const STARS: { x: number; y: number; r: number; op: number }[] = (() => {
   const stars = [];
-  // Simple LCG pseudo-random for determinism (no Math.random on every render)
   let seed = 42;
   const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 130; i++) {
     const angle = rand() * Math.PI * 2;
-    const dist = 230 + rand() * 30; // outside the orbit ring
+    const dist = 275 + rand() * 40; // outside outer Caridina orbit ring
     const x = Math.round(Math.cos(angle) * dist * 10) / 10;
     const y = Math.round(Math.sin(angle) * dist * 10) / 10;
     const r = rand() < 0.2 ? 1.4 : rand() < 0.5 ? 1.0 : 0.7;
@@ -196,8 +218,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           ))}
         </g>
 
+        {/* Inner Neo orbit ring */}
         <motion.circle
-          cx="0" cy="0" r={185}
+          cx="0" cy="0" r={192}
           fill="none"
           stroke="rgba(47,196,181,0.12)"
           strokeWidth="0.6"
@@ -206,13 +229,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
           style={{ transformOrigin: "0px 0px" }}
         />
+        {/* Outer Caridina orbit ring */}
         <motion.circle
-          cx="0" cy="0" r={185 * 0.45}
+          cx="0" cy="0" r={240}
+          fill="none"
+          stroke="rgba(100,160,255,0.10)"
+          strokeWidth="0.6"
+          strokeDasharray="3 8"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          style={{ transformOrigin: "0px 0px" }}
+        />
+        <motion.circle
+          cx="0" cy="0" r={192 * 0.45}
           fill="none"
           stroke="rgba(47,196,181,0.06)"
           strokeWidth="0.4"
           animate={{ rotate: -360 }}
-          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
           style={{ transformOrigin: "0px 0px" }}
         />
 

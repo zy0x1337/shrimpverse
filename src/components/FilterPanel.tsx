@@ -18,6 +18,7 @@ interface Props {
   onQueryChange: (q: string) => void;
   onPopularOnlyChange: (v: boolean) => void;
   onStableOnlyChange: (v: boolean) => void;
+  onWaterTypeChange: (v: string) => void;
   onClose?: () => void;
 }
 
@@ -25,6 +26,7 @@ export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
+  onWaterTypeChange,
   onClose,
 }: Props) {
   const activeFamilyColor =
@@ -40,8 +42,8 @@ export function FilterPanel({
             accentColor={activeFamilyColor ?? "var(--teal)"}
           />
           <div style={{ flex: 1 }}>
-            <div className="sidebar-subtitle">Neocaridina davidi</div>
-            <div className="sidebar-title">Strain Map</div>
+            <div className="sidebar-subtitle">All freshwater shrimp</div>
+            <div className="sidebar-title">Shrimpverse</div>
           </div>
           {/* Mobile close button */}
           {onClose && (
@@ -70,7 +72,7 @@ export function FilterPanel({
             </svg>
             <input
               type="search"
-              placeholder="Blue Dream, Rili, Yellow…"
+              placeholder="Blue Bolt, Cardinal, Cherry…"
               value={state.query}
               onChange={(e) => onQueryChange(e.target.value)}
               aria-label="Search strains"
@@ -153,6 +155,21 @@ export function FilterPanel({
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Collector">Collector</option>
+          </select>
+        </div>
+
+        {/* Water type */}
+        <div className="filter-section">
+          <div className="filter-label">Water type</div>
+          <select
+            className="filter-select"
+            value={state.waterType}
+            onChange={(e) => onWaterTypeChange(e.target.value)}
+          >
+            <option value="all">All water types</option>
+            <option value="hard">Hard — Neocaridina</option>
+            <option value="soft">Soft — Caridina &amp; Sulawesi</option>
+            <option value="neutral">Neutral — Filter shrimp</option>
           </select>
         </div>
 

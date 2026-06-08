@@ -1,4 +1,6 @@
 export type KeeperLevel = "Beginner" | "Intermediate" | "Collector";
+export type WaterType = "hard" | "soft" | "neutral";
+export type Genus = "Neocaridina" | "Caridina" | "Atyopsis" | "Atya";
 
 export interface Strain {
   id: string;
@@ -13,6 +15,9 @@ export interface Strain {
   summary: string;
   breeding: string;
   tags: string[];
+  genus?: Genus;
+  species?: string;
+  waterType?: WaterType;
 }
 
 export interface FilterState {
@@ -22,6 +27,7 @@ export interface FilterState {
   query: string;
   popularOnly: boolean;
   stableOnly: boolean;
+  waterType: string;
   catalogView: boolean;
   orbitView: boolean;
 }
