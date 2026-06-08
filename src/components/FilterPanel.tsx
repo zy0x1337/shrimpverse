@@ -18,12 +18,14 @@ interface Props {
   onQueryChange: (q: string) => void;
   onPopularOnlyChange: (v: boolean) => void;
   onStableOnlyChange: (v: boolean) => void;
+  onClose?: () => void;
 }
 
 export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
+  onClose,
 }: Props) {
   const activeFamilyColor =
     state.family !== "All" ? familyColors[state.family] : null;
@@ -37,10 +39,22 @@ export function FilterPanel({
             className="sidebar-logo-mark"
             accentColor={activeFamilyColor ?? "var(--teal)"}
           />
-          <div>
+          <div style={{ flex: 1 }}>
             <div className="sidebar-subtitle">Neocaridina davidi</div>
             <div className="sidebar-title">Strain Map</div>
           </div>
+          {/* Mobile close button */}
+          {onClose && (
+            <button
+              className="sidebar-close-btn"
+              onClick={onClose}
+              aria-label="Close filters"
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M3 3l10 10M13 3L3 13" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -93,9 +107,7 @@ export function FilterPanel({
                           color: "#1a1a1a",
                         }
                       : col
-                      ? {
-                          borderColor: `${col}30`,
-                        }
+                      ? { borderColor: `${col}30` }
                       : {}
                   }
                   aria-pressed={isActive}
