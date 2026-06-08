@@ -108,23 +108,6 @@ interface Strain {
 
 The dual-ring layout is derived from `waterType` and `level`: Neocaridina (`hard`) occupy the inner ring, Caridina and exotics (`soft` / `neutral`) the outer.
 
----
-
-## Built with Claude Code
-
-This project was developed across four focused sessions using [Claude Code](https://claude.ai/code), Anthropic's AI development CLI, as the primary implementation tool. The process was collaborative: the human (Jeanine) defined the concept, directed each session, curated all species data, and made every aesthetic and product decision. Claude Code handled the implementation — architecture, component code, CSS, data modeling, and iteration on visual details.
-
-**Session breakdown:**
-
-| Session | Scope |
-|---|---|
-| 1 | Rebrand, data expansion (30 → 49 strains), genus/species/waterType fields, waterType filter |
-| 2 | 3D solar system redesign — Sun3D, material-mapped planets, dual orbit rings, bloom |
-| 3 | 2D dual-ring layout, golden SVG sun, Caridina hexagons, Sulawesi rings, starfield |
-| 4 | Strain dialog: taxonomy line, water type badge, enriched meta grid |
-| 5 | Mobile optimizations, collapsible sidebar, right-side strain panel on desktop |
-
-Working this way collapsed weeks of boilerplate into hours, but it required active direction at every step — knowing what to ask for, reviewing every output, and catching regressions. The creative vision, data curation, and product judgment throughout are entirely human.
 
 ---
 
