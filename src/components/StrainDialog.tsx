@@ -83,10 +83,20 @@ export function StrainDialog({ strain, onClose }: Props) {
                 <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
               </div>
 
-              {/* Shrimp illustration in the header */}
-              <div className="dialog-header-shrimp" aria-hidden="true">
+              {/* 3.1: ShrimpVisual with breathe animation loop */}
+              <motion.div
+                className="dialog-header-shrimp"
+                aria-hidden="true"
+                animate={{ scale: [1, 1.04, 1] }}
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  repeatType: "loop",
+                }}
+              >
                 <ShrimpVisual strain={strain} className="dialog-shrimp-visual" />
-              </div>
+              </motion.div>
 
               <button className="dialog-close" onClick={onClose} aria-label="Close">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">

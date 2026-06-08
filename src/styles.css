@@ -125,7 +125,21 @@ input, select { font: inherit; color: inherit; }
   scrollbar-color: var(--surface-3) transparent;
   display: flex;
   flex-direction: column;
+  /* 1.2: Grain texture overlay via SVG feTurbulence data-URI */
+  position: relative;
 }
+.filter-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23grain)' opacity='0.025'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+.filter-container > * { position: relative; z-index: 1; }
 .filter-container::-webkit-scrollbar { width: 4px; }
 .filter-container::-webkit-scrollbar-track { background: transparent; }
 .filter-container::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: var(--r-full); }
@@ -395,21 +409,7 @@ input, select { font: inherit; color: inherit; }
   position: relative;
   overflow: hidden;
 }
-.orbit-explorer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1.5px 1.5px at 15% 20%, rgba(47,196,181,0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 72% 14%, rgba(221,216,204,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 88% 55%, rgba(221,216,204,0.25) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 30% 80%, rgba(232,160,32,0.35) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 90%, rgba(221,216,204,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10% 60%, rgba(221,216,204,0.2) 0%, transparent 100%),
-    radial-gradient(1.2px 1.2px at 60% 35%, rgba(221,216,204,0.25) 0%, transparent 100%),
-    radial-gradient(0.8px 0.8px at 80% 75%, rgba(47,196,181,0.25) 0%, transparent 100%);
-  pointer-events: none;
-}
+/* 2.4: CSS pseudo-element stars removed — SVG starfield is rendered inline in the component */
 .orbit-svg { width: 100%; height: 100%; flex: 1; }
 .orbit-stats {
   display: flex;
@@ -436,7 +436,7 @@ input, select { font: inherit; color: inherit; }
 }
 .orbit-stat-label {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-faint);
@@ -633,7 +633,7 @@ input, select { font: inherit; color: inherit; }
 }
 .strain-card-level {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-faint);
@@ -644,7 +644,7 @@ input, select { font: inherit; color: inherit; }
   align-items: center;
 }
 
-/* Popularity dots */
+/* Popularity dots — kept as fallback, MiniShrimp renders inline */
 .pop-dots { display: flex; gap: 2px; align-items: center; }
 .pop-dot {
   width: 4px; height: 4px;
@@ -701,6 +701,8 @@ input, select { font: inherit; color: inherit; }
   pointer-events: none;
   align-self: flex-end;
   margin-bottom: -8px;
+  /* transform-origin for breathe animation */
+  transform-origin: center bottom;
 }
 .dialog-shrimp-visual {
   width: 140px;
@@ -781,7 +783,7 @@ input, select { font: inherit; color: inherit; }
 }
 .dialog-swatch-role {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1;
@@ -789,7 +791,7 @@ input, select { font: inherit; color: inherit; }
 }
 .dialog-swatch-hex {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.04em;
   line-height: 1;
   opacity: 0.75;
