@@ -10,7 +10,10 @@ interface Props {
   position: [number, number, number];
   orbitalRadius: number;
   isHighlighted: boolean;
+  /** Another family is active — this planet belongs to an inactive family */
   isDimmed: boolean;
+  /** No family selected yet — planet visible but not in focus */
+  isIdle: boolean;
   isMobile: boolean;
   onClick: () => void;
 }
@@ -21,6 +24,7 @@ export function StrainPlanet({
   orbitalRadius,
   isHighlighted,
   isDimmed,
+  isIdle,
   isMobile,
   onClick,
 }: Props) {
@@ -49,15 +53,23 @@ export function StrainPlanet({
 
   const roughness = strain.stable ? 0.12 : 0.58;
   const metalness = strain.stable ? 0.82 : 0.18;
-  const atmoOpacity = isHighlighted ? 0.22 : hovered ? 0.14 : 0.06;
+  const atmoOpacity = isHighlighted ? 0.22 : hovered ? 0.14 : isIdle ? 0.04 : 0.06;
 
   const { groupScale } = useSpring({
-    groupScale: isHighlighted ? 1.65 : hovered ? 1.28 : isDimmed ? 0.65 : 1.0,
+    groupScale: isHighlighted ? 1.65 : hovered ? 1.28 : isDimmed ? 0.65 : isIdle ? 0.72 : 1.0,
     config: { tension: 320, friction: 26 },
   });
 
   const { bodyOpacity } = useSpring({
-    bodyOpacity: isDimmed ? 0.18 : 1.0,
+    // isDimmed  = other family active → very faint (0.18)
+    // isIdle    = no family active   → clearly visible (0.72)
+    // normal    = this family active → full (1.0)
+    bodyOpacity: isDimmed ? 0.18 : isIdle ? 0.72 : 1.0,
+    config: { tension: 180, friction: 30 },
+  });
+
+  const { emissiveIntensity } = useSpring({
+    emissiveIntensity: isHighlighted ? 0.4 : hovered ? 0.18 : isIdle ? 0.18 : isDimmed ? 0.0 : 0.05,
     config: { tension: 180, friction: 30 },
   });
 
@@ -74,14 +86,17 @@ export function StrainPlanet({
     return [0, -angle + Math.PI / 2, Math.PI / 2] as [number, number, number];
   }, [position]);
 
+  // Show connector when active or idle, hide only when dimmed by another family
+  const showConnector = !isDimmed;
+
   return (
     <>
-      {!isDimmed && (
+      {showConnector && (
         <mesh geometry={connectorGeom} rotation={connectorRotation}>
           <meshBasicMaterial
             color={strain.colors[0]}
             transparent
-            opacity={0.06}
+            opacity={isIdle ? 0.04 : 0.06}
           />
         </mesh>
       )}
@@ -121,7 +136,7 @@ export function StrainPlanet({
           <animated.meshStandardMaterial
             color={strain.colors[0]}
             emissive={strain.colors[0]}
-            emissiveIntensity={isHighlighted ? 0.4 : hovered ? 0.18 : 0.05}
+            emissiveIntensity={emissiveIntensity}
             roughness={roughness}
             metalness={metalness}
             transparent
@@ -157,8 +172,8 @@ export function StrainPlanet({
           </mesh>
         )}
 
-        {/* 5. Canvas-texture label */}
-        {(hovered || isHighlighted || isMobile) && !isDimmed && (
+        {/* 5. Canvas-texture label — only when active/highlighted */}
+        {(hovered || isHighlighted || (isMobile && !isIdle && !isDimmed)) && (
           <PlanetLabel
             name={strain.name}
             level={strain.level}
@@ -171,7 +186,6 @@ export function StrainPlanet({
   );
 }
 
-// Label rendered as a canvas texture billboard — no external font dep
 function PlanetLabel({
   name,
   level,

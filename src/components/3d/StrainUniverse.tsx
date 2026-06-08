@@ -24,9 +24,7 @@ const FAMILY_ORDER = [
 ];
 
 const SCENE = {
-  // Desktop: unchanged
   desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number, number, number], fov: 48 },
-  // Mobile: pull camera back significantly so all family planets fit in view
   mobile:  { orbitR: 3.8, camPos: [0, 1.4, 16] as [number, number, number], fov: 50 },
 };
 
@@ -40,9 +38,6 @@ function getFamilyPosition(
   return [Math.cos(angle) * radius, yOffset, Math.sin(angle) * radius];
 }
 
-// ---------------------------------------------------------------------------
-// Camera controller
-// ---------------------------------------------------------------------------
 function SceneCamera({
   activePos,
   isMobile,
@@ -88,13 +83,9 @@ function SceneCamera({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Controls hint — dismisses after first interaction
-// ---------------------------------------------------------------------------
 function ControlsHint({ isMobile }: { isMobile: boolean }) {
   const [visible, setVisible] = useState(true);
 
-  // Auto-dismiss after 5 s
   useEffect(() => {
     const t = setTimeout(() => setVisible(false), 5000);
     return () => clearTimeout(t);
@@ -180,9 +171,6 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-// ---------------------------------------------------------------------------
-// Main export
-// ---------------------------------------------------------------------------
 interface Props {
   visibleStrains: Strain[];
   onSelect: (id: string) => void;
@@ -240,7 +228,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
           touchAction: "none",
         }}
-        // Dismiss hint on any canvas interaction
         onPointerDown={() => setHintDismissed(true)}
       >
         <AdaptiveDpr pixelated />
@@ -285,13 +272,16 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
 
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length, scene.orbitR);
+            const isActive = activeFamily === item.family;
+            const isDimmedByOther = activeFamily !== null && !isActive;
             return (
               <StrainOrbit
                 key={item.family}
                 strains={item.strains}
                 familyColor={item.color}
                 center={pos}
-                isActive={activeFamily === item.family}
+                isActive={isActive}
+                isDimmedByOther={isDimmedByOther}
                 isMobile={isMobile}
                 onSelectStrain={onSelect}
               />
@@ -303,7 +293,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         </Suspense>
       </Canvas>
 
-      {/* HUD — stats + active family label */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -340,17 +329,12 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         )}
       </div>
 
-      {/* Controls hint overlay */}
       <AnimatePresence>
         {!hintDismissed && !activeFamily && (
-          <ControlsHint
-            key="hint"
-            isMobile={isMobile}
-          />
+          <ControlsHint key="hint" isMobile={isMobile} />
         )}
       </AnimatePresence>
 
-      {/* Back button */}
       <AnimatePresence>
         {activeFamily && (
           <motion.button

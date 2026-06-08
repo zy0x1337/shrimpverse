@@ -10,6 +10,8 @@ interface Props {
   familyColor: string;
   center: [number, number, number];
   isActive: boolean;
+  /** Another family is currently selected — this whole orbit is dimmed */
+  isDimmedByOther: boolean;
   isMobile: boolean;
   onSelectStrain: (id: string) => void;
 }
@@ -19,21 +21,21 @@ export function StrainOrbit({
   familyColor,
   center,
   isActive,
+  isDimmedByOther,
   isMobile,
   onSelectStrain,
 }: Props) {
   const groupRef = useRef<Group>(null);
 
-  // Compute orbital positions once — pure function of strain data
   const orbits = computeOrbitalPositions(strains, center);
 
-  // Slow continuous rotation of the entire system — only when active
+  // Rotation only when this family is active
   useFrame((_, delta) => {
     if (!isActive || !groupRef.current) return;
     groupRef.current.rotation.y += delta * 0.08;
   });
 
-  // Unique radii in the system for hairline orbit circles (only shown when active)
+  // Orbit rings only when active
   const uniqueRadii = isActive
     ? Array.from(
         new Set(orbits.map((o) => Math.round(distanceToRadius(wildformDistance(o.strain)) * 100) / 100))
@@ -42,7 +44,6 @@ export function StrainOrbit({
 
   return (
     <group ref={groupRef} position={center}>
-      {/* Hairline orbit circles — only when family is active */}
       {uniqueRadii.map((r) => (
         <mesh key={r}>
           <torusGeometry args={[r, 0.004, 4, 128]} />
@@ -54,7 +55,6 @@ export function StrainOrbit({
         </mesh>
       ))}
 
-      {/* Planets — always rendered, dimmed + tiny when family is not active */}
       {orbits.map((o) => {
         const localPos: [number, number, number] = [
           o.position[0] - center[0],
@@ -68,7 +68,8 @@ export function StrainOrbit({
             position={localPos}
             orbitalRadius={o.radius}
             isHighlighted={false}
-            isDimmed={!isActive}
+            isDimmed={isDimmedByOther}
+            isIdle={!isActive && !isDimmedByOther}
             isMobile={isMobile}
             onClick={() => isActive && onSelectStrain(o.strain.id)}
           />
