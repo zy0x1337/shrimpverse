@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { familyColors } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
+import { ShrimpLogoMark } from "./ShrimpLogoMark";
 
 const FAMILY_ORDER = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
 
@@ -32,7 +33,12 @@ const FAMILY_TEXT: Record<string, string> = {
 
 const VB = 520;
 const R = 185;
-const NODE_R = 28;
+const NODE_R_BASE = 20;
+const NODE_R_MAX = 34;
+
+function nodeRadius(count: number): number {
+  return Math.max(NODE_R_BASE, Math.min(NODE_R_MAX, NODE_R_BASE + count * 2));
+}
 
 interface Props {
   visibleStrains: Strain[];
@@ -55,6 +61,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
       color: familyColors[f] ?? "#888",
       glow: FAMILY_GLOW[f] ?? "rgba(255,255,255,0.3)",
       textColor: FAMILY_TEXT[f] ?? "#fff",
+      nodeR: nodeRadius(grouped.get(f)!.length),
     }));
   }, [visibleStrains]);
 
@@ -73,6 +80,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const totalVisible = visibleStrains.length;
   const totalPopular = visibleStrains.filter((s) => s.popularity >= 4).length;
   const riliCount = visibleStrains.filter((s) => s.pattern?.toLowerCase().includes("rili")).length;
+
+  // Empty state: no families to show
+  if (families.length === 0) {
+    return (
+      <div className="orbit-explorer orbit-explorer--empty">
+        <div className="orbit-empty-state">
+          <ShrimpLogoMark size={52} accentColor="var(--text-faint)" />
+          <p className="orbit-empty-title">No strains match</p>
+          <p className="orbit-empty-hint">Try adjusting or clearing a filter</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="orbit-explorer">
@@ -185,8 +205,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           const isActive = activeFamily === item.family;
           const isHov = hovered === item.family;
           const isDimmed = activeFamily !== null && !isActive;
+          const nr = item.nodeR;
 
-          const labelDist = R + NODE_R + 20;
+          const labelDist = R + nr + 22;
           const lx = Math.cos(angle) * labelDist;
           const ly = Math.sin(angle) * labelDist;
           const anchor = Math.abs(nx) < 10 ? "middle" : nx < 0 ? "end" : "start";
@@ -213,19 +234,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             >
               {isActive && (
                 <motion.circle
-                  cx={nx} cy={ny} r={NODE_R + 6}
+                  cx={nx} cy={ny} r={nr + 6}
                   fill="none"
                   stroke={item.color}
                   strokeWidth="0.8"
-                  initial={{ r: NODE_R + 4, opacity: 0.8 }}
-                  animate={{ r: NODE_R + 18, opacity: 0 }}
+                  initial={{ r: nr + 4, opacity: 0.8 }}
+                  animate={{ r: nr + 20, opacity: 0 }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
                 />
               )}
 
               {(isActive || isHov) && (
                 <circle
-                  cx={nx} cy={ny} r={NODE_R + 5}
+                  cx={nx} cy={ny} r={nr + 6}
                   fill={item.color}
                   opacity={isActive ? 0.18 : 0.1}
                   filter={`url(#glow-${item.family})`}
@@ -233,7 +254,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               )}
 
               <circle
-                cx={nx} cy={ny} r={NODE_R}
+                cx={nx} cy={ny} r={nr}
                 fill={item.color}
                 stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
                 strokeWidth={isActive ? 1.2 : 0.5}
@@ -243,7 +264,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               <text
                 x={nx} y={ny}
                 textAnchor="middle" dominantBaseline="central"
-                fontSize="9" fontWeight="700"
+                fontSize={nr > 26 ? "9" : "8"}
+                fontWeight="700"
                 fontFamily="'IBM Plex Sans', sans-serif"
                 fill={item.textColor} opacity="0.95"
                 style={{ pointerEvents: "none", userSelect: "none" }}
@@ -251,12 +273,13 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 {item.family[0]}
               </text>
 
+              {/* Strain count badge */}
               <circle
-                cx={nx + NODE_R - 2} cy={ny - NODE_R + 2} r={5}
+                cx={nx + nr - 2} cy={ny - nr + 2} r={5.5}
                 fill="#080c10" stroke={item.color} strokeWidth="0.6"
               />
               <text
-                x={nx + NODE_R - 2} y={ny - NODE_R + 2}
+                x={nx + nr - 2} y={ny - nr + 2}
                 textAnchor="middle" dominantBaseline="central"
                 fontSize="3.8" fontWeight="700"
                 fontFamily="'IBM Plex Mono', monospace"

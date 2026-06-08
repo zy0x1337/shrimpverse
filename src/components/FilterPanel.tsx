@@ -1,6 +1,7 @@
 import type { FilterState } from "../types/strain";
 import { families, patterns } from "../lib/constants";
 import { familyColors } from "../lib/constants";
+import { ShrimpLogoMark } from "./ShrimpLogoMark";
 
 interface Stats {
   visible: number;
@@ -17,31 +18,43 @@ interface Props {
   onQueryChange: (q: string) => void;
   onPopularOnlyChange: (v: boolean) => void;
   onStableOnlyChange: (v: boolean) => void;
+  onClose?: () => void;
 }
 
 export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
+  onClose,
 }: Props) {
+  const activeFamilyColor =
+    state.family !== "All" ? familyColors[state.family] : null;
+
   return (
     <div className="filter-panel-inner">
       {/* Sidebar header */}
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <svg className="sidebar-logo-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <circle cx="18" cy="18" r="17" stroke="rgba(47,196,181,0.3)" strokeWidth="0.8" />
-            <circle cx="18" cy="18" r="12" stroke="rgba(232,160,32,0.2)" strokeWidth="0.5" strokeDasharray="2 4" />
-            <path d="M10 22 Q12 16 18 14 Q24 12 26 16 Q27 20 24 22 Q20 24 16 23 Q12 22 10 22Z" fill="rgba(47,196,181,0.7)" />
-            <path d="M10 22 L7 26 M10 22 L9 27 M10 22 L11 27" stroke="rgba(47,196,181,0.5)" strokeWidth="1" strokeLinecap="round" />
-            <path d="M22 14 Q26 10 28 8" stroke="rgba(232,160,32,0.6)" strokeWidth="0.7" strokeLinecap="round" fill="none" />
-            <path d="M20 14 Q23 9 25 7" stroke="rgba(232,160,32,0.4)" strokeWidth="0.5" strokeLinecap="round" fill="none" />
-            <circle cx="23" cy="15" r="1.2" fill="rgba(232,160,32,0.8)" />
-          </svg>
-          <div>
+          <ShrimpLogoMark
+            className="sidebar-logo-mark"
+            accentColor={activeFamilyColor ?? "var(--teal)"}
+          />
+          <div style={{ flex: 1 }}>
             <div className="sidebar-subtitle">Neocaridina davidi</div>
             <div className="sidebar-title">Strain Map</div>
           </div>
+          {/* Mobile close button */}
+          {onClose && (
+            <button
+              className="sidebar-close-btn"
+              onClick={onClose}
+              aria-label="Close filters"
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M3 3l10 10M13 3L3 13" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -77,16 +90,35 @@ export function FilterPanel({
                   key={fam}
                   className={`family-pill${isActive ? " active" : ""}`}
                   onClick={() => onFamilyChange(fam)}
-                  style={isActive && col ? {
-                    background: col,
-                    borderColor: col,
-                    boxShadow: `0 0 10px ${col}50`,
-                  } : isActive ? {
-                    background: "rgba(232,160,32,0.8)",
-                    borderColor: "var(--accent)",
-                  } : {}}
+                  style={
+                    isActive && col
+                      ? {
+                          background: col,
+                          borderColor: col,
+                          color: ["Yellow", "White"].includes(fam)
+                            ? "#1a1a1a"
+                            : "#ffffff",
+                          boxShadow: `0 0 10px ${col}55`,
+                        }
+                      : isActive
+                      ? {
+                          background: "rgba(232,160,32,0.8)",
+                          borderColor: "var(--accent)",
+                          color: "#1a1a1a",
+                        }
+                      : col
+                      ? { borderColor: `${col}30` }
+                      : {}
+                  }
                   aria-pressed={isActive}
                 >
+                  {fam !== "All" && col && (
+                    <span
+                      className="family-pill-dot"
+                      style={{ background: col }}
+                      aria-hidden="true"
+                    />
+                  )}
                   {fam}
                 </button>
               );

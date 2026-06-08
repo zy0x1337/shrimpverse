@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
 import type { Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
+import { ShrimpVisual } from "./ShrimpVisual";
 
 interface Props {
   strain: Strain | null;
@@ -13,6 +14,15 @@ const LEVEL_LABELS: Record<string, string> = {
   Intermediate: "Intermediate",
   Collector: "Collector",
 };
+
+/** Luminance-based contrast check — returns true if white text is readable */
+function needsLightText(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance < 0.45;
+}
 
 export function StrainDialog({ strain, onClose }: Props) {
   useEffect(() => {
@@ -72,6 +82,12 @@ export function StrainDialog({ strain, onClose }: Props) {
                 </div>
                 <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
               </div>
+
+              {/* Shrimp illustration in the header */}
+              <div className="dialog-header-shrimp" aria-hidden="true">
+                <ShrimpVisual strain={strain} className="dialog-shrimp-visual" />
+              </div>
+
               <button className="dialog-close" onClick={onClose} aria-label="Close">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                   <path d="M3 3l10 10M13 3L3 13" />
@@ -80,10 +96,23 @@ export function StrainDialog({ strain, onClose }: Props) {
             </div>
 
             <div className="dialog-body">
+              {/* Colour swatch with hex labels */}
               <div className="dialog-swatch">
-                {strain.colors.map((c, i) => (
-                  <div key={i} className="dialog-swatch-seg" style={{ background: c }} />
-                ))}
+                {strain.colors.map((c, i) => {
+                  const labels = ["Base", "Mid-tone", "Accent"];
+                  const light = needsLightText(c);
+                  return (
+                    <div key={i} className="dialog-swatch-seg" style={{ background: c }}>
+                      <span
+                        className="dialog-swatch-label"
+                        style={{ color: light ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)" }}
+                      >
+                        <span className="dialog-swatch-role">{labels[i]}</span>
+                        <span className="dialog-swatch-hex">{c.toUpperCase()}</span>
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="dialog-meta-grid">
@@ -92,10 +121,19 @@ export function StrainDialog({ strain, onClose }: Props) {
                   ["Pattern", strain.pattern],
                   ["Line", strain.line],
                   ["Care level", LEVEL_LABELS[strain.level] ?? strain.level],
+                  ["Stability", strain.stable ? "✦ Stable" : "◦ Project line"],
                 ].map(([k, v]) => (
                   <div key={k} className="dialog-meta-cell">
                     <div className="dialog-meta-key">{k}</div>
-                    <div className="dialog-meta-val">{v}</div>
+                    <div
+                      className="dialog-meta-val"
+                      style={k === "Stability" ? {
+                        color: strain.stable ? "var(--teal)" : "var(--accent)",
+                        fontWeight: 500,
+                      } : {}}
+                    >
+                      {v}
+                    </div>
                   </div>
                 ))}
               </div>
