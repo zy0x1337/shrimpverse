@@ -11,14 +11,13 @@
 
 /* ============================================================
    HUD — top-left stats / active-family label
-   Uses position:fixed so .view-stage overflow:hidden can't clip it.
-   We scope it visually to the canvas area by mirroring the
-   sidebar width offset on desktop.
+   Uses position:absolute inside .universe-canvas-wrapper so it
+   stays within the canvas area and never overlaps the toolbar.
    ============================================================ */
 .universe-hud {
-  position: fixed;
-  top: calc(var(--toolbar-h, 60px) + var(--space-4, 1rem));
-  left: calc(var(--sidebar-w, 260px) + var(--space-4, 1rem));
+  position: absolute;
+  top: var(--space-4, 1rem);
+  left: var(--space-4, 1rem);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -65,13 +64,12 @@
 }
 
 /* ============================================================
-   Back button — fixed, centered horizontally in canvas area
+   Back button — absolute, centered horizontally in canvas area
    ============================================================ */
 .universe-back-btn {
-  position: fixed;
+  position: absolute;
   bottom: var(--space-5, 1.25rem);
-  /* Center in the canvas area (right of sidebar) */
-  left: calc(var(--sidebar-w, 260px) + 50%);
+  left: 50%;
   transform: translateX(-50%);
   z-index: 30;
   display: flex;
@@ -105,11 +103,10 @@
 }
 
 /* ============================================================
-   Controls hint — fixed bottom-right of canvas area
-   position:fixed escapes every overflow:hidden ancestor.
+   Controls hint — absolute bottom-right of canvas area
    ============================================================ */
 .universe-controls-hint {
-  position: fixed;
+  position: absolute;
   bottom: var(--space-5, 1.25rem);
   right: var(--space-4, 1rem);
   z-index: 30;
@@ -124,7 +121,6 @@
   -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
   max-width: 180px;
-  /* Soft shadow so it lifts off the canvas */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -173,18 +169,15 @@
 }
 
 /* ============================================================
-   Mobile overrides (sidebar collapses — reset left offsets)
+   Mobile overrides
    ============================================================ */
 @media (max-width: 768px) {
   .universe-hud {
-    /* On mobile the sidebar is hidden — anchor to viewport edge */
-    left: var(--space-4, 1rem);
-    top: calc(var(--toolbar-h, 56px) + var(--space-3, 0.75rem));
+    top: var(--space-3, 0.75rem);
+    left: var(--space-3, 0.75rem);
   }
 
   .universe-back-btn {
-    /* Full viewport centering on mobile */
-    left: 50%;
     bottom: 1rem;
   }
 
@@ -192,7 +185,6 @@
     right: 0.75rem;
     bottom: 1rem;
     max-width: 158px;
-    /* If back button is also visible, float hint above it */
   }
 }
 
@@ -216,6 +208,6 @@
     bottom: 0.5rem;
   }
   .universe-hud {
-    top: calc(var(--toolbar-h, 48px) + 0.5rem);
+    top: 0.5rem;
   }
 }

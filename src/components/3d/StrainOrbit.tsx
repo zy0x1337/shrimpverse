@@ -27,22 +27,22 @@ export function StrainOrbit({
   // Compute orbital positions once — pure function of strain data
   const orbits = computeOrbitalPositions(strains, center);
 
-  // Slow continuous rotation of the entire system
+  // Slow continuous rotation of the entire system — only when active
   useFrame((_, delta) => {
     if (!isActive || !groupRef.current) return;
     groupRef.current.rotation.y += delta * 0.08;
   });
 
-  if (!isActive) return null;
-
-  // Unique radii in the system for hairline orbit circles
-  const uniqueRadii = Array.from(
-    new Set(orbits.map((o) => Math.round(distanceToRadius(wildformDistance(o.strain)) * 100) / 100))
-  );
+  // Unique radii in the system for hairline orbit circles (only shown when active)
+  const uniqueRadii = isActive
+    ? Array.from(
+        new Set(orbits.map((o) => Math.round(distanceToRadius(wildformDistance(o.strain)) * 100) / 100))
+      )
+    : [];
 
   return (
     <group ref={groupRef} position={center}>
-      {/* Hairline orbit circles — one per unique radius */}
+      {/* Hairline orbit circles — only when family is active */}
       {uniqueRadii.map((r) => (
         <mesh key={r}>
           <torusGeometry args={[r, 0.004, 4, 128]} />
@@ -54,7 +54,7 @@ export function StrainOrbit({
         </mesh>
       ))}
 
-      {/* Planets at world positions, offset by center */}
+      {/* Planets — always rendered, dimmed + tiny when family is not active */}
       {orbits.map((o) => {
         const localPos: [number, number, number] = [
           o.position[0] - center[0],
@@ -68,9 +68,9 @@ export function StrainOrbit({
             position={localPos}
             orbitalRadius={o.radius}
             isHighlighted={false}
-            isDimmed={false}
+            isDimmed={!isActive}
             isMobile={isMobile}
-            onClick={() => onSelectStrain(o.strain.id)}
+            onClick={() => isActive && onSelectStrain(o.strain.id)}
           />
         );
       })}

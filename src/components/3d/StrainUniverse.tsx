@@ -24,8 +24,10 @@ const FAMILY_ORDER = [
 ];
 
 const SCENE = {
+  // Desktop: unchanged
   desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number, number, number], fov: 48 },
-  mobile:  { orbitR: 3.8, camPos: [0, 1.8, 10] as [number, number, number], fov: 58 },
+  // Mobile: pull camera back significantly so all family planets fit in view
+  mobile:  { orbitR: 3.8, camPos: [0, 1.4, 16] as [number, number, number], fov: 50 },
 };
 
 function getFamilyPosition(
@@ -76,8 +78,8 @@ function SceneCamera({
       enabled
       dampingFactor={0.08}
       draggingDampingFactor={0.12}
-      minDistance={isMobile ? 4 : 3}
-      maxDistance={isMobile ? 16 : 22}
+      minDistance={isMobile ? 5 : 3}
+      maxDistance={isMobile ? 22 : 22}
       minPolarAngle={isMobile ? Math.PI * 0.3 : 0}
       maxPolarAngle={isMobile ? Math.PI * 0.7 : Math.PI}
       verticalDragToForward={false}
