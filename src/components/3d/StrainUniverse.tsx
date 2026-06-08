@@ -1,6 +1,5 @@
 import { Canvas } from "@react-three/fiber";
 import {
-  OrbitControls,
   AdaptiveDpr,
   AdaptiveEvents,
   CameraControls,
@@ -28,19 +27,13 @@ function getFamilyPosition(index: number, total: number): [number, number, numbe
   ];
 }
 
-/**
- * Scene camera controller — flies to the active family star
- * when selected, returns to orbit view when deselected.
- */
 function SceneCamera({ activePos }: { activePos: [number, number, number] | null }) {
   const controlsRef = useRef<any>(null);
 
   useEffect(() => {
     const ctrl = controlsRef.current;
     if (!ctrl) return;
-
     if (activePos) {
-      // Zoom toward the family, slightly offset to see its planets
       ctrl.setLookAt(
         activePos[0] * 0.45,
         activePos[1] + 2.5,
@@ -48,10 +41,9 @@ function SceneCamera({ activePos }: { activePos: [number, number, number] | null
         activePos[0],
         activePos[1],
         activePos[2],
-        true, // animate
+        true,
       );
     } else {
-      // Return to default overview
       ctrl.setLookAt(0, 2.8, 13, 0, 0, 0, true);
     }
   }, [activePos]);
@@ -143,7 +135,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <UniverseBackground />
           <OrbitRing radius={ORBIT_RADIUS} />
 
-          {/* Family stars */}
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length);
             return (
@@ -160,7 +151,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             );
           })}
 
-          {/* Strain planets — orbit their family star when active */}
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length);
             return (
@@ -180,7 +170,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         </Suspense>
       </Canvas>
 
-      {/* HUD */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -213,7 +202,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         </div>
       </div>
 
-      {/* Back hint when family is active */}
       <AnimatePresence>
         {activeFamily && (
           <motion.button

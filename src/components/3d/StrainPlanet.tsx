@@ -7,28 +7,15 @@ import type { Strain } from "../../types/strain";
 
 interface Props {
   strain: Strain;
-  /** World-space position — caller computes orbit math */
   position: [number, number, number];
-  familyColor: string;
   isHighlighted: boolean;
   isDimmed: boolean;
   onClick: () => void;
 }
 
-/**
- * A single strain rendered as a small planet.
- *
- * Visual encoding:
- *   - Base color = strain.colors[0] (dominant hue)
- *   - Equatorial band = strain.colors[1] (secondary)
- *   - Pole cap tint = strain.colors[2] (accent)
- *   - Size = mapped from popularity (1–5 → 0.10–0.22 radius)
- *   - Emissive intensity stays low — planets reflect, they don’t glow
- */
 export function StrainPlanet({
   strain,
   position,
-  familyColor,
   isHighlighted,
   isDimmed,
   onClick,
@@ -36,7 +23,6 @@ export function StrainPlanet({
   const [hovered, setHovered] = useState(false);
   const meshRef = useRef<Mesh>(null);
 
-  // Slow self-rotation
   useFrame((_, delta) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * (0.18 + strain.popularity * 0.04);
@@ -79,7 +65,6 @@ export function StrainPlanet({
         document.body.style.cursor = "default";
       }}
     >
-      {/* Planet body — dominant color */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[radius, 32, 32]} />
         <animated.meshStandardMaterial
@@ -93,7 +78,6 @@ export function StrainPlanet({
         />
       </mesh>
 
-      {/* Equatorial band ring — secondary color */}
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[radius * 1.28, radius * 0.06, 6, 48]} />
         <animated.meshBasicMaterial
@@ -103,7 +87,6 @@ export function StrainPlanet({
         />
       </mesh>
 
-      {/* Name label — only on hover/highlight */}
       <Text
         position={[0, radius + 0.14, 0]}
         fontSize={0.11}
