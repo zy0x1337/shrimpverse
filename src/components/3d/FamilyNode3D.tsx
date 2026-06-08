@@ -28,7 +28,6 @@ export function FamilyNode3D({
   const [hovered, setHovered] = useState(false);
   const ringRef = useRef<Mesh>(null);
 
-  // Larger hit target on mobile: 0.62 vs 0.46
   const sphereR = isMobile ? 0.62 : 0.46;
 
   const { scale } = useSpring({
@@ -37,7 +36,7 @@ export function FamilyNode3D({
   });
 
   const { emissiveIntensity } = useSpring({
-    emissiveIntensity: isActive ? 2.2 : hovered ? 1.0 : isDimmed ? 0.0 : 0.18,
+    emissiveIntensity: isActive ? 2.4 : hovered ? 1.6 : isDimmed ? 0.0 : 0.55,
     config: { tension: 180, friction: 32 },
   });
 
@@ -62,7 +61,6 @@ export function FamilyNode3D({
     ? "rgba(221,216,204,0.9)"
     : "rgba(221,216,204,0.45)";
 
-  // On mobile: always show label (no hover), slightly larger
   const labelSize = isMobile
     ? (isActive ? 0.34 : 0.26)
     : (isActive ? 0.27 : 0.20);
@@ -77,7 +75,6 @@ export function FamilyNode3D({
         position={position}
         scale={scale}
         onClick={(e) => { e.stopPropagation(); onClick(); }}
-        // Pointer events: desktop only (touch fires onClick natively)
         onPointerEnter={(e) => {
           if (!isMobile) {
             e.stopPropagation();
@@ -105,8 +102,8 @@ export function FamilyNode3D({
             color={color}
             emissive={color}
             emissiveIntensity={emissiveIntensity}
-            roughness={0.05}
-            metalness={0.9}
+            roughness={0.12}
+            metalness={0.55}
             transparent
             opacity={opacity}
           />
