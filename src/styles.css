@@ -10,8 +10,8 @@
   --border-hover: rgba(255,255,255,0.14);
   --divider: rgba(255,255,255,0.05);
   --text: #ddd8cc;
-  --text-muted: #7a7870;
-  --text-faint: #3e3c3a;
+  --text-muted: #9a9590;
+  --text-faint: #6b6966;
   --text-inverse: #080c10;
   --accent: #e8a020;
   --accent-dim: rgba(232,160,32,0.15);
@@ -849,7 +849,7 @@ input, select { font: inherit; color: inherit; }
   font-family: var(--font-display);
   font-style: italic;
   font-size: 0.78rem;
-  color: rgba(221, 216, 204, 0.42);
+  color: rgba(221, 216, 204, 0.65);
   letter-spacing: 0.01em;
 }
 .dialog-genus  { font-weight: 500; }

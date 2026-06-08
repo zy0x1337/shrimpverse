@@ -45,9 +45,42 @@ function deriveWaterType(strain: Strain): "hard" | "soft" | "neutral" {
 export function StrainDialog({ strain, onClose }: Props) {
   useEffect(() => {
     if (!strain) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const getFocusable = (): HTMLElement[] => {
+      const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
+      if (!dialog) return [];
+      return Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute("disabled"));
+    };
+
+    // Move focus into dialog after animation settles
+    const focusTimer = setTimeout(() => getFocusable()[0]?.focus(), 60);
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+      }
+    };
+
     document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    return () => {
+      clearTimeout(focusTimer);
+      document.removeEventListener("keydown", handler);
+      previouslyFocused?.focus();
+    };
   }, [strain, onClose]);
 
   if (!strain) return null;
