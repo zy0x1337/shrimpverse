@@ -10,6 +10,7 @@ interface Props {
   position: [number, number, number];
   isHighlighted: boolean;
   isDimmed: boolean;
+  isMobile: boolean;
   onClick: () => void;
 }
 
@@ -18,6 +19,7 @@ export function StrainPlanet({
   position,
   isHighlighted,
   isDimmed,
+  isMobile,
   onClick,
 }: Props) {
   const [hovered, setHovered] = useState(false);
@@ -29,9 +31,14 @@ export function StrainPlanet({
     }
   });
 
+  // Mobile: floor radius at 0.14 for min tap target, desktop stays tighter
   const radius = useMemo(
-    () => 0.1 + (strain.popularity / 5) * 0.13,
-    [strain.popularity],
+    () => {
+      const base = isMobile ? 0.14 : 0.10;
+      const max  = isMobile ? 0.26 : 0.23;
+      return base + (strain.popularity / 5) * (max - base);
+    },
+    [strain.popularity, isMobile],
   );
 
   const { scale } = useSpring({
@@ -44,11 +51,9 @@ export function StrainPlanet({
     config: { tension: 200, friction: 30 },
   });
 
-  const labelColor = isHighlighted
-    ? "rgba(255,255,255,0.95)"
-    : hovered
-    ? "rgba(255,255,255,0.75)"
-    : "rgba(255,255,255,0.0)";
+  // Label: always visible on mobile (no hover), hidden on desktop unless hovered/highlighted
+  const showLabel = isMobile ? !isDimmed : (isHighlighted || hovered);
+  const labelOpacity = showLabel ? (isHighlighted ? 0.95 : 0.65) : 0.0;
 
   return (
     <animated.group
@@ -56,17 +61,22 @@ export function StrainPlanet({
       scale={scale}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       onPointerEnter={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = "pointer";
+        if (!isMobile) {
+          e.stopPropagation();
+          setHovered(true);
+          document.body.style.cursor = "pointer";
+        }
       }}
       onPointerLeave={() => {
-        setHovered(false);
-        document.body.style.cursor = "default";
+        if (!isMobile) {
+          setHovered(false);
+          document.body.style.cursor = "default";
+        }
       }}
     >
+      {/* Planet body */}
       <mesh ref={meshRef}>
-        <sphereGeometry args={[radius, 32, 32]} />
+        <sphereGeometry args={[radius, isMobile ? 20 : 32, isMobile ? 20 : 32]} />
         <animated.meshStandardMaterial
           color={strain.colors[0]}
           emissive={strain.colors[0]}
@@ -78,19 +88,22 @@ export function StrainPlanet({
         />
       </mesh>
 
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[radius * 1.28, radius * 0.06, 6, 48]} />
-        <animated.meshBasicMaterial
-          color={strain.colors[1]}
-          transparent
-          opacity={opacity}
-        />
-      </mesh>
+      {/* Equatorial ring — skip on mobile for perf */}
+      {!isMobile && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[radius * 1.28, radius * 0.06, 6, 48]} />
+          <animated.meshBasicMaterial
+            color={strain.colors[1]}
+            transparent
+            opacity={opacity}
+          />
+        </mesh>
+      )}
 
       <Text
-        position={[0, radius + 0.14, 0]}
-        fontSize={0.11}
-        color={labelColor}
+        position={[0, radius + (isMobile ? 0.18 : 0.14), 0]}
+        fontSize={isMobile ? 0.14 : 0.11}
+        color={`rgba(255,255,255,${labelOpacity})`}
         anchorX="center"
         anchorY="bottom"
         renderOrder={5}

@@ -1,10 +1,13 @@
 import { Canvas } from "@react-three/fiber";
+import { AdaptiveDpr, AdaptiveEvents, CameraControls } from "@react-three/drei";
 import {
-  AdaptiveDpr,
-  AdaptiveEvents,
-  CameraControls,
-} from "@react-three/drei";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { familyColors } from "../../lib/constants";
 import type { Strain } from "../../types/strain";
@@ -13,40 +16,65 @@ import { FamilyNode3D } from "./FamilyNode3D";
 import { OrbitRing } from "./OrbitRing";
 import { EffectPipeline } from "./EffectPipeline";
 import { StrainOrbit } from "./StrainOrbit";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
-const FAMILY_ORDER = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
-const ORBIT_RADIUS = 5.5;
+const FAMILY_ORDER = [
+  "Red", "Orange", "Yellow", "Green",
+  "Blue", "Black", "Brown", "White",
+];
 
-function getFamilyPosition(index: number, total: number): [number, number, number] {
+/**
+ * Orbit radius + initial camera depend on mobile vs desktop.
+ * Mobile: smaller radius, closer FOV, pulled-back Z so all
+ * family stars fit on a 375-px-wide canvas without clipping.
+ */
+const SCENE = {
+  desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number,number,number], fov: 48 },
+  mobile:  { orbitR: 3.8, camPos: [0, 1.8, 10] as [number,number,number], fov: 58 },
+};
+
+function getFamilyPosition(
+  index: number,
+  total: number,
+  radius: number,
+): [number, number, number] {
   const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
   const yOffset = Math.sin(angle * 2) * 0.45;
-  return [
-    Math.cos(angle) * ORBIT_RADIUS,
-    yOffset,
-    Math.sin(angle) * ORBIT_RADIUS,
-  ];
+  return [Math.cos(angle) * radius, yOffset, Math.sin(angle) * radius];
 }
 
-function SceneCamera({ activePos }: { activePos: [number, number, number] | null }) {
+// ---------------------------------------------------------------------------
+// Camera controller — flies to active family, returns home on deselect
+// ---------------------------------------------------------------------------
+function SceneCamera({
+  activePos,
+  isMobile,
+}: {
+  activePos: [number, number, number] | null;
+  isMobile: boolean;
+}) {
   const controlsRef = useRef<any>(null);
 
   useEffect(() => {
     const ctrl = controlsRef.current;
     if (!ctrl) return;
+
     if (activePos) {
+      // On mobile pull back more — planets need room to render
+      const zOffset = isMobile ? 6.5 : 7;
+      const xFactor = isMobile ? 0.3 : 0.45;
       ctrl.setLookAt(
-        activePos[0] * 0.45,
-        activePos[1] + 2.5,
-        activePos[2] * 0.45 + 7,
-        activePos[0],
-        activePos[1],
-        activePos[2],
+        activePos[0] * xFactor,
+        activePos[1] + (isMobile ? 1.8 : 2.5),
+        activePos[2] * xFactor + zOffset,
+        activePos[0], activePos[1], activePos[2],
         true,
       );
     } else {
-      ctrl.setLookAt(0, 2.8, 13, 0, 0, 0, true);
+      const s = isMobile ? SCENE.mobile : SCENE.desktop;
+      ctrl.setLookAt(...s.camPos, 0, 0, 0, true);
     }
-  }, [activePos]);
+  }, [activePos, isMobile]);
 
   return (
     <CameraControls
@@ -54,20 +82,26 @@ function SceneCamera({ activePos }: { activePos: [number, number, number] | null
       enabled
       dampingFactor={0.08}
       draggingDampingFactor={0.12}
-      minDistance={3}
-      maxDistance={22}
+      minDistance={isMobile ? 4 : 3}
+      maxDistance={isMobile ? 16 : 22}
+      // On mobile limit vertical tilt — portrait screens clip easily
+      minPolarAngle={isMobile ? Math.PI * 0.3 : 0}
+      maxPolarAngle={isMobile ? Math.PI * 0.7 : Math.PI}
       verticalDragToForward={false}
       dollyToCursor={false}
     />
   );
 }
 
+// ---------------------------------------------------------------------------
 interface Props {
   visibleStrains: Strain[];
   onSelect: (id: string) => void;
 }
 
 export function StrainUniverse({ visibleStrains, onSelect }: Props) {
+  const isMobile = useIsMobile();
+  const scene = isMobile ? SCENE.mobile : SCENE.desktop;
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
 
   const families = useMemo(() => {
@@ -83,9 +117,11 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
     }));
   }, [visibleStrains]);
 
-  const handleFamilyClick = useCallback((family: string) => {
-    setActiveFamily((prev) => (prev === family ? null : family));
-  }, []);
+  const handleFamilyClick = useCallback(
+    (family: string) =>
+      setActiveFamily((prev) => (prev === family ? null : family)),
+    [],
+  );
 
   const activeFamilyEntry = families.find((f) => f.family === activeFamily);
   const activeFamilyIndex = activeFamilyEntry
@@ -93,23 +129,25 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
     : -1;
   const activePos =
     activeFamilyIndex >= 0
-      ? getFamilyPosition(activeFamilyIndex, families.length)
+      ? getFamilyPosition(activeFamilyIndex, families.length, scene.orbitR)
       : null;
 
   return (
     <div className="universe-canvas-wrapper">
       <Canvas
-        camera={{ position: [0, 2.8, 13], fov: 48 }}
+        camera={{ position: scene.camPos, fov: scene.fov }}
         gl={{
-          antialias: true,
+          antialias: !isMobile,       // MSAA off on mobile — big perf win
           alpha: false,
           powerPreference: "high-performance",
           logarithmicDepthBuffer: true,
         }}
-        dpr={[1, 2]}
+        // Mobile: cap at 1.5× to spare GPU; desktop: full 2×
+        dpr={isMobile ? [1, 1.5] : [1, 2]}
         style={{
           background:
             "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
+          touchAction: "none",        // prevent scroll-hijack on canvas
         }}
       >
         <AdaptiveDpr pixelated />
@@ -120,7 +158,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <pointLight
             position={[0, -8, 0]}
             color="#1ad4e8"
-            intensity={4}
+            intensity={isMobile ? 3 : 4}
             distance={22}
             decay={2}
           />
@@ -132,11 +170,12 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             decay={2}
           />
 
-          <UniverseBackground />
-          <OrbitRing radius={ORBIT_RADIUS} />
+          <UniverseBackground isMobile={isMobile} />
+          <OrbitRing radius={scene.orbitR} />
 
+          {/* Family stars */}
           {families.map((item, i) => {
-            const pos = getFamilyPosition(i, families.length);
+            const pos = getFamilyPosition(i, families.length, scene.orbitR);
             return (
               <FamilyNode3D
                 key={item.family}
@@ -146,13 +185,15 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
                 strainCount={item.strains.length}
                 isActive={activeFamily === item.family}
                 isDimmed={activeFamily !== null && activeFamily !== item.family}
+                isMobile={isMobile}
                 onClick={() => handleFamilyClick(item.family)}
               />
             );
           })}
 
+          {/* Strain planets — orbit their star when family is active */}
           {families.map((item, i) => {
-            const pos = getFamilyPosition(i, families.length);
+            const pos = getFamilyPosition(i, families.length, scene.orbitR);
             return (
               <StrainOrbit
                 key={item.family}
@@ -160,16 +201,19 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
                 familyColor={item.color}
                 center={pos}
                 isActive={activeFamily === item.family}
+                isMobile={isMobile}
                 onSelectStrain={onSelect}
               />
             );
           })}
 
-          <SceneCamera activePos={activePos} />
-          <EffectPipeline hasActiveFamily={!!activeFamily} />
+          <SceneCamera activePos={activePos} isMobile={isMobile} />
+          {/* Post-processing: skip on low-end mobile to avoid GPU pressure */}
+          {!isMobile && <EffectPipeline hasActiveFamily={!!activeFamily} />}
         </Suspense>
       </Canvas>
 
+      {/* ---- HUD ------------------------------------------------- */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -192,16 +236,37 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           )}
         </AnimatePresence>
 
-        <div className="universe-stat">
-          <span className="universe-stat-val">{visibleStrains.length}</span>
-          <span className="universe-stat-lbl">Strains</span>
-        </div>
-        <div className="universe-stat">
-          <span className="universe-stat-val">{families.length}</span>
-          <span className="universe-stat-lbl">Families</span>
-        </div>
+        {!activeFamily && (
+          <>
+            <div className="universe-stat">
+              <span className="universe-stat-val">{visibleStrains.length}</span>
+              <span className="universe-stat-lbl">Strains</span>
+            </div>
+            <div className="universe-stat">
+              <span className="universe-stat-val">{families.length}</span>
+              <span className="universe-stat-lbl">Families</span>
+            </div>
+          </>
+        )}
       </div>
 
+      {/* ---- Touch hint (mobile only, first visit) --------------- */}
+      {isMobile && !activeFamily && (
+        <motion.div
+          className="universe-touch-hint"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+        >
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <circle cx="10" cy="10" r="7" strokeDasharray="3 3" />
+            <path d="M10 6v4l2.5 2.5" />
+          </svg>
+          Tap a star · Drag to rotate
+        </motion.div>
+      )}
+
+      {/* ---- Back button ----------------------------------------- */}
       <AnimatePresence>
         {activeFamily && (
           <motion.button

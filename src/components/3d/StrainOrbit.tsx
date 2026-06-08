@@ -9,6 +9,7 @@ interface Props {
   familyColor: string;
   center: [number, number, number];
   isActive: boolean;
+  isMobile: boolean;
   onSelectStrain: (id: string) => void;
 }
 
@@ -17,13 +18,15 @@ export function StrainOrbit({
   familyColor,
   center,
   isActive,
+  isMobile,
   onSelectStrain,
 }: Props) {
   const groupRef = useRef<Group>(null);
 
   const orbitalData = useMemo(() => {
+    // Tighter radii on mobile so planets stay within camera frustum
+    const RING_RADII = isMobile ? [1.0, 1.65, 2.3] : [1.4, 2.2, 3.0];
     const RING_CAPACITY = [6, 10, 999];
-    const RING_RADII = [1.4, 2.2, 3.0];
     const RING_INCLINATIONS = [0.18, -0.22, 0.12];
     const RING_SPEEDS = [0.22, 0.15, 0.10];
 
@@ -54,7 +57,7 @@ export function StrainOrbit({
         inclination: RING_INCLINATIONS[ring],
       };
     });
-  }, [strains]);
+  }, [strains, isMobile]);
 
   const anglesRef = useRef<number[]>(orbitalData.map((d) => d.baseAngle));
 
@@ -69,15 +72,17 @@ export function StrainOrbit({
 
   return (
     <group ref={groupRef}>
-      {[1.4, 2.2, 3.0]
-        .filter((_, i) => orbitalData.some((d) => d.ring === i))
-        .map((r, i) => (
+      {[0, 1, 2]
+        .filter((i) => orbitalData.some((d) => d.ring === i))
+        .map((i) => (
           <mesh
-            key={r}
+            key={i}
             position={center}
             rotation={[[0.18, -0.22, 0.12][i], 0, 0] as unknown as [number, number, number]}
           >
-            <torusGeometry args={[r, 0.005, 4, 120]} />
+            <torusGeometry
+              args={[orbitalData.find((d) => d.ring === i)!.radius, 0.005, 4, 120]}
+            />
             <meshBasicMaterial
               color={familyColor}
               transparent
@@ -89,7 +94,9 @@ export function StrainOrbit({
       {orbitalData.map((d, i) => {
         const angle = anglesRef.current[i];
         const x = center[0] + Math.cos(angle) * d.radius;
-        const y = center[1] + Math.sin(angle * 0.5) * d.radius * Math.sin(d.inclination);
+        const y =
+          center[1] +
+          Math.sin(angle * 0.5) * d.radius * Math.sin(d.inclination);
         const z = center[2] + Math.sin(angle) * d.radius;
 
         return (
@@ -99,6 +106,7 @@ export function StrainOrbit({
             position={[x, y, z]}
             isHighlighted={false}
             isDimmed={false}
+            isMobile={isMobile}
             onClick={() => onSelectStrain(d.strain.id)}
           />
         );
