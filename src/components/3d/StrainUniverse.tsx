@@ -11,6 +11,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { familyColors, familyGenus } from "../../lib/constants";
 import type { Strain } from "../../types/strain";
+import { StrainRail } from "../StrainRail";
 import { UniverseBackground } from "./UniverseBackground";
 import { FamilyNode3D } from "./FamilyNode3D";
 import type { PlanetMaterial } from "./FamilyNode3D";
@@ -424,6 +425,27 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
       <AnimatePresence>
         {!hintDismissed && !activeFamily && (
           <ControlsHint key="hint" isMobile={isMobile} />
+        )}
+      </AnimatePresence>
+
+      {/* Strain rail — desktop: right panel, mobile: bottom sheet */}
+      <AnimatePresence>
+        {activeFamily && activeFamilyEntry && (
+          <motion.div
+            className="universe-rail-wrapper"
+            initial={isMobile ? { y: "100%" } : { x: "100%" }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: "100%" } : { x: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 30 }}
+          >
+            <StrainRail
+              family={activeFamily}
+              strains={activeFamilyEntry.strains}
+              onSelect={onSelect}
+              onClose={() => setActiveFamily(null)}
+              orientation={isMobile ? "horizontal" : "vertical"}
+            />
+          </motion.div>
         )}
       </AnimatePresence>
 

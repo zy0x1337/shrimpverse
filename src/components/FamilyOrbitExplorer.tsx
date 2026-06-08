@@ -164,7 +164,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
   return (
     <div className="orbit-layout">
-      <div className="orbit-explorer">
+      <div className="orbit-explorer" style={activeFamily && isMobile ? { paddingBottom: "138px" } : undefined}>
       {/* Stats bar */}
       <div className="orbit-stats" aria-label="Visible strain statistics">
         <div className="orbit-stat">
@@ -454,19 +454,21 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 {item.strains.length}
               </text>
 
-              {/* Family name label outside ring */}
-              <text
-                x={lx} y={ly}
-                textAnchor={anchor} dominantBaseline="central"
-                fontSize={isCaridina ? "5.2" : "5.5"}
-                fontWeight={isActive ? "600" : "400"}
-                fontFamily="'Cormorant Garamond', serif"
-                letterSpacing="0.03em"
-                fill={isActive ? item.color : "rgba(221,216,204,0.65)"}
-                style={{ pointerEvents: "none", userSelect: "none" }}
-              >
-                {item.family}
-              </text>
+              {/* Family name label outside ring — hidden on mobile (active-label HUD handles it) */}
+              {!isMobile && (
+                <text
+                  x={lx} y={ly}
+                  textAnchor={anchor} dominantBaseline="central"
+                  fontSize={isCaridina ? "5.2" : "5.5"}
+                  fontWeight={isActive ? "600" : "400"}
+                  fontFamily="'Cormorant Garamond', serif"
+                  letterSpacing="0.03em"
+                  fill={isActive ? item.color : "rgba(221,216,204,0.65)"}
+                  style={{ pointerEvents: "none", userSelect: "none" }}
+                >
+                  {item.family}
+                </text>
+              )}
             </motion.g>
           );
         })}
@@ -534,6 +536,21 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           </text>
         </motion.g>
       </svg>
+
+      {/* Visual encoding legend */}
+      <div className="orbit-legend" aria-hidden="true">
+        <span className="orbit-legend-item">
+          <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.5" fill="rgba(47,196,181,0.6)" /></svg>
+          Neocaridina
+        </span>
+        <span className="orbit-legend-sep">·</span>
+        <span className="orbit-legend-item">
+          <svg width="11" height="10" viewBox="0 0 11 10">
+            <polygon points={Array.from({length:6},(_,k)=>{const a=(k/6)*Math.PI*2-Math.PI/6;return`${5.5+4.5*Math.cos(a)},${5+4.5*Math.sin(a)}`}).join(" ")} fill="rgba(100,150,255,0.6)" />
+          </svg>
+          Caridina / Exotics
+        </span>
+      </div>
 
       </div>
 

@@ -435,6 +435,17 @@ input, select { font: inherit; color: inherit; }
 .icon-button:active { background: var(--surface-3); }
 .icon-button svg { width: 16px; height: 16px; }
 .mobile-filter-toggle { display: none; }
+.filter-active-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  pointer-events: none;
+}
 
 /* =====================
    ORBIT EXPLORER
@@ -531,6 +542,32 @@ input, select { font: inherit; color: inherit; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-faint);
+}
+
+/* Orbit legend */
+.orbit-legend {
+  position: absolute;
+  bottom: var(--s4);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.orbit-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.orbit-legend-sep {
+  opacity: 0.4;
 }
 
 /* Orbit layout — flex row: SVG + right rail panel */

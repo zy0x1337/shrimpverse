@@ -64,6 +64,11 @@ export default function App() {
     [selectedId],
   );
 
+  const hasActiveFilters =
+    state.family !== "All" || state.waterType !== "all" ||
+    state.pattern !== "all" || state.level !== "all" ||
+    state.popularOnly || state.stableOnly || !!state.query;
+
   return (
     <>
       <main className="app-shell">
@@ -127,9 +132,10 @@ export default function App() {
                 <button
                   className="icon-button mobile-filter-toggle"
                   type="button"
-                  aria-label={filtersOpen ? "Close filters" : "Open filters"}
+                  aria-label={filtersOpen ? "Close filters" : `Open filters${hasActiveFilters ? " (active)" : ""}`}
                   aria-expanded={filtersOpen}
                   onClick={() => setFiltersOpen((v) => !v)}
+                  style={{ position: "relative" }}
                 >
                   {filtersOpen ? (
                     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -139,6 +145,9 @@ export default function App() {
                     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                       <path d="M3 5h14M6 10h8M9 15h2" />
                     </svg>
+                  )}
+                  {hasActiveFilters && !filtersOpen && (
+                    <span className="filter-active-dot" aria-hidden="true" />
                   )}
                 </button>
               </div>

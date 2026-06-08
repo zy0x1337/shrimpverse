@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { type Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 
@@ -51,6 +52,11 @@ function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
 export function StrainRail({ family, strains, onSelect, onClose, orientation = "horizontal" }: Props) {
   const color = familyColors[family] ?? "#888";
   const isVertical = orientation === "vertical";
+  const scrollRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ left: 0, top: 0, behavior: "instant" });
+  }, [family]);
 
   return (
     <div className={`strain-rail${isVertical ? " strain-rail--vertical" : ""}`}>
@@ -73,7 +79,7 @@ export function StrainRail({ family, strains, onSelect, onClose, orientation = "
 
       {/* Scroll hint gradient is handled via CSS ::after */}
       <div className="strain-rail-scroll-wrap">
-        <ul className="strain-rail-scroll">
+        <ul className="strain-rail-scroll" ref={scrollRef as React.RefObject<HTMLUListElement>}>
           {strains.map((strain) => (
             <li key={strain.id} style={{ listStyle: "none" }}>
             <button
