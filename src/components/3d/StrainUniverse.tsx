@@ -214,6 +214,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
   const isMobile = useIsMobile();
   const scene = isMobile ? SCENE.mobile : SCENE.desktop;
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
+  const [railOpen, setRailOpen]         = useState(false);
   const [hintDismissed, setHintDismissed] = useState(false);
 
   const families = useMemo(() => {
@@ -242,7 +243,11 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
 
   const handleFamilyClick = useCallback((family: string) => {
     setHintDismissed(true);
-    setActiveFamily((prev) => (prev === family ? null : family));
+    setActiveFamily((prev) => {
+      if (prev === family) { setRailOpen(false); return null; }
+      setRailOpen(false);
+      return family;
+    });
   }, []);
 
   const activeFamilyEntry = families.find((f) => f.family === activeFamily);
@@ -428,9 +433,9 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Strain rail — desktop: right panel, mobile: bottom sheet */}
+      {/* Strain rail — desktop: auto-open; mobile: user-triggered via peek button */}
       <AnimatePresence>
-        {activeFamily && activeFamilyEntry && (
+        {activeFamily && activeFamilyEntry && (!isMobile || railOpen) && (
           <motion.div
             className="universe-rail-wrapper"
             initial={isMobile ? { y: "100%" } : { x: "100%" }}
@@ -442,10 +447,28 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
               family={activeFamily}
               strains={activeFamilyEntry.strains}
               onSelect={onSelect}
-              onClose={() => setActiveFamily(null)}
+              onClose={isMobile ? () => setRailOpen(false) : () => setActiveFamily(null)}
               orientation={isMobile ? "horizontal" : "vertical"}
             />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Peek button — mobile only */}
+      <AnimatePresence>
+        {activeFamily && activeFamilyEntry && isMobile && !railOpen && (
+          <motion.button
+            className="universe-rail-peek"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setRailOpen(true)}
+            style={{ borderColor: `${familyColors[activeFamily] ?? "#888"}50` }}
+          >
+            <span className="universe-rail-peek-dot" style={{ background: familyColors[activeFamily] ?? "var(--accent)" }} />
+            {activeFamilyEntry.strains.length} strain{activeFamilyEntry.strains.length !== 1 ? "s" : ""} ↑
+          </motion.button>
         )}
       </AnimatePresence>
 
@@ -457,7 +480,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.2 }}
-            onClick={() => setActiveFamily(null)}
+            onClick={() => { setActiveFamily(null); setRailOpen(false); }}
           >
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 3L5 8l5 5" />

@@ -69,7 +69,7 @@ export function StrainPlanet({
   });
 
   const { emissiveIntensity } = useSpring({
-    emissiveIntensity: isHighlighted ? 0.4 : hovered ? 0.18 : isIdle ? 0.18 : isDimmed ? 0.0 : 0.05,
+    emissiveIntensity: isHighlighted ? 0.4 : hovered ? 0.22 : isIdle ? 0.30 : isDimmed ? 0.0 : 0.10,
     config: { tension: 180, friction: 30 },
   });
 
@@ -119,11 +119,24 @@ export function StrainPlanet({
           }
         }}
       >
-        {/* 1. Atmosphere halo */}
+        {/* 1a. White rim — guarantees dark moons are visible as silhouettes */}
+        {!isDimmed && (
+          <mesh>
+            <sphereGeometry args={[baseR * 1.16, 14, 14]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={isHighlighted ? 0.18 : isIdle ? 0.08 : 0.13}
+              side={THREE.BackSide}
+            />
+          </mesh>
+        )}
+
+        {/* 1b. Atmosphere halo — color tinted, uses mid-tone for less darkness */}
         <mesh ref={atmoRef}>
           <sphereGeometry args={[baseR * 1.55, 16, 16]} />
           <meshBasicMaterial
-            color={strain.colors[2]}
+            color={strain.colors[1]}
             transparent
             opacity={atmoOpacity}
             side={THREE.BackSide}

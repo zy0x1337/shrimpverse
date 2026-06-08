@@ -98,6 +98,7 @@ interface Props {
 
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
+  const [railOpen, setRailOpen]         = useState(false);
   const [hovered, setHovered]           = useState<string | null>(null);
   const isMobile = useIsMobile();
 
@@ -139,10 +140,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     : [];
 
   const handleFamilyClick = useCallback((family: string) => {
-    setActiveFamily((prev) => (prev === family ? null : family));
+    setActiveFamily((prev) => {
+      if (prev === family) { setRailOpen(false); return null; }
+      setRailOpen(false); // new family → always close rail, user opens manually on mobile
+      return family;
+    });
   }, []);
 
-  const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family) && s.family !== "Natural").length;
+  const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) => CARIDINA_SET.has(s.family)).length;
   const totalCount    = visibleStrains.length;
 
@@ -164,7 +169,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
   return (
     <div className="orbit-layout">
-      <div className="orbit-explorer" style={activeFamily && isMobile ? { paddingBottom: "138px" } : undefined}>
+      <div className="orbit-explorer" style={activeFamily && isMobile && railOpen ? { paddingBottom: "138px" } : undefined}>
       {/* Stats bar */}
       <div className="orbit-stats" aria-label="Visible strain statistics">
         <div className="orbit-stat">
@@ -473,7 +478,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
         {/* ===== Central golden sun — always visible ===== */}
         <motion.g
-          onClick={() => setActiveFamily(null)}
+          onClick={() => { setActiveFamily(null); setRailOpen(false); }}
           whileHover={{ scale: 1.06 }}
           whileTap={{ scale: 0.97 }}
           style={{ cursor: "pointer" }}
@@ -481,7 +486,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           aria-label="Shrimpverse — reset to overview"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") setActiveFamily(null);
+            if (e.key === "Enter" || e.key === " ") { setActiveFamily(null); setRailOpen(false); }
           }}
         >
           {/* Outer diffuse glow */}
@@ -535,6 +540,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         </motion.g>
       </svg>
 
+      {/* Peek button — mobile only: tap to open the strain list */}
+      <AnimatePresence>
+        {activeFamily && isMobile && !railOpen && activeStrains.length > 0 && (
+          <motion.button
+            className="orbit-rail-peek"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setRailOpen(true)}
+            style={{ borderColor: `${familyColors[activeFamily] ?? "var(--border-hover)"}50` }}
+          >
+            <span className="orbit-rail-peek-dot" style={{ background: familyColors[activeFamily] ?? "var(--accent)" }} />
+            {activeStrains.length} strain{activeStrains.length !== 1 ? "s" : ""} ↑
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* Visual encoding legend */}
       <div className="orbit-legend" aria-hidden="true">
         <span className="orbit-legend-item">
@@ -552,9 +575,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
       </div>
 
-      {/* Strain detail rail — right panel on desktop, bottom sheet on mobile */}
+      {/* Strain detail rail — desktop: always open when family active; mobile: only when railOpen */}
       <AnimatePresence>
-        {activeFamily && activeStrains.length > 0 && (
+        {activeFamily && activeStrains.length > 0 && (!isMobile || railOpen) && (
           <motion.div
             className="orbit-rail-wrapper"
             {...railAnimation}
@@ -565,7 +588,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               family={activeFamily}
               strains={activeStrains}
               onSelect={onSelect}
-              onClose={() => setActiveFamily(null)}
+              onClose={isMobile ? () => setRailOpen(false) : () => setActiveFamily(null)}
               orientation={isMobile ? "horizontal" : "vertical"}
             />
           </motion.div>
