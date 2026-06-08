@@ -1,0 +1,307 @@
+/* ============================================================
+   3D Universe — CSS for Html-overlay panels and HUD
+   ============================================================ */
+
+/* Canvas wrapper — fills the view-stage */
+.universe-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  border-radius: var(--radius-lg, 0.75rem);
+  overflow: hidden;
+}
+
+/* ── HUD overlay ───────────────────────────────────────────── */
+.universe-hud {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.universe-active-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.universe-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+}
+
+.universe-stat-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(221, 216, 204, 0.9);
+}
+
+.universe-stat-lbl {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(47, 196, 181, 0.65);
+}
+
+/* ── Loading state ─────────────────────────────────────────── */
+.universe-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  color: rgba(221, 216, 204, 0.5);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.universe-loading-ring {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid rgba(47, 196, 181, 0.15);
+  border-top-color: rgba(47, 196, 181, 0.7);
+  border-radius: 50%;
+  animation: universe-spin 1s linear infinite;
+}
+
+@keyframes universe-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── View Toggle ───────────────────────────────────────────── */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(47, 196, 181, 0.15);
+  border-radius: var(--radius-full, 9999px);
+  padding: 0.2rem;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(221, 216, 204, 0.5);
+  transition: all 180ms ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.view-toggle-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.view-toggle-btn:hover {
+  color: rgba(221, 216, 204, 0.85);
+}
+
+.view-toggle-btn.active {
+  background: rgba(47, 196, 181, 0.14);
+  color: #2fc4b5;
+  box-shadow: 0 0 0 1px rgba(47, 196, 181, 0.25);
+}
+
+.view-toggle-badge {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(47, 196, 181, 0.2);
+  color: #2fc4b5;
+  line-height: 1.4;
+}
+
+/* ── StrainRail3D Html Panel ───────────────────────────────── */
+.rail-3d-panel {
+  width: 260px;
+  max-height: 340px;
+  background: rgba(8, 12, 18, 0.88);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(47, 196, 181, 0.18);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 24px var(--rail-glow, rgba(47, 196, 181, 0.12));
+  display: flex;
+  flex-direction: column;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.rail-3d-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.75rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.rail-3d-family {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.rail-3d-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rail-3d-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(221, 216, 204, 0.92);
+  letter-spacing: 0.03em;
+}
+
+.rail-3d-count {
+  font-size: 0.62rem;
+  color: rgba(221, 216, 204, 0.38);
+  letter-spacing: 0.06em;
+}
+
+.rail-3d-close {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(221, 216, 204, 0.35);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+  border: none;
+  background: transparent;
+}
+
+.rail-3d-close:hover {
+  color: rgba(221, 216, 204, 0.8);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.rail-3d-close svg {
+  width: 12px;
+  height: 12px;
+}
+
+.rail-3d-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.4rem;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(47, 196, 181, 0.2) transparent;
+}
+
+.rail-3d-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 140ms ease;
+  text-align: left;
+  border: none;
+  background: transparent;
+  width: 100%;
+}
+
+.rail-3d-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.rail-3d-swatch {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rail-3d-swatch-seg {
+  flex: 1;
+  height: 100%;
+}
+
+.rail-3d-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rail-3d-card-name {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(221, 216, 204, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+
+.rail-3d-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+
+.rail-3d-level {
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(221, 216, 204, 0.35);
+}
+
+.rail-3d-pop {
+  display: flex;
+  gap: 2px;
+}
+
+.rail-3d-pop-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 150ms ease;
+}
+
+.rail-3d-pop-dot.filled {
+  /* color set inline via style prop */
+}
