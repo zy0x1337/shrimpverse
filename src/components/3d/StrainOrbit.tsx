@@ -1,7 +1,8 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Group } from "three";
 import { StrainPlanet } from "./StrainPlanet";
+import { computeOrbitalPositions, wildformDistance, distanceToRadius } from "../../lib/orbitalDistance";
 import type { Strain } from "../../types/strain";
 
 interface Props {
@@ -23,91 +24,53 @@ export function StrainOrbit({
 }: Props) {
   const groupRef = useRef<Group>(null);
 
-  const orbitalData = useMemo(() => {
-    // Tighter radii on mobile so planets stay within camera frustum
-    const RING_RADII = isMobile ? [1.0, 1.65, 2.3] : [1.4, 2.2, 3.0];
-    const RING_CAPACITY = [6, 10, 999];
-    const RING_INCLINATIONS = [0.18, -0.22, 0.12];
-    const RING_SPEEDS = [0.22, 0.15, 0.10];
+  // Compute orbital positions once — pure function of strain data
+  const orbits = computeOrbitalPositions(strains, center);
 
-    const rings = RING_CAPACITY.map((cap) => ({ capacity: cap, count: 0 }));
-    let ringIdx = 0;
-
-    const assignments: number[] = strains.map(() => {
-      if (rings[ringIdx].count >= RING_CAPACITY[ringIdx] && ringIdx < 2) {
-        ringIdx++;
-      }
-      rings[ringIdx].count++;
-      return ringIdx;
-    });
-
-    const ringCounters = [0, 0, 0];
-    return strains.map((strain, i) => {
-      const ring = assignments[i];
-      const totalInRing = rings[ring].count;
-      const posInRing = ringCounters[ring]++;
-      const baseAngle = (posInRing / totalInRing) * Math.PI * 2;
-
-      return {
-        strain,
-        ring,
-        radius: RING_RADII[ring],
-        baseAngle,
-        speed: RING_SPEEDS[ring],
-        inclination: RING_INCLINATIONS[ring],
-      };
-    });
-  }, [strains, isMobile]);
-
-  const anglesRef = useRef<number[]>(orbitalData.map((d) => d.baseAngle));
-
+  // Slow continuous rotation of the entire system
   useFrame((_, delta) => {
     if (!isActive || !groupRef.current) return;
-    anglesRef.current = anglesRef.current.map(
-      (a, i) => a + delta * orbitalData[i].speed,
-    );
+    groupRef.current.rotation.y += delta * 0.08;
   });
 
   if (!isActive) return null;
 
+  // Unique radii in the system for hairline orbit circles
+  const uniqueRadii = Array.from(
+    new Set(orbits.map((o) => Math.round(distanceToRadius(wildformDistance(o.strain)) * 100) / 100))
+  );
+
   return (
-    <group ref={groupRef}>
-      {[0, 1, 2]
-        .filter((i) => orbitalData.some((d) => d.ring === i))
-        .map((i) => (
-          <mesh
-            key={i}
-            position={center}
-            rotation={[[0.18, -0.22, 0.12][i], 0, 0] as unknown as [number, number, number]}
-          >
-            <torusGeometry
-              args={[orbitalData.find((d) => d.ring === i)!.radius, 0.005, 4, 120]}
-            />
-            <meshBasicMaterial
-              color={familyColor}
-              transparent
-              opacity={0.08}
-            />
-          </mesh>
-        ))}
+    <group ref={groupRef} position={center}>
+      {/* Hairline orbit circles — one per unique radius */}
+      {uniqueRadii.map((r) => (
+        <mesh key={r}>
+          <torusGeometry args={[r, 0.004, 4, 128]} />
+          <meshBasicMaterial
+            color={familyColor}
+            transparent
+            opacity={isMobile ? 0.06 : 0.09}
+          />
+        </mesh>
+      ))}
 
-      {orbitalData.map((d, i) => {
-        const angle = anglesRef.current[i];
-        const x = center[0] + Math.cos(angle) * d.radius;
-        const y =
-          center[1] +
-          Math.sin(angle * 0.5) * d.radius * Math.sin(d.inclination);
-        const z = center[2] + Math.sin(angle) * d.radius;
-
+      {/* Planets at world positions, offset by center */}
+      {orbits.map((o) => {
+        const localPos: [number, number, number] = [
+          o.position[0] - center[0],
+          o.position[1] - center[1],
+          o.position[2] - center[2],
+        ];
         return (
           <StrainPlanet
-            key={d.strain.id}
-            strain={d.strain}
-            position={[x, y, z]}
+            key={o.strain.id}
+            strain={o.strain}
+            position={localPos}
+            orbitalRadius={o.radius}
             isHighlighted={false}
             isDimmed={false}
             isMobile={isMobile}
-            onClick={() => onSelectStrain(d.strain.id)}
+            onClick={() => onSelectStrain(o.strain.id)}
           />
         );
       })}
