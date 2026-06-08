@@ -99,8 +99,7 @@ input, select { font: inherit; color: inherit; }
    ===================== */
 .app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
 .workspace {
-  display: grid;
-  grid-template-columns: var(--sidebar-w) 1fr;
+  display: flex;
   min-height: 100dvh;
   position: relative;
 }
@@ -117,6 +116,8 @@ input, select { font: inherit; color: inherit; }
   position: sticky;
   top: 0;
   height: 100dvh;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
   overflow-y: auto;
   overflow-x: hidden;
   border-right: 1px solid var(--border);
@@ -125,8 +126,18 @@ input, select { font: inherit; color: inherit; }
   scrollbar-color: var(--surface-3) transparent;
   display: flex;
   flex-direction: column;
-  /* 1.2: Grain texture overlay via SVG feTurbulence data-URI */
-  position: relative;
+  transition: width 300ms var(--ease-out-expo);
+}
+.filter-container.sidebar-collapsed {
+  width: 0;
+  border-right: none;
+  overflow: hidden;
+}
+.filter-panel-inner {
+  min-width: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .filter-container::after {
   content: '';
@@ -183,6 +194,22 @@ input, select { font: inherit; color: inherit; }
 }
 .sidebar-close-btn svg { width: 14px; height: 14px; }
 .sidebar-close-btn:hover { color: var(--text); border-color: var(--border-hover); }
+
+/* Desktop-only sidebar collapse toggle */
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 180ms ease;
+}
+.sidebar-collapse-btn svg { width: 14px; height: 14px; }
+.sidebar-collapse-btn:hover { color: var(--text); border-color: var(--border-hover); background: var(--surface-2); }
 
 .filter-panel { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); flex: 1; }
 .filter-section { display: flex; flex-direction: column; gap: var(--s2); }
@@ -332,6 +359,8 @@ input, select { font: inherit; color: inherit; }
    CONTENT PANEL
    ===================== */
 .content-panel {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -493,14 +522,29 @@ input, select { font: inherit; color: inherit; }
   color: var(--text-faint);
 }
 
-/* Orbit rail wrapper */
+/* Orbit layout — flex row: SVG + right rail panel */
+.orbit-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.orbit-layout > .orbit-explorer {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Orbit rail wrapper — desktop: right panel; mobile: absolute bottom sheet */
 .orbit-rail-wrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  padding: 0 var(--s4) var(--s4);
+  width: 260px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* =====================
@@ -567,6 +611,43 @@ input, select { font: inherit; color: inherit; }
 .rail-close svg { width: 13px; height: 13px; }
 .rail-close:hover { color: var(--text); border-color: var(--border-hover); }
 .rail-close:active { background: var(--surface-2); }
+
+/* Vertical rail modifier — used when rail is the right-side panel on desktop */
+.strain-rail--vertical {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  flex: 1;
+}
+.strain-rail--vertical .strain-rail-scroll-wrap { flex: 1; overflow: hidden; }
+.strain-rail--vertical .strain-rail-scroll-wrap::after { display: none; }
+.strain-rail--vertical .strain-rail-scroll {
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding-right: 0;
+  height: 100%;
+}
+.strain-rail--vertical .strain-card {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 56px;
+  padding: var(--s2) var(--s3);
+}
+.strain-rail--vertical .strain-card-swatch {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+}
+.strain-rail--vertical .strain-card-meta { margin-top: 0; }
 
 /* Scroll wrap with right-edge fade hint */
 .strain-rail-scroll-wrap {
@@ -959,10 +1040,7 @@ input, select { font: inherit; color: inherit; }
    RESPONSIVE — MOBILE
    ===================== */
 @media (max-width: 768px) {
-  /* Full-width single column */
-  .workspace { grid-template-columns: 1fr; }
-
-  /* Sidebar: off-canvas drawer from left */
+  /* Sidebar: off-canvas drawer from left (overrides sticky + width transition) */
   .filter-container {
     position: fixed;
     top: 0; left: 0; bottom: 0;
@@ -1001,13 +1079,25 @@ input, select { font: inherit; color: inherit; }
   .toolbar h2 { font-size: var(--text-lg); }
   .eyebrow { display: none; } /* save vertical space */
 
-  /* Orbit rail: full-width sheet at bottom */
+  /* Orbit rail: revert to absolute bottom sheet on mobile */
   .orbit-rail-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    flex-shrink: unset;
+    border-left: none;
+    background: transparent;
     padding: 0 var(--s2) var(--s3);
+    overflow: visible;
+    z-index: 10;
   }
   .strain-rail {
     border-radius: var(--r-xl) var(--r-xl) var(--r-lg) var(--r-lg);
   }
+  /* Hide desktop collapse toggle on mobile */
+  .sidebar-collapse-btn { display: none; }
   /* Wider cards on mobile for better tap targets */
   .strain-card { width: 130px; }
 

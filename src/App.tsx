@@ -28,6 +28,7 @@ export default function App() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const isMobile = useIsMobile();
 
@@ -77,7 +78,7 @@ export default function App() {
             />
           )}
 
-          <div className={`filter-container${filtersOpen ? " open" : ""}`}>
+          <div className={`filter-container${filtersOpen ? " open" : ""}${!isMobile && sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
             <FilterPanel
               state={state}
               stats={stats}
@@ -89,6 +90,8 @@ export default function App() {
               onStableOnlyChange={setStableOnly}
               onWaterTypeChange={setWaterType}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
+              onCollapse={!isMobile ? () => setSidebarCollapsed(v => !v) : undefined}
+              collapsed={!isMobile && sidebarCollapsed}
             />
           </div>
 
@@ -99,6 +102,29 @@ export default function App() {
                 <h2>Genera, species &amp; documented varieties</h2>
               </div>
               <div className="toolbar-actions">
+                {!isMobile && (
+                  <button
+                    className="icon-button"
+                    type="button"
+                    aria-label={sidebarCollapsed ? "Seitenleiste einblenden" : "Seitenleiste ausblenden"}
+                    onClick={() => setSidebarCollapsed(v => !v)}
+                    title={sidebarCollapsed ? "Filter einblenden" : "Filter ausblenden"}
+                  >
+                    {sidebarCollapsed ? (
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="16" height="14" rx="2" />
+                        <path d="M7 3v14" />
+                        <path d="M11 8l2 2-2 2" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="16" height="14" rx="2" />
+                        <path d="M7 3v14" />
+                        <path d="M5 8l-2 2 2 2" opacity="0.4" />
+                      </svg>
+                    )}
+                  </button>
+                )}
                 <ViewToggle mode={viewMode} onChange={setViewMode} />
                 <button
                   className="icon-button mobile-filter-toggle"

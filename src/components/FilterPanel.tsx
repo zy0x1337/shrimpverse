@@ -20,6 +20,8 @@ interface Props {
   onStableOnlyChange: (v: boolean) => void;
   onWaterTypeChange: (v: string) => void;
   onClose?: () => void;
+  onCollapse?: () => void;
+  collapsed?: boolean;
 }
 
 export function FilterPanel({
@@ -28,6 +30,7 @@ export function FilterPanel({
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
   onWaterTypeChange,
   onClose,
+  onCollapse,
 }: Props) {
   const activeFamilyColor =
     state.family !== "All" ? familyColors[state.family] : null;
@@ -54,6 +57,18 @@ export function FilterPanel({
             >
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <path d="M3 3l10 10M13 3L3 13" />
+              </svg>
+            </button>
+          )}
+          {/* Desktop collapse button */}
+          {onCollapse && (
+            <button
+              className="sidebar-collapse-btn"
+              onClick={onCollapse}
+              aria-label="Seitenleiste ausblenden"
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 3l-5 5 5 5" />
               </svg>
             </button>
           )}

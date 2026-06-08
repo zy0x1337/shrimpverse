@@ -6,6 +6,7 @@ interface Props {
   strains: Strain[];
   onSelect: (id: string) => void;
   onClose: () => void;
+  orientation?: "horizontal" | "vertical";
 }
 
 /**
@@ -47,11 +48,12 @@ function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
   );
 }
 
-export function StrainRail({ family, strains, onSelect, onClose }: Props) {
+export function StrainRail({ family, strains, onSelect, onClose, orientation = "horizontal" }: Props) {
   const color = familyColors[family] ?? "#888";
+  const isVertical = orientation === "vertical";
 
   return (
-    <div className="strain-rail">
+    <div className={`strain-rail${isVertical ? " strain-rail--vertical" : ""}`}>
       <div className="strain-rail-header">
         <div className="strain-rail-family">
           <span className="strain-rail-dot" style={{ background: color, boxShadow: `0 0 8px ${color}60` }} />

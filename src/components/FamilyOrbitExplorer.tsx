@@ -4,6 +4,7 @@ import { familyColors, familyGenus } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const NEO_ORDER    = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
 const CARIDINA_ORDER = ["Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo"];
@@ -98,6 +99,7 @@ interface Props {
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [hovered, setHovered]           = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Build family entries with per-ring angle positions
   const families = useMemo(() => {
@@ -156,8 +158,13 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     );
   }
 
+  const railAnimation = isMobile
+    ? { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 20 } }
+    : { initial: { width: 0, opacity: 0 }, animate: { width: 260, opacity: 1 }, exit: { width: 0, opacity: 0 } };
+
   return (
-    <div className="orbit-explorer">
+    <div className="orbit-layout">
+      <div className="orbit-explorer">
       {/* Stats bar */}
       <div className="orbit-stats" aria-label="Visible strain statistics">
         <div className="orbit-stat">
@@ -522,21 +529,23 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         </motion.g>
       </svg>
 
-      {/* Strain detail rail */}
+      </div>
+
+      {/* Strain detail rail — right panel on desktop, bottom sheet on mobile */}
       <AnimatePresence>
         {activeFamily && activeStrains.length > 0 && (
           <motion.div
             className="orbit-rail-wrapper"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            {...railAnimation}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
+            style={!isMobile ? { overflow: "hidden", flexShrink: 0 } : undefined}
           >
             <StrainRail
               family={activeFamily}
               strains={activeStrains}
               onSelect={onSelect}
               onClose={() => setActiveFamily(null)}
+              orientation={isMobile ? "horizontal" : "vertical"}
             />
           </motion.div>
         )}
