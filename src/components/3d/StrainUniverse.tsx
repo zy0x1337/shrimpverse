@@ -1,5 +1,9 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, AdaptiveDpr, AdaptiveEvents } from "@react-three/drei";
+import {
+  OrbitControls,
+  AdaptiveDpr,
+  AdaptiveEvents,
+} from "@react-three/drei";
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { familyColors } from "../../lib/constants";
@@ -13,13 +17,9 @@ import { StrainRail3D } from "./StrainRail3D";
 const FAMILY_ORDER = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
 const ORBIT_RADIUS = 5.5;
 
-function getFamilyPosition(
-  index: number,
-  total: number,
-): [number, number, number] {
+function getFamilyPosition(index: number, total: number): [number, number, number] {
   const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
-  // Gentle y-wave for 3D depth — not fully flat
-  const yOffset = Math.sin(angle * 2) * 0.55;
+  const yOffset = Math.sin(angle * 2) * 0.45;
   return [
     Math.cos(angle) * ORBIT_RADIUS,
     yOffset,
@@ -57,20 +57,44 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
   return (
     <div className="universe-canvas-wrapper">
       <Canvas
-        camera={{ position: [0, 3.5, 13.5], fov: 52 }}
-        gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+        camera={{ position: [0, 2.8, 13], fov: 48 }}
+        gl={{
+          antialias: true,
+          alpha: false,
+          powerPreference: "high-performance",
+          // Logarithmic depth buffer — eliminates z-fighting on overlapping nodes
+          logarithmicDepthBuffer: true,
+        }}
         dpr={[1, 2]}
-        style={{ background: "radial-gradient(ellipse at 50% 60%, #0d1f38 0%, #05080f 100%)" }}
+        style={{
+          // Deep, near-black space with a barely perceptible blue tint at center
+          background: "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
+        }}
       >
         <AdaptiveDpr pixelated />
         <AdaptiveEvents />
 
         <Suspense fallback={null}>
-          {/* Lighting — warm uplight like aquarium LED strip */}
-          <ambientLight intensity={0.1} />
-          <pointLight position={[0, -6, 0]} color="#00d4ff" intensity={3.5} />
-          <pointLight position={[0, 10, 4]} color="#ffffff" intensity={0.6} />
-          <pointLight position={[-8, 2, -4]} color="#2fc4b5" intensity={1.2} />
+          {/*
+           * Lighting: one cool uplight (aquarium LED), one neutral fill.
+           * Ambient is almost zero — we want the emissive nodes to be
+           * the primary light sources in the scene.
+           */}
+          <ambientLight intensity={0.06} />
+          <pointLight
+            position={[0, -8, 0]}
+            color="#1ad4e8"
+            intensity={4}
+            distance={22}
+            decay={2}
+          />
+          <pointLight
+            position={[0, 12, 6]}
+            color="#e8f4ff"
+            intensity={0.4}
+            distance={30}
+            decay={2}
+          />
 
           <UniverseBackground />
           <OrbitRing radius={ORBIT_RADIUS} />
@@ -91,7 +115,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             );
           })}
 
-          {/* Floating StrainRail anchored to active node */}
           {activeEntry && (() => {
             const idx = families.findIndex((f) => f.family === activeEntry.family);
             const pos = getFamilyPosition(idx, families.length);
@@ -108,32 +131,31 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
 
           <OrbitControls
             enableDamping
-            dampingFactor={0.06}
+            dampingFactor={0.05}
             autoRotate={!activeFamily}
-            autoRotateSpeed={0.35}
-            minDistance={5}
-            maxDistance={22}
+            autoRotateSpeed={0.28}
+            minDistance={6}
+            maxDistance={20}
             enablePan={false}
-            maxPolarAngle={Math.PI * 0.75}
-            minPolarAngle={Math.PI * 0.25}
+            maxPolarAngle={Math.PI * 0.72}
+            minPolarAngle={Math.PI * 0.28}
           />
 
-          <Environment preset="night" />
           <EffectPipeline hasActiveFamily={!!activeFamily} />
         </Suspense>
       </Canvas>
 
-      {/* HUD: stats overlay */}
-      <div className="universe-hud" aria-label="Universe statistics">
+      {/* HUD — minimal, top-right, never distracts from the scene */}
+      <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
             <motion.div
-              key="active-label"
+              key={activeFamily}
               className="universe-active-label"
-              initial={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
               style={{ color: familyColors[activeFamily] }}
             >
               {activeFamily}

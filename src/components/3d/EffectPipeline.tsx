@@ -1,47 +1,36 @@
 import {
   EffectComposer,
   Bloom,
-  DepthOfField,
   Vignette,
-  ChromaticAberration,
 } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
-import { Vector2 } from "three";
 
-interface Props {
-  hasActiveFamily: boolean;
-}
-
-export function EffectPipeline({ hasActiveFamily }: Props) {
+/**
+ * Premium pipeline — the guiding principle:
+ * less is more. Two effects only.
+ *
+ * Bloom: tight, luminance-gated. Only the actual emissive
+ * node cores glow — nothing else bleeds light.
+ *
+ * Vignette: strong enough to frame the scene like a macro
+ * aquarium photo, subtle enough to be invisible consciously.
+ *
+ * Removed: DepthOfField (flickers on resize, fights OrbitControls),
+ * ChromaticAberration (reads as artifacting at low values, cliché at high).
+ */
+export function EffectPipeline({ hasActiveFamily }: { hasActiveFamily: boolean }) {
   return (
-    <EffectComposer multisampling={4}>
-      {/* Bloom — makes colored shrimp nodes glow like LEDs in water */}
+    <EffectComposer multisampling={8}>
       <Bloom
-        intensity={hasActiveFamily ? 2.2 : 1.4}
-        luminanceThreshold={0.35}
-        luminanceSmoothing={0.85}
+        intensity={hasActiveFamily ? 0.9 : 0.55}
+        luminanceThreshold={0.6}
+        luminanceSmoothing={0.4}
         mipmapBlur
-        radius={0.7}
+        radius={0.45}
       />
-      {/* Depth of Field — background softens, focused node is sharp */}
-      <DepthOfField
-        focusDistance={hasActiveFamily ? 0.015 : 0.008}
-        focalLength={0.07}
-        bokehScale={hasActiveFamily ? 4 : 2.5}
-        height={700}
-      />
-      {/* Vignette — aquarium glass edge darkening */}
       <Vignette
         eskil={false}
-        offset={0.12}
-        darkness={0.65}
-      />
-      {/* Very subtle chromatic aberration — wet glass look */}
-      <ChromaticAberration
-        blendFunction={BlendFunction.NORMAL}
-        offset={new Vector2(0.0006, 0.0006)}
-        radialModulation={true}
-        modulationOffset={0.65}
+        offset={0.18}
+        darkness={0.72}
       />
     </EffectComposer>
   );
