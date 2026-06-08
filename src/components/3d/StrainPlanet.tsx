@@ -185,14 +185,17 @@ export function StrainPlanet({
           </mesh>
         )}
 
-        {/* 5. Canvas-texture label — on desktop: hover; on mobile: only when tapped */}
-        {(hovered || isHighlighted) && (
+        {/* 5. Canvas-texture label
+              desktop: on hover or tap
+              mobile:  always when family is active (subtle), full on tap */}
+        {(hovered || isHighlighted || (isMobile && !isIdle && !isDimmed)) && (
           <PlanetLabel
             name={strain.name}
             level={strain.level}
             r={baseR}
             isHighlighted={isHighlighted}
             isMobile={isMobile}
+            ambient={isMobile && !isHighlighted}
           />
         )}
       </animated.group>
@@ -206,12 +209,14 @@ function PlanetLabel({
   r,
   isHighlighted,
   isMobile,
+  ambient = false,
 }: {
   name: string;
   level: string;
   r: number;
   isHighlighted: boolean;
   isMobile: boolean;
+  ambient?: boolean;
 }) {
   const texture = useMemo(() => {
     const w = isMobile ? 384 : 256;
@@ -224,7 +229,7 @@ function PlanetLabel({
 
     // Pill background for legibility on mobile
     if (isMobile) {
-      ctx.fillStyle = "rgba(8,12,16,0.72)";
+      ctx.fillStyle = ambient ? "rgba(8,12,16,0.55)" : "rgba(8,12,16,0.72)";
       ctx.beginPath();
       ctx.roundRect(12, 6, w - 24, h - 12, 12);
       ctx.fill();
@@ -261,7 +266,7 @@ function PlanetLabel({
       <meshBasicMaterial
         map={texture}
         transparent
-        opacity={isHighlighted ? 1.0 : 0.85}
+        opacity={isHighlighted ? 1.0 : ambient ? 0.65 : 0.85}
         depthWrite={false}
         side={THREE.DoubleSide}
       />
