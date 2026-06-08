@@ -220,16 +220,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             <stop offset="60%"  stopColor="rgba(255,170,20,0.10)" />
             <stop offset="100%" stopColor="rgba(255,140,0,0)" />
           </radialGradient>
-          {/* Family glow filters */}
-          {families.map((item) => (
-            <filter key={`glow-${item.family}`} id={`glow-${item.family}`} x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="7" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          ))}
+          {/* Single shared glow filter — all family nodes use the same blur params */}
+          <filter id="node-glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="7" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
           <filter id="sun-glow" x="-80%" y="-80%" width="260%" height="260%">
             <feGaussianBlur stdDeviation="8" result="blur" />
             <feMerge>
@@ -347,7 +345,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   cx={nx} cy={ny} r={nr + 7}
                   fill={item.color}
                   opacity={isActive ? 0.18 : 0.10}
-                  filter={`url(#glow-${item.family})`}
+                  filter="url(#node-glow)"
                 />
               )}
 
@@ -382,7 +380,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   fill={item.color}
                   stroke={isActive ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
                   strokeWidth={isActive ? 1.2 : 0.6}
-                  filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
+                  filter={isActive || isHov ? "url(#node-glow)" : undefined}
                 />
               ) : (
                 /* === Neocaridina: circle node === */
@@ -391,7 +389,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   fill={item.color}
                   stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
                   strokeWidth={isActive ? 1.2 : 0.5}
-                  filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
+                  filter={isActive || isHov ? "url(#node-glow)" : undefined}
                 />
               )}
 

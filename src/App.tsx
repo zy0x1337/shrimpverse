@@ -102,7 +102,7 @@ export default function App() {
             <div className="toolbar">
               <div>
                 <p className="eyebrow">Species Atlas</p>
-                <h2>Genera, species &amp; documented varieties</h2>
+                <h2>{viewMode === "3d" ? "3D Solar System" : "Genera, species & documented varieties"}</h2>
               </div>
               <div className="toolbar-actions">
                 {!isMobile && (

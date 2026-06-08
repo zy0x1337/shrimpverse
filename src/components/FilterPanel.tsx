@@ -183,7 +183,11 @@ export function FilterPanel({
             />
             Popular strains only
           </label>
-          <label className="filter-checkbox" style={{ marginTop: "var(--s2)" }}>
+          <label
+            className="filter-checkbox"
+            style={{ marginTop: "var(--s2)" }}
+            title="Hides project lines where offspring color varies widely"
+          >
             <input
               type="checkbox"
               checked={state.stableOnly}
@@ -196,17 +200,17 @@ export function FilterPanel({
 
       {/* Stats */}
       <div className="sidebar-stats">
-        <div className="stat-cell">
+        <div className="stat-cell" title="Currently visible strains">
           <span className="stat-value">{stats.visible}</span>
-          <span className="stat-label">visible</span>
+          <span className="stat-label">Visible</span>
         </div>
-        <div className="stat-cell">
+        <div className="stat-cell" title="Strains with popularity ≥ 4 of 5">
           <span className="stat-value">{stats.popular}</span>
-          <span className="stat-label">popular</span>
+          <span className="stat-label">Popular</span>
         </div>
-        <div className="stat-cell">
+        <div className="stat-cell" title="Rili-patterned varieties (two-tone with transparent mid-section)">
           <span className="stat-value">{stats.rili}</span>
-          <span className="stat-label">rili</span>
+          <span className="stat-label">Rili</span>
         </div>
       </div>
     </div>
