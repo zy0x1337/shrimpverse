@@ -10,32 +10,52 @@ interface Props {
 }
 
 const LEVEL_LABELS: Record<string, string> = {
-  Beginner: "Beginner",
+  Beginner:     "Beginner",
   Intermediate: "Intermediate",
-  Collector: "Collector",
+  Collector:    "Collector",
 };
 
-/** Luminance-based contrast check — returns true if white text is readable */
+const WATER_LABEL: Record<string, string> = {
+  hard:    "Hard water",
+  soft:    "Soft water",
+  neutral: "Neutral",
+};
+
+const WATER_COLOR: Record<string, string> = {
+  hard:    "#22cc66",
+  soft:    "#4aa8f0",
+  neutral: "#999",
+};
+
 function needsLightText(hex: string): boolean {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
   const g = parseInt(hex.slice(3, 5), 16) / 255;
   const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luminance < 0.45;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.45;
+}
+
+function deriveWaterType(strain: Strain): "hard" | "soft" | "neutral" {
+  if (strain.waterType) return strain.waterType;
+  const caridina = new Set(["Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano"]);
+  if (caridina.has(strain.family)) return "soft";
+  if (strain.family === "Bamboo") return "neutral";
+  return "hard";
 }
 
 export function StrainDialog({ strain, onClose }: Props) {
   useEffect(() => {
     if (!strain) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [strain, onClose]);
 
   if (!strain) return null;
-  const color = familyColors[strain.family] ?? "#888";
+
+  const color     = familyColors[strain.family] ?? "#888";
+  const waterType = deriveWaterType(strain);
+  const waterColor = WATER_COLOR[waterType];
+  const hasTaxonomy = strain.genus || strain.species;
 
   return (
     <AnimatePresence>
@@ -60,40 +80,62 @@ export function StrainDialog({ strain, onClose }: Props) {
           >
             <div className="dialog-header">
               <div className="dialog-header-left">
-                <div
-                  className="dialog-family-badge"
-                  style={{
-                    background: `${color}22`,
-                    color: color,
-                    border: `1px solid ${color}44`,
-                  }}
-                >
-                  <span
+                {/* Badge row: family + water type */}
+                <div className="dialog-badges">
+                  <div
+                    className="dialog-family-badge"
                     style={{
-                      display: "inline-block",
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: color,
-                      boxShadow: `0 0 6px ${color}`,
+                      background: `${color}22`,
+                      color: color,
+                      border: `1px solid ${color}44`,
                     }}
-                  />
-                  {strain.family}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 6, height: 6,
+                        borderRadius: "50%",
+                        background: color,
+                        boxShadow: `0 0 6px ${color}`,
+                      }}
+                    />
+                    {strain.family}
+                  </div>
+
+                  <div
+                    className="dialog-water-badge"
+                    style={{
+                      background: `${waterColor}18`,
+                      color: waterColor,
+                      border: `1px solid ${waterColor}40`,
+                    }}
+                  >
+                    <WaterIcon type={waterType} />
+                    {WATER_LABEL[waterType]}
+                  </div>
                 </div>
+
+                {/* Strain name */}
                 <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
+
+                {/* Taxonomy line: Genus species */}
+                {hasTaxonomy && (
+                  <div className="dialog-taxonomy">
+                    {strain.genus && (
+                      <span className="dialog-genus">{strain.genus}</span>
+                    )}
+                    {strain.species && (
+                      <span className="dialog-species">{strain.species}</span>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {/* 3.1: ShrimpVisual with breathe animation loop */}
               <motion.div
                 className="dialog-header-shrimp"
                 aria-hidden="true"
                 animate={{ scale: [1, 1.04, 1] }}
-                transition={{
-                  duration: 3.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  repeatType: "loop",
-                }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", repeatType: "loop" }}
               >
                 <ShrimpVisual strain={strain} className="dialog-shrimp-visual" />
               </motion.div>
@@ -106,11 +148,11 @@ export function StrainDialog({ strain, onClose }: Props) {
             </div>
 
             <div className="dialog-body">
-              {/* Colour swatch with hex labels */}
+              {/* Colour swatches */}
               <div className="dialog-swatch">
                 {strain.colors.map((c, i) => {
                   const labels = ["Base", "Mid-tone", "Accent"];
-                  const light = needsLightText(c);
+                  const light  = needsLightText(c);
                   return (
                     <div key={i} className="dialog-swatch-seg" style={{ background: c }}>
                       <span
@@ -125,22 +167,27 @@ export function StrainDialog({ strain, onClose }: Props) {
                 })}
               </div>
 
+              {/* Meta grid — 6 cells */}
               <div className="dialog-meta-grid">
-                {[
-                  ["Family", strain.family],
-                  ["Pattern", strain.pattern],
-                  ["Line", strain.line],
+                {([
+                  ["Family",     strain.family],
+                  ["Pattern",    strain.pattern],
+                  ["Line",       strain.line],
                   ["Care level", LEVEL_LABELS[strain.level] ?? strain.level],
-                  ["Stability", strain.stable ? "✦ Stable" : "◦ Project line"],
-                ].map(([k, v]) => (
+                  ["Stability",  strain.stable ? "✦ Stable" : "◦ Project line"],
+                  ["Water",      WATER_LABEL[waterType]],
+                ] as [string, string][]).map(([k, v]) => (
                   <div key={k} className="dialog-meta-cell">
                     <div className="dialog-meta-key">{k}</div>
                     <div
                       className="dialog-meta-val"
-                      style={k === "Stability" ? {
-                        color: strain.stable ? "var(--teal)" : "var(--accent)",
-                        fontWeight: 500,
-                      } : {}}
+                      style={
+                        k === "Stability"
+                          ? { color: strain.stable ? "var(--teal)" : "var(--accent)", fontWeight: 500 }
+                          : k === "Water"
+                          ? { color: waterColor, fontWeight: 500 }
+                          : {}
+                      }
                     >
                       {v}
                     </div>
@@ -175,5 +222,24 @@ export function StrainDialog({ strain, onClose }: Props) {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function WaterIcon({ type }: { type: string }) {
+  if (type === "soft") return (
+    <svg viewBox="0 0 12 12" fill="currentColor" style={{ width: 9, height: 9 }}>
+      <path d="M6 1C6 1 2 5.5 2 7.5a4 4 0 008 0C10 5.5 6 1 6 1z" />
+    </svg>
+  );
+  if (type === "hard") return (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" style={{ width: 9, height: 9 }}>
+      <path d="M6 1C6 1 2 5.5 2 7.5a4 4 0 008 0C10 5.5 6 1 6 1z" />
+    </svg>
+  );
+  // neutral
+  return (
+    <svg viewBox="0 0 12 12" fill="currentColor" style={{ width: 9, height: 9, opacity: 0.6 }}>
+      <circle cx="6" cy="6" r="3.5" />
+    </svg>
   );
 }

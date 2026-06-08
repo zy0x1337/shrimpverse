@@ -720,6 +720,13 @@ input, select { font: inherit; color: inherit; }
   display: block;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
 }
+.dialog-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
 .dialog-family-badge {
   display: inline-flex;
   align-items: center;
@@ -730,8 +737,31 @@ input, select { font: inherit; color: inherit; }
   font-size: var(--text-xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: var(--s3);
 }
+.dialog-water-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--s3);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dialog-taxonomy {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+  margin-top: var(--s1);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.78rem;
+  color: rgba(221, 216, 204, 0.42);
+  letter-spacing: 0.01em;
+}
+.dialog-genus  { font-weight: 500; }
+.dialog-species { font-weight: 400; }
 .dialog-title {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.4rem);
