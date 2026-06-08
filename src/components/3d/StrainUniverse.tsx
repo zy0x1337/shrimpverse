@@ -3,8 +3,9 @@ import {
   OrbitControls,
   AdaptiveDpr,
   AdaptiveEvents,
+  CameraControls,
 } from "@react-three/drei";
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { familyColors } from "../../lib/constants";
 import type { Strain } from "../../types/strain";
@@ -12,7 +13,7 @@ import { UniverseBackground } from "./UniverseBackground";
 import { FamilyNode3D } from "./FamilyNode3D";
 import { OrbitRing } from "./OrbitRing";
 import { EffectPipeline } from "./EffectPipeline";
-import { StrainRail3D } from "./StrainRail3D";
+import { StrainOrbit } from "./StrainOrbit";
 
 const FAMILY_ORDER = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
 const ORBIT_RADIUS = 5.5;
@@ -25,6 +26,48 @@ function getFamilyPosition(index: number, total: number): [number, number, numbe
     yOffset,
     Math.sin(angle) * ORBIT_RADIUS,
   ];
+}
+
+/**
+ * Scene camera controller — flies to the active family star
+ * when selected, returns to orbit view when deselected.
+ */
+function SceneCamera({ activePos }: { activePos: [number, number, number] | null }) {
+  const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    const ctrl = controlsRef.current;
+    if (!ctrl) return;
+
+    if (activePos) {
+      // Zoom toward the family, slightly offset to see its planets
+      ctrl.setLookAt(
+        activePos[0] * 0.45,
+        activePos[1] + 2.5,
+        activePos[2] * 0.45 + 7,
+        activePos[0],
+        activePos[1],
+        activePos[2],
+        true, // animate
+      );
+    } else {
+      // Return to default overview
+      ctrl.setLookAt(0, 2.8, 13, 0, 0, 0, true);
+    }
+  }, [activePos]);
+
+  return (
+    <CameraControls
+      ref={controlsRef}
+      enabled
+      dampingFactor={0.08}
+      draggingDampingFactor={0.12}
+      minDistance={3}
+      maxDistance={22}
+      verticalDragToForward={false}
+      dollyToCursor={false}
+    />
+  );
 }
 
 interface Props {
@@ -52,7 +95,14 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
     setActiveFamily((prev) => (prev === family ? null : family));
   }, []);
 
-  const activeEntry = families.find((f) => f.family === activeFamily);
+  const activeFamilyEntry = families.find((f) => f.family === activeFamily);
+  const activeFamilyIndex = activeFamilyEntry
+    ? families.indexOf(activeFamilyEntry)
+    : -1;
+  const activePos =
+    activeFamilyIndex >= 0
+      ? getFamilyPosition(activeFamilyIndex, families.length)
+      : null;
 
   return (
     <div className="universe-canvas-wrapper">
@@ -62,24 +112,18 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           antialias: true,
           alpha: false,
           powerPreference: "high-performance",
-          // Logarithmic depth buffer — eliminates z-fighting on overlapping nodes
           logarithmicDepthBuffer: true,
         }}
         dpr={[1, 2]}
         style={{
-          // Deep, near-black space with a barely perceptible blue tint at center
-          background: "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
         }}
       >
         <AdaptiveDpr pixelated />
         <AdaptiveEvents />
 
         <Suspense fallback={null}>
-          {/*
-           * Lighting: one cool uplight (aquarium LED), one neutral fill.
-           * Ambient is almost zero — we want the emissive nodes to be
-           * the primary light sources in the scene.
-           */}
           <ambientLight intensity={0.06} />
           <pointLight
             position={[0, -8, 0]}
@@ -99,6 +143,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <UniverseBackground />
           <OrbitRing radius={ORBIT_RADIUS} />
 
+          {/* Family stars */}
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length);
             return (
@@ -115,37 +160,27 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             );
           })}
 
-          {activeEntry && (() => {
-            const idx = families.findIndex((f) => f.family === activeEntry.family);
-            const pos = getFamilyPosition(idx, families.length);
+          {/* Strain planets — orbit their family star when active */}
+          {families.map((item, i) => {
+            const pos = getFamilyPosition(i, families.length);
             return (
-              <StrainRail3D
-                family={activeEntry.family}
-                strains={activeEntry.strains}
-                position={pos}
-                onSelect={onSelect}
-                onClose={() => setActiveFamily(null)}
+              <StrainOrbit
+                key={item.family}
+                strains={item.strains}
+                familyColor={item.color}
+                center={pos}
+                isActive={activeFamily === item.family}
+                onSelectStrain={onSelect}
               />
             );
-          })()}
+          })}
 
-          <OrbitControls
-            enableDamping
-            dampingFactor={0.05}
-            autoRotate={!activeFamily}
-            autoRotateSpeed={0.28}
-            minDistance={6}
-            maxDistance={20}
-            enablePan={false}
-            maxPolarAngle={Math.PI * 0.72}
-            minPolarAngle={Math.PI * 0.28}
-          />
-
+          <SceneCamera activePos={activePos} />
           <EffectPipeline hasActiveFamily={!!activeFamily} />
         </Suspense>
       </Canvas>
 
-      {/* HUD — minimal, top-right, never distracts from the scene */}
+      {/* HUD */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -159,9 +194,15 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
               style={{ color: familyColors[activeFamily] }}
             >
               {activeFamily}
+              {activeFamilyEntry && (
+                <span className="universe-active-count">
+                  {activeFamilyEntry.strains.length}
+                </span>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
+
         <div className="universe-stat">
           <span className="universe-stat-val">{visibleStrains.length}</span>
           <span className="universe-stat-lbl">Strains</span>
@@ -171,6 +212,25 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <span className="universe-stat-lbl">Families</span>
         </div>
       </div>
+
+      {/* Back hint when family is active */}
+      <AnimatePresence>
+        {activeFamily && (
+          <motion.button
+            className="universe-back-btn"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setActiveFamily(null)}
+          >
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 3L5 8l5 5" />
+            </svg>
+            All families
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

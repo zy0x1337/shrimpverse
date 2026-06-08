@@ -1,214 +1,238 @@
 /* ============================================================
-   3D Universe — CSS for Html-overlay panels and HUD
+   Universe 3D — CSS
+   Scoped to .universe-* and .rail-3d-* classes.
+   Tokens reference src/styles.css :root variables.
    ============================================================ */
 
-/* Canvas wrapper — fills the view-stage */
 .universe-canvas-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 520px;
-  border-radius: var(--radius-lg, 0.75rem);
   overflow: hidden;
+  background: #04060c;
+  border-radius: var(--r-lg, 12px);
 }
 
-/* ── HUD overlay ───────────────────────────────────────────── */
+/* ---- HUD -------------------------------------------------- */
 .universe-hud {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: var(--s4, 1rem);
+  right: var(--s4, 1rem);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: var(--s2, 0.5rem);
   pointer-events: none;
   z-index: 10;
 }
 
 .universe-active-label {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+
+.universe-active-count {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 0.45em;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.9;
+  color: rgba(221, 216, 204, 0.45);
+  font-weight: 400;
 }
 
 .universe-stat {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  line-height: 1.1;
+  gap: 1px;
 }
 
 .universe-stat-val {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: rgba(221, 216, 204, 0.9);
+  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.5rem);
+  font-weight: 600;
+  color: var(--accent, #e8a020);
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .universe-stat-lbl {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(47, 196, 181, 0.65);
+  color: rgba(221, 216, 204, 0.35);
 }
 
-/* ── Loading state ─────────────────────────────────────────── */
-.universe-loading {
-  display: flex;
-  flex-direction: column;
+/* ---- Back button ------------------------------------------ */
+.universe-back-btn {
+  position: absolute;
+  bottom: var(--s5, 1.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
-  height: 100%;
-  min-height: 400px;
-  color: rgba(221, 216, 204, 0.5);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.universe-loading-ring {
-  width: 40px;
-  height: 40px;
-  border: 1.5px solid rgba(47, 196, 181, 0.15);
-  border-top-color: rgba(47, 196, 181, 0.7);
-  border-radius: 50%;
-  animation: universe-spin 1s linear infinite;
-}
-
-@keyframes universe-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ── View Toggle ───────────────────────────────────────────── */
-.view-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(47, 196, 181, 0.15);
-  border-radius: var(--radius-full, 9999px);
-  padding: 0.2rem;
-}
-
-.view-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: var(--radius-full, 9999px);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: rgba(221, 216, 204, 0.5);
-  transition: all 180ms ease;
+  gap: var(--s2, 0.5rem);
+  padding: 0.45rem 1rem 0.45rem 0.7rem;
+  background: rgba(13, 19, 24, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-full, 9999px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-family: var(--font-body, 'IBM Plex Sans', sans-serif);
+  font-size: var(--text-sm, 0.875rem);
+  color: rgba(221, 216, 204, 0.6);
   cursor: pointer;
-  border: none;
-  background: transparent;
+  pointer-events: all;
+  z-index: 10;
+  transition: color 160ms ease, border-color 160ms ease;
 }
 
-.view-toggle-btn svg {
+.universe-back-btn:hover {
+  color: rgba(221, 216, 204, 0.9);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.universe-back-btn svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
 }
 
+/* ---- View toggle (2D / 3D) --------------------------------- */
+.view-toggle {
+  display: inline-flex;
+  background: var(--surface-2, #121920);
+  border: 1px solid var(--border, rgba(255,255,255,0.07));
+  border-radius: var(--r-full, 9999px);
+  padding: 3px;
+  gap: 2px;
+}
+
+.view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--r-full, 9999px);
+  font-size: var(--text-xs, 0.75rem);
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, #7a7870);
+  cursor: pointer;
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
 .view-toggle-btn:hover {
-  color: rgba(221, 216, 204, 0.85);
+  color: var(--text, #ddd8cc);
 }
 
 .view-toggle-btn.active {
-  background: rgba(47, 196, 181, 0.14);
-  color: #2fc4b5;
-  box-shadow: 0 0 0 1px rgba(47, 196, 181, 0.25);
+  background: var(--surface-3, #18222b);
+  color: var(--text, #ddd8cc);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.view-toggle-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .view-toggle-badge {
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 0.1rem 0.3rem;
-  border-radius: var(--radius-full, 9999px);
-  background: rgba(47, 196, 181, 0.2);
-  color: #2fc4b5;
-  line-height: 1.4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-full, 9999px);
+  background: var(--accent-dim, rgba(232,160,32,0.15));
+  color: var(--accent, #e8a020);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-/* ── StrainRail3D Html Panel ───────────────────────────────── */
+/* ---- Rail 3D panel (Html overlay) ------------------------- */
 .rail-3d-panel {
-  width: 260px;
-  max-height: 340px;
-  background: rgba(8, 12, 18, 0.88);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgba(47, 196, 181, 0.18);
-  border-radius: 12px;
+  width: 320px;
+  background: rgba(10, 14, 20, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
   overflow: hidden;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 8px 32px rgba(0, 0, 0, 0.5),
-    0 0 24px var(--rail-glow, rgba(47, 196, 181, 0.12));
-  display: flex;
-  flex-direction: column;
-  font-family: 'IBM Plex Sans', sans-serif;
+    0 16px 48px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 0 24px var(--rail-glow, rgba(47,196,181,0.08));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  font-family: var(--font-body, 'IBM Plex Sans', sans-serif);
+  color: var(--text, #ddd8cc);
+  /* Scale down for world-space feel; distanceFactor on Html handles depth */
+  transform-origin: top center;
 }
 
 .rail-3d-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.65rem 0.75rem 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .rail-3d-family {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 8px;
 }
 
 .rail-3d-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
   flex-shrink: 0;
 }
 
 .rail-3d-name {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(221, 216, 204, 0.92);
-  letter-spacing: 0.03em;
+  font-family: var(--font-display, serif);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--rail-accent);
 }
 
 .rail-3d-count {
-  font-size: 0.62rem;
-  color: rgba(221, 216, 204, 0.38);
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(221,216,204,0.35);
 }
 
 .rail-3d-close {
-  width: 22px;
-  height: 22px;
-  display: flex;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: rgba(221, 216, 204, 0.35);
-  border-radius: 50%;
+  border-radius: 6px;
+  color: rgba(221,216,204,0.4);
   cursor: pointer;
-  transition: color 150ms ease, background 150ms ease;
-  border: none;
-  background: transparent;
+  transition: all 140ms ease;
 }
 
 .rail-3d-close:hover {
-  color: rgba(221, 216, 204, 0.8);
-  background: rgba(255, 255, 255, 0.07);
+  color: rgba(221,216,204,0.85);
+  background: rgba(255,255,255,0.06);
 }
 
 .rail-3d-close svg {
@@ -218,41 +242,44 @@
 
 .rail-3d-scroll {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.4rem;
-  overflow-y: auto;
-  flex: 1;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(47, 196, 181, 0.2) transparent;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
+.rail-3d-scroll::-webkit-scrollbar { display: none; }
+
 .rail-3d-card {
+  flex: 0 0 auto;
+  width: 108px;
+  scroll-snap-align: start;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.5rem;
-  border-radius: 7px;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 140ms ease;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
   text-align: left;
-  border: none;
-  background: transparent;
-  width: 100%;
 }
 
 .rail-3d-card:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
 }
 
 .rail-3d-swatch {
-  display: flex;
-  width: 28px;
-  height: 28px;
+  height: 32px;
   border-radius: 6px;
+  display: flex;
   overflow: hidden;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1px;
 }
 
 .rail-3d-swatch-seg {
@@ -261,32 +288,31 @@
 }
 
 .rail-3d-card-body {
-  flex: 1;
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .rail-3d-card-name {
-  font-size: 0.72rem;
+  font-family: var(--font-display, serif);
+  font-size: 0.78rem;
   font-weight: 500;
-  color: rgba(221, 216, 204, 0.88);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 0.2rem;
+  color: rgba(221,216,204,0.9);
+  line-height: 1.2;
 }
 
 .rail-3d-card-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.3rem;
 }
 
 .rail-3d-level {
-  font-size: 0.56rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(221, 216, 204, 0.35);
+  color: rgba(221,216,204,0.3);
 }
 
 .rail-3d-pop {
@@ -295,13 +321,37 @@
 }
 
 .rail-3d-pop-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  transition: background 150ms ease;
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(221,216,204,0.15);
 }
 
 .rail-3d-pop-dot.filled {
-  /* color set inline via style prop */
+  background: var(--rail-accent);
+}
+
+/* ---- Responsive ------------------------------------------- */
+@media (max-width: 980px) {
+  .universe-canvas-wrapper {
+    min-height: calc(100dvh - 73px);
+    border-radius: 0;
+  }
+
+  .universe-hud {
+    top: var(--s3, 0.75rem);
+    right: var(--s3, 0.75rem);
+  }
+
+  .universe-back-btn {
+    bottom: calc(var(--s4, 1rem) + env(safe-area-inset-bottom));
+  }
+
+  .view-toggle-btn span:not(.view-toggle-badge) {
+    display: none;
+  }
+
+  .rail-3d-panel {
+    width: 280px;
+  }
 }
