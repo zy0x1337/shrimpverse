@@ -23,14 +23,9 @@ const FAMILY_ORDER = [
   "Blue", "Black", "Brown", "White",
 ];
 
-/**
- * Orbit radius + initial camera depend on mobile vs desktop.
- * Mobile: smaller radius, closer FOV, pulled-back Z so all
- * family stars fit on a 375-px-wide canvas without clipping.
- */
 const SCENE = {
-  desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number,number,number], fov: 48 },
-  mobile:  { orbitR: 3.8, camPos: [0, 1.8, 10] as [number,number,number], fov: 58 },
+  desktop: { orbitR: 5.5, camPos: [0, 2.8, 13] as [number, number, number], fov: 48 },
+  mobile:  { orbitR: 3.8, camPos: [0, 1.8, 10] as [number, number, number], fov: 58 },
 };
 
 function getFamilyPosition(
@@ -44,7 +39,7 @@ function getFamilyPosition(
 }
 
 // ---------------------------------------------------------------------------
-// Camera controller — flies to active family, returns home on deselect
+// Camera controller
 // ---------------------------------------------------------------------------
 function SceneCamera({
   activePos,
@@ -60,7 +55,6 @@ function SceneCamera({
     if (!ctrl) return;
 
     if (activePos) {
-      // On mobile pull back more — planets need room to render
       const zOffset = isMobile ? 6.5 : 7;
       const xFactor = isMobile ? 0.3 : 0.45;
       ctrl.setLookAt(
@@ -84,7 +78,6 @@ function SceneCamera({
       draggingDampingFactor={0.12}
       minDistance={isMobile ? 4 : 3}
       maxDistance={isMobile ? 16 : 22}
-      // On mobile limit vertical tilt — portrait screens clip easily
       minPolarAngle={isMobile ? Math.PI * 0.3 : 0}
       maxPolarAngle={isMobile ? Math.PI * 0.7 : Math.PI}
       verticalDragToForward={false}
@@ -93,6 +86,100 @@ function SceneCamera({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Controls hint — dismisses after first interaction
+// ---------------------------------------------------------------------------
+function ControlsHint({ isMobile }: { isMobile: boolean }) {
+  const [visible, setVisible] = useState(true);
+
+  // Auto-dismiss after 5 s
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <motion.div
+      className="universe-controls-hint"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 4 }}
+      transition={{ delay: 0.9, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      onClick={() => setVisible(false)}
+      aria-label="Dismiss controls hint"
+    >
+      {isMobile ? (
+        <>
+          <HintRow icon="drag"  label="Drag" desc="rotate view" />
+          <HintRow icon="pinch" label="Pinch" desc="zoom" />
+          <HintRow icon="tap"   label="Tap star" desc="open family" />
+        </>
+      ) : (
+        <>
+          <HintRow icon="drag"   label="Drag"   desc="rotate" />
+          <HintRow icon="scroll" label="Scroll" desc="zoom" />
+          <HintRow icon="click"  label="Click"  desc="open family" />
+          <HintRow icon="back"   label="Click again" desc="close" />
+        </>
+      )}
+      <span className="universe-hint-dismiss">tap to dismiss</span>
+    </motion.div>
+  );
+}
+
+function HintRow({ icon, label, desc }: { icon: string; label: string; desc: string }) {
+  return (
+    <div className="universe-hint-row">
+      <span className="universe-hint-icon">{ICONS[icon]}</span>
+      <span className="universe-hint-label">{label}</span>
+      <span className="universe-hint-sep">·</span>
+      <span className="universe-hint-desc">{desc}</span>
+    </div>
+  );
+}
+
+const ICONS: Record<string, React.ReactNode> = {
+  drag: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <circle cx="8" cy="8" r="2.5" />
+      <path d="M8 1v2M8 13v2M1 8h2M13 8h2" />
+    </svg>
+  ),
+  pinch: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <path d="M4 10 C4 7 12 7 12 10" />
+      <path d="M6 6 L4 10 M10 6 L12 10" />
+    </svg>
+  ),
+  scroll: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <rect x="5.5" y="2" width="5" height="9" rx="2.5" />
+      <path d="M8 4v3" />
+    </svg>
+  ),
+  tap: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <path d="M6 8V4.5a1.5 1.5 0 013 0V8" />
+      <path d="M9 6.5a1.5 1.5 0 013 0v2.5a4 4 0 01-8 0V8" />
+    </svg>
+  ),
+  click: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+      <path d="M5 3 C5 1.3 11 1.3 11 3 L11 9 A3 3 0 015 9Z" />
+      <path d="M8 3v3" />
+    </svg>
+  ),
+  back: (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 4L6 8l4 4" />
+    </svg>
+  ),
+};
+
+// ---------------------------------------------------------------------------
+// Main export
 // ---------------------------------------------------------------------------
 interface Props {
   visibleStrains: Strain[];
@@ -103,6 +190,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
   const isMobile = useIsMobile();
   const scene = isMobile ? SCENE.mobile : SCENE.desktop;
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
+  const [hintDismissed, setHintDismissed] = useState(false);
 
   const families = useMemo(() => {
     const grouped = new Map<string, Strain[]>();
@@ -118,8 +206,10 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
   }, [visibleStrains]);
 
   const handleFamilyClick = useCallback(
-    (family: string) =>
-      setActiveFamily((prev) => (prev === family ? null : family)),
+    (family: string) => {
+      setHintDismissed(true);
+      setActiveFamily((prev) => (prev === family ? null : family));
+    },
     [],
   );
 
@@ -137,18 +227,19 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
       <Canvas
         camera={{ position: scene.camPos, fov: scene.fov }}
         gl={{
-          antialias: !isMobile,       // MSAA off on mobile — big perf win
+          antialias: !isMobile,
           alpha: false,
           powerPreference: "high-performance",
           logarithmicDepthBuffer: true,
         }}
-        // Mobile: cap at 1.5× to spare GPU; desktop: full 2×
         dpr={isMobile ? [1, 1.5] : [1, 2]}
         style={{
           background:
             "radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%)",
-          touchAction: "none",        // prevent scroll-hijack on canvas
+          touchAction: "none",
         }}
+        // Dismiss hint on any canvas interaction
+        onPointerDown={() => setHintDismissed(true)}
       >
         <AdaptiveDpr pixelated />
         <AdaptiveEvents />
@@ -173,7 +264,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           <UniverseBackground isMobile={isMobile} />
           <OrbitRing radius={scene.orbitR} />
 
-          {/* Family stars */}
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length, scene.orbitR);
             return (
@@ -191,7 +281,6 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             );
           })}
 
-          {/* Strain planets — orbit their star when family is active */}
           {families.map((item, i) => {
             const pos = getFamilyPosition(i, families.length, scene.orbitR);
             return (
@@ -208,12 +297,11 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           })}
 
           <SceneCamera activePos={activePos} isMobile={isMobile} />
-          {/* Post-processing: skip on low-end mobile to avoid GPU pressure */}
           {!isMobile && <EffectPipeline hasActiveFamily={!!activeFamily} />}
         </Suspense>
       </Canvas>
 
-      {/* ---- HUD ------------------------------------------------- */}
+      {/* HUD — stats + active family label */}
       <div className="universe-hud">
         <AnimatePresence>
           {activeFamily && (
@@ -250,23 +338,17 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         )}
       </div>
 
-      {/* ---- Touch hint (mobile only, first visit) --------------- */}
-      {isMobile && !activeFamily && (
-        <motion.div
-          className="universe-touch-hint"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-        >
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
-            <circle cx="10" cy="10" r="7" strokeDasharray="3 3" />
-            <path d="M10 6v4l2.5 2.5" />
-          </svg>
-          Tap a star · Drag to rotate
-        </motion.div>
-      )}
+      {/* Controls hint overlay */}
+      <AnimatePresence>
+        {!hintDismissed && !activeFamily && (
+          <ControlsHint
+            key="hint"
+            isMobile={isMobile}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* ---- Back button ----------------------------------------- */}
+      {/* Back button */}
       <AnimatePresence>
         {activeFamily && (
           <motion.button

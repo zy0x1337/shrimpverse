@@ -1,357 +1,200 @@
 /* ============================================================
-   Universe 3D — CSS
+   Universe Canvas — layout wrapper
    ============================================================ */
-
 .universe-canvas-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 520px;
   overflow: hidden;
-  background: #04060c;
-  border-radius: var(--r-lg, 12px);
+  background: radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%);
 }
 
-@media (max-width: 768px) {
-  .universe-canvas-wrapper {
-    min-height: calc(100dvh - 73px);
-    border-radius: 0;
-  }
-}
-
-/* ---- HUD -------------------------------------------------- */
+/* ============================================================
+   HUD — top-left stats / active-family label
+   ============================================================ */
 .universe-hud {
   position: absolute;
-  top: var(--s4, 1rem);
-  right: var(--s4, 1rem);
+  top: var(--space-4, 1rem);
+  left: var(--space-4, 1rem);
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: var(--s2, 0.5rem);
+  gap: 0.25rem;
   pointer-events: none;
   z-index: 10;
-}
-
-@media (max-width: 768px) {
-  .universe-hud {
-    top: var(--s3, 0.75rem);
-    right: var(--s3, 0.75rem);
-  }
-}
-
-.universe-active-label {
-  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
-  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 0.4em;
-}
-
-.universe-active-count {
-  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-  font-size: 0.45em;
-  letter-spacing: 0.06em;
-  color: rgba(221, 216, 204, 0.45);
-  font-weight: 400;
 }
 
 .universe-stat {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  align-items: baseline;
+  gap: 0.35rem;
 }
-
 .universe-stat-val {
-  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
-  font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.5rem);
-  font-weight: 600;
-  color: var(--accent, #e8a020);
-  line-height: 1;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
-
 .universe-stat-lbl {
-  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(221, 216, 204, 0.35);
-}
-
-/* ---- Touch hint ------------------------------------------- */
-.universe-touch-hint {
-  position: absolute;
-  bottom: calc(var(--s12, 3rem) + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 9999px;
-  background: rgba(10, 14, 20, 0.6);
-  border: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  font-family: var(--font-mono, monospace);
   font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  color: rgba(221, 216, 204, 0.4);
-  pointer-events: none;
-  white-space: nowrap;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
 }
 
-.universe-touch-hint svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  opacity: 0.5;
+.universe-active-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.universe-active-count {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.1em 0.55em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---- Back button ------------------------------------------ */
+/* ============================================================
+   Back button
+   ============================================================ */
 .universe-back-btn {
   position: absolute;
-  bottom: calc(var(--s5, 1.25rem) + env(safe-area-inset-bottom));
+  bottom: var(--space-5, 1.25rem);
   left: 50%;
   transform: translateX(-50%);
-  display: inline-flex;
+  z-index: 20;
+  display: flex;
   align-items: center;
-  gap: var(--s2, 0.5rem);
-  padding: 0.5rem 1.1rem 0.5rem 0.8rem;
-  background: rgba(13, 19, 24, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-family: var(--font-body, sans-serif);
-  font-size: var(--text-sm, 0.875rem);
-  color: rgba(221, 216, 204, 0.6);
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(10, 18, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   cursor: pointer;
-  pointer-events: all;
-  z-index: 10;
-  transition: color 160ms ease, border-color 160ms ease;
-  /* 44px min touch target */
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  /* 44px touch target */
   min-height: 44px;
+  min-width: 44px;
 }
-
 .universe-back-btn:hover {
-  color: rgba(221, 216, 204, 0.9);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(20, 35, 60, 0.88);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.22);
 }
-
-.universe-back-btn:active {
-  background: rgba(20, 28, 36, 0.92);
-}
-
 .universe-back-btn svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
 }
 
-/* ---- View toggle ------------------------------------------ */
-.view-toggle {
-  display: inline-flex;
-  background: var(--surface-2, #121920);
-  border: 1px solid var(--border, rgba(255,255,255,0.07));
-  border-radius: 9999px;
-  padding: 3px;
-  gap: 2px;
-}
-
-.view-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 14px;
-  min-height: 36px;        /* comfortable tap target */
-  border-radius: 9999px;
-  font-size: var(--text-xs, 0.75rem);
-  font-family: var(--font-mono, monospace);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted, #7a7870);
-  cursor: pointer;
-  transition: all 180ms ease;
-  white-space: nowrap;
-}
-
-.view-toggle-btn:hover { color: var(--text, #ddd8cc); }
-
-.view-toggle-btn.active {
-  background: var(--surface-3, #18222b);
-  color: var(--text, #ddd8cc);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-}
-
-.view-toggle-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
-
-.view-toggle-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 9999px;
-  background: var(--accent-dim, rgba(232,160,32,0.15));
-  color: var(--accent, #e8a020);
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-@media (max-width: 768px) {
-  /* On mobile: hide text labels, keep icon + badge only */
-  .view-toggle-btn .toggle-label { display: none; }
-  .view-toggle-btn { padding: 6px 10px; }
-}
-
-/* ---- Rail 3D panel (Html overlay) ------------------------- */
-.rail-3d-panel {
-  width: 320px;
-  background: rgba(10, 14, 20, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow:
-    0 16px 48px rgba(0,0,0,0.7),
-    0 0 0 1px rgba(255,255,255,0.03),
-    0 0 24px var(--rail-glow, rgba(47,196,181,0.08));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  font-family: var(--font-body, sans-serif);
-  color: var(--text, #ddd8cc);
-}
-
-@media (max-width: 768px) {
-  .rail-3d-panel { width: 260px; }
-}
-
-.rail-3d-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.rail-3d-family { display: flex; align-items: center; gap: 8px; }
-
-.rail-3d-dot {
-  width: 7px; height: 7px;
-  border-radius: 9999px;
-  flex-shrink: 0;
-}
-
-.rail-3d-name {
-  font-family: var(--font-display, serif);
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: var(--rail-accent);
-}
-
-.rail-3d-count {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(221,216,204,0.35);
-}
-
-.rail-3d-close {
-  width: 32px; height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: rgba(221,216,204,0.4);
-  cursor: pointer;
-  transition: all 140ms ease;
-}
-.rail-3d-close:hover {
-  color: rgba(221,216,204,0.85);
-  background: rgba(255,255,255,0.06);
-}
-.rail-3d-close svg { width: 13px; height: 13px; }
-
-.rail-3d-scroll {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 10px 12px 12px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.rail-3d-scroll::-webkit-scrollbar { display: none; }
-
-.rail-3d-card {
-  flex: 0 0 auto;
-  width: 108px;
-  scroll-snap-align: start;
+/* ============================================================
+   Controls hint — bottom-right pill overlay
+   Appears on first visit, auto-dismisses after 5 s,
+   also dismissed on any pointer interaction.
+   ============================================================ */
+.universe-controls-hint {
+  position: absolute;
+  bottom: var(--space-5, 1.25rem);
+  right: var(--space-4, 1rem);
+  z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 9px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
+  gap: 0.32rem;
+  padding: 0.75rem 1rem 0.6rem;
+  background: rgba(8, 14, 26, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
-  text-align: left;
-  /* 44px min height for tap target */
-  min-height: 44px;
-}
-.rail-3d-card:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.12);
-  transform: translateY(-2px);
-}
-.rail-3d-card:active { background: rgba(255,255,255,0.08); transform: none; }
-
-.rail-3d-swatch {
-  height: 32px;
-  border-radius: 6px;
-  display: flex;
-  overflow: hidden;
-  gap: 1px;
-}
-.rail-3d-swatch-seg { flex: 1; height: 100%; }
-
-.rail-3d-card-body { display: flex; flex-direction: column; gap: 4px; }
-
-.rail-3d-card-name {
-  font-family: var(--font-display, serif);
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: rgba(221,216,204,0.9);
-  line-height: 1.2;
+  /* Prevent it from covering the back button */
+  max-width: 180px;
 }
 
-.rail-3d-card-meta {
+.universe-hint-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.38rem;
+  line-height: 1;
 }
-
-.rail-3d-level {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
+.universe-hint-icon {
+  display: flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: rgba(100, 200, 230, 0.7);
+}
+.universe-hint-icon svg {
+  width: 14px;
+  height: 14px;
+}
+.universe-hint-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.01em;
+}
+.universe-hint-sep {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+.universe-hint-desc {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+.universe-hint-dismiss {
+  display: block;
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.6rem;
   text-transform: uppercase;
-  color: rgba(221,216,204,0.3);
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.18);
+  text-align: center;
 }
 
-.rail-3d-pop { display: flex; gap: 2px; }
-.rail-3d-pop-dot {
-  width: 3px; height: 3px;
-  border-radius: 9999px;
-  background: rgba(221,216,204,0.15);
+/* ============================================================
+   Responsive adjustments
+   ============================================================ */
+@media (max-width: 480px) {
+  .universe-controls-hint {
+    /* On very small screens: nudge left so it doesn't bleed */
+    right: 0.5rem;
+    bottom: 4.5rem; /* clear the back btn if both visible */
+    max-width: 160px;
+  }
+  .universe-back-btn {
+    bottom: 1rem;
+  }
+  .universe-hud {
+    top: 0.75rem;
+    left: 0.75rem;
+  }
 }
-.rail-3d-pop-dot.filled { background: var(--rail-accent); }
+
+/* Landscape phone — compress vertical spacing */
+@media (max-height: 500px) {
+  .universe-controls-hint {
+    padding: 0.5rem 0.75rem;
+    gap: 0.22rem;
+  }
+  .universe-hud {
+    top: 0.5rem;
+  }
+}
