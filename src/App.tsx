@@ -1,9 +1,15 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { FilterPanel } from "./components/FilterPanel";
 import { FamilyOrbitExplorer } from "./components/FamilyOrbitExplorer";
 import { StrainDialog } from "./components/StrainDialog";
+import { ViewToggle } from "./components/ViewToggle";
 import { useStrainFilters } from "./hooks/useStrainFilters";
 import { strains } from "./lib/constants";
+
+// Lazy-load the heavy Three.js canvas — only fetched when user switches to 3D
+const StrainUniverse = lazy(() =>
+  import("./components/3d/StrainUniverse").then((m) => ({ default: m.StrainUniverse }))
+);
 
 export default function App() {
   const {
@@ -20,6 +26,7 @@ export default function App() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
 
   const selectedStrain = useMemo(
     () => strains.find((s) => s.id === selectedId) ?? null,
@@ -51,6 +58,7 @@ export default function App() {
                 <h2>Color families &amp; documented strains</h2>
               </div>
               <div className="toolbar-actions">
+                <ViewToggle mode={viewMode} onChange={setViewMode} />
                 <button
                   className="icon-button mobile-filter-toggle"
                   type="button"
@@ -65,10 +73,26 @@ export default function App() {
             </div>
 
             <div className="view-stage">
-              <FamilyOrbitExplorer
-                visibleStrains={visibleStrains}
-                onSelect={setSelectedId}
-              />
+              {viewMode === "2d" ? (
+                <FamilyOrbitExplorer
+                  visibleStrains={visibleStrains}
+                  onSelect={setSelectedId}
+                />
+              ) : (
+                <Suspense
+                  fallback={
+                    <div className="universe-loading">
+                      <div className="universe-loading-ring" />
+                      <span>Loading Universe…</span>
+                    </div>
+                  }
+                >
+                  <StrainUniverse
+                    visibleStrains={visibleStrains}
+                    onSelect={setSelectedId}
+                  />
+                </Suspense>
+              )}
             </div>
           </section>
 
