@@ -31,14 +31,53 @@ const FAMILY_TEXT: Record<string, string> = {
   Natural: "#fff",
 };
 
-const VB = 520;
-const R = 185;
+/**
+ * Per-family orbit radius — primary/warm colors sit slightly closer
+ * to the center, rare/specialty colors orbit further out.
+ * Falls back to BASE_R if the family is not listed.
+ */
+const BASE_R = 185;
+const FAMILY_ORBIT_RADIUS: Record<string, number> = {
+  Red:    178,
+  Orange: 172,
+  Yellow: 178,
+  Green:  190,
+  Blue:   178,
+  Black:  200,
+  Brown:  205,
+  White:  200,
+};
+
 const NODE_R_BASE = 20;
 const NODE_R_MAX = 34;
 
 function nodeRadius(count: number): number {
   return Math.max(NODE_R_BASE, Math.min(NODE_R_MAX, NODE_R_BASE + count * 2));
 }
+
+/** Generate a seeded-random starfield as SVG circle elements */
+function buildStars(count: number, vb: number) {
+  const half = vb / 2;
+  // Simple LCG for deterministic layout (no runtime randomness)
+  let seed = 0x4a9d2f1b;
+  const next = () => {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    return (seed >>> 0) / 0xffffffff;
+  };
+  return Array.from({ length: count }, (_, i) => {
+    const x = next() * vb - half;
+    const y = next() * vb - half;
+    const r = 0.4 + next() * 1.1;
+    const op = 0.1 + next() * 0.45;
+    // Teal-tinted stars every ~12th
+    const isTeal = i % 12 === 0;
+    const fill = isTeal ? "rgba(47,196,181,0.55)" : "rgba(221,216,204,1)";
+    return { x, y, r, op, fill };
+  });
+}
+
+const VB = 520;
+const STARS = buildStars(90, VB * 1.6);
 
 interface Props {
   visibleStrains: Strain[];
@@ -48,6 +87,7 @@ interface Props {
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [focusedFamily, setFocusedFamily] = useState<string | null>(null);
 
   const families = useMemo(() => {
     const grouped = new Map<string, Strain[]>();
@@ -55,14 +95,21 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
       if (!grouped.has(s.family)) grouped.set(s.family, []);
       grouped.get(s.family)!.push(s);
     }
-    return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => ({
-      family: f,
-      strains: grouped.get(f)!,
-      color: familyColors[f] ?? "#888",
-      glow: FAMILY_GLOW[f] ?? "rgba(255,255,255,0.3)",
-      textColor: FAMILY_TEXT[f] ?? "#fff",
-      nodeR: nodeRadius(grouped.get(f)!.length),
-    }));
+    return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => {
+      const strainList = grouped.get(f)!;
+      // Pick the dominant strain (highest popularity) for color swatches
+      const dominant = [...strainList].sort((a, b) => b.popularity - a.popularity)[0];
+      return {
+        family: f,
+        strains: strainList,
+        color: familyColors[f] ?? "#888",
+        glow: FAMILY_GLOW[f] ?? "rgba(255,255,255,0.3)",
+        textColor: FAMILY_TEXT[f] ?? "#fff",
+        nodeR: nodeRadius(strainList.length),
+        orbitR: FAMILY_ORBIT_RADIUS[f] ?? BASE_R,
+        dominantColors: dominant?.colors ?? [],
+      };
+    });
   }, [visibleStrains]);
 
   const activeStrains = activeFamily
@@ -158,8 +205,21 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
         <circle cx="0" cy="0" r={VB} fill="url(#bg-grad)" />
 
+        {/* Procedurally generated starfield */}
+        <g aria-hidden="true">
+          {STARS.map((s, i) => (
+            <circle
+              key={i}
+              cx={s.x} cy={s.y} r={s.r}
+              fill={s.fill}
+              opacity={s.op}
+            />
+          ))}
+        </g>
+
+        {/* Orbit guide rings — dashed, animated counter-rotation */}
         <motion.circle
-          cx="0" cy="0" r={R}
+          cx="0" cy="0" r={BASE_R}
           fill="none"
           stroke="rgba(47,196,181,0.12)"
           strokeWidth="0.6"
@@ -169,7 +229,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           style={{ transformOrigin: "0px 0px" }}
         />
         <motion.circle
-          cx="0" cy="0" r={R * 0.45}
+          cx="0" cy="0" r={BASE_R * 0.45}
           fill="none"
           stroke="rgba(47,196,181,0.06)"
           strokeWidth="0.4"
@@ -178,10 +238,11 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           style={{ transformOrigin: "0px 0px" }}
         />
 
+        {/* Spokes — use per-family orbit radius */}
         {families.map((item, i) => {
           const angle = (i / families.length) * 2 * Math.PI - Math.PI / 2;
-          const nx = Math.cos(angle) * R;
-          const ny = Math.sin(angle) * R;
+          const nx = Math.cos(angle) * item.orbitR;
+          const ny = Math.sin(angle) * item.orbitR;
           const isActive = activeFamily === item.family;
           const isHov = hovered === item.family;
           return (
@@ -198,19 +259,26 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           );
         })}
 
+        {/* Family nodes */}
         {families.map((item, i) => {
           const angle = (i / families.length) * 2 * Math.PI - Math.PI / 2;
-          const nx = Math.cos(angle) * R;
-          const ny = Math.sin(angle) * R;
+          const nx = Math.cos(angle) * item.orbitR;
+          const ny = Math.sin(angle) * item.orbitR;
           const isActive = activeFamily === item.family;
           const isHov = hovered === item.family;
+          const isFocused = focusedFamily === item.family;
           const isDimmed = activeFamily !== null && !isActive;
           const nr = item.nodeR;
 
-          const labelDist = R + nr + 22;
+          const labelDist = item.orbitR + nr + 22;
           const lx = Math.cos(angle) * labelDist;
           const ly = Math.sin(angle) * labelDist;
           const anchor = Math.abs(nx) < 10 ? "middle" : nx < 0 ? "end" : "start";
+
+          // Three color-swatch dots from the dominant strain, shown when active
+          const swatchAngles = [-30, 0, 30]; // degrees around node center
+          const swatchR = nr * 0.55; // orbit radius for the dots
+          const dotR = 3.5;
 
           return (
             <motion.g
@@ -227,11 +295,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               role="button"
               aria-label={`${item.family} colour family, ${item.strains.length} strain${item.strains.length === 1 ? "" : "s"}`}
               tabIndex={0}
+              onFocus={() => setFocusedFamily(item.family)}
+              onBlur={() => setFocusedFamily(null)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family);
               }}
               style={{ cursor: "pointer", transformOrigin: `${nx}px ${ny}px` }}
             >
+              {/* Keyboard focus ring — visible only on :focus-visible */}
+              {isFocused && (
+                <circle
+                  cx={nx} cy={ny} r={nr + 5}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth="1.5"
+                  opacity="0.9"
+                />
+              )}
+
               {isActive && (
                 <motion.circle
                   cx={nx} cy={ny} r={nr + 6}
@@ -261,17 +342,38 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 filter={isActive || isHov ? `url(#glow-${item.family})` : undefined}
               />
 
-              <text
-                x={nx} y={ny}
-                textAnchor="middle" dominantBaseline="central"
-                fontSize={nr > 26 ? "9" : "8"}
-                fontWeight="700"
-                fontFamily="'IBM Plex Sans', sans-serif"
-                fill={item.textColor} opacity="0.95"
-                style={{ pointerEvents: "none", userSelect: "none" }}
-              >
-                {item.family[0]}
-              </text>
+              {/* When active: show 3 color swatches from dominant strain */}
+              {isActive && item.dominantColors.length >= 3 ? (
+                swatchAngles.map((deg, di) => {
+                  const rad = (deg * Math.PI) / 180;
+                  const dx = nx + Math.cos(rad) * swatchR;
+                  const dy = ny + Math.sin(rad) * swatchR;
+                  return (
+                    <g key={di}>
+                      <circle cx={dx} cy={dy} r={dotR + 1} fill="rgba(0,0,0,0.5)" />
+                      <circle
+                        cx={dx} cy={dy} r={dotR}
+                        fill={item.dominantColors[di]}
+                        stroke="rgba(255,255,255,0.25)"
+                        strokeWidth="0.4"
+                      />
+                    </g>
+                  );
+                })
+              ) : (
+                // Default: family initial letter
+                <text
+                  x={nx} y={ny}
+                  textAnchor="middle" dominantBaseline="central"
+                  fontSize={nr > 26 ? "9" : "8"}
+                  fontWeight="700"
+                  fontFamily="'IBM Plex Sans', sans-serif"
+                  fill={item.textColor} opacity="0.95"
+                  style={{ pointerEvents: "none", userSelect: "none" }}
+                >
+                  {item.family[0]}
+                </text>
+              )}
 
               {/* Strain count badge */}
               <circle
