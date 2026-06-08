@@ -33,7 +33,6 @@ export function ViewToggle({ mode, onChange }: Props) {
           <path d="M10 2v16M3 6l7 4 7-4" />
         </svg>
         3D Universe
-        <span className="view-toggle-badge">NEW</span>
       </button>
     </div>
   );

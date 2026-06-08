@@ -28,6 +28,4 @@ export interface FilterState {
   popularOnly: boolean;
   stableOnly: boolean;
   waterType: string;
-  catalogView: boolean;
-  orbitView: boolean;
 }

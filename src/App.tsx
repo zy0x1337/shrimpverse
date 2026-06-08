@@ -90,8 +90,6 @@ export default function App() {
               onStableOnlyChange={setStableOnly}
               onWaterTypeChange={setWaterType}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
-              onCollapse={!isMobile ? () => setSidebarCollapsed(v => !v) : undefined}
-              collapsed={!isMobile && sidebarCollapsed}
             />
           </div>
 
@@ -106,9 +104,9 @@ export default function App() {
                   <button
                     className="icon-button"
                     type="button"
-                    aria-label={sidebarCollapsed ? "Seitenleiste einblenden" : "Seitenleiste ausblenden"}
+                    aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                     onClick={() => setSidebarCollapsed(v => !v)}
-                    title={sidebarCollapsed ? "Filter einblenden" : "Filter ausblenden"}
+                    title={sidebarCollapsed ? "Show filters" : "Hide filters"}
                   >
                     {sidebarCollapsed ? (
                       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -73,15 +73,13 @@ export function StrainRail({ family, strains, onSelect, onClose, orientation = "
 
       {/* Scroll hint gradient is handled via CSS ::after */}
       <div className="strain-rail-scroll-wrap">
-        <div className="strain-rail-scroll" role="list">
+        <ul className="strain-rail-scroll">
           {strains.map((strain) => (
+            <li key={strain.id} style={{ listStyle: "none" }}>
             <button
-              key={strain.id}
               className="strain-card"
               onClick={() => onSelect(strain.id)}
-              role="listitem"
               aria-label={`Open ${strain.name}, popularity ${strain.popularity} of 5`}
-              aria-pressed="false"
               style={{ "--card-accent": color } as React.CSSProperties}
             >
               <div className="strain-card-swatch">
@@ -105,8 +103,9 @@ export function StrainRail({ family, strains, onSelect, onClose, orientation = "
                 </div>
               </div>
             </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );

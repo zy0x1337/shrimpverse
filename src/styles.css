@@ -94,6 +94,19 @@ input, select { font: inherit; color: inherit; }
   }
 }
 
+/* Visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* =====================
    APP SHELL
    ===================== */
@@ -238,11 +251,9 @@ input, select { font: inherit; color: inherit; }
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  font-size: var(--text-sm);
+  font-size: max(16px, var(--text-sm)); /* >= 16px prevents iOS zoom on focus */
   color: var(--text);
   transition: border-color 180ms ease, box-shadow 180ms ease;
-  /* Prevent iOS zoom on focus (font-size must be >= 16px equivalent) */
-  font-size: max(16px, var(--text-sm));
 }
 .filter-search input::placeholder { color: var(--text-faint); }
 .filter-search input:focus {

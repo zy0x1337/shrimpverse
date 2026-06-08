@@ -11,8 +11,6 @@ const initialState: FilterState = {
   popularOnly: false,
   stableOnly: false,
   waterType: "all",
-  catalogView: false,
-  orbitView: true,
 };
 
 export function useStrainFilters() {
@@ -40,9 +38,5 @@ export function useStrainFilters() {
     setPopularOnly: (popularOnly: boolean) => setState((c) => ({ ...c, popularOnly })),
     setStableOnly: (stableOnly: boolean) => setState((c) => ({ ...c, stableOnly })),
     setWaterType: (waterType: string) => setState((c) => ({ ...c, waterType })),
-    setCatalogView: (catalogView: boolean) =>
-      setState((c) => ({ ...c, catalogView, orbitView: false })),
-    setOrbitView: (orbitView: boolean) =>
-      setState((c) => ({ ...c, orbitView, catalogView: orbitView ? false : c.catalogView })),
   };
 }

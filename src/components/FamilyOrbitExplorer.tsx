@@ -181,6 +181,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         </div>
       </div>
 
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {activeFamily
+          ? `${activeFamily} family selected, ${families.find(f => f.family === activeFamily)?.strains.length ?? 0} varieties`
+          : ""}
+      </div>
+
       <AnimatePresence>
         {activeFamily && (
           <motion.div

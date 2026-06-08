@@ -20,8 +20,6 @@ interface Props {
   onStableOnlyChange: (v: boolean) => void;
   onWaterTypeChange: (v: string) => void;
   onClose?: () => void;
-  onCollapse?: () => void;
-  collapsed?: boolean;
 }
 
 export function FilterPanel({
@@ -30,7 +28,6 @@ export function FilterPanel({
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
   onWaterTypeChange,
   onClose,
-  onCollapse,
 }: Props) {
   const activeFamilyColor =
     state.family !== "All" ? familyColors[state.family] : null;
@@ -60,18 +57,6 @@ export function FilterPanel({
               </svg>
             </button>
           )}
-          {/* Desktop collapse button */}
-          {onCollapse && (
-            <button
-              className="sidebar-collapse-btn"
-              onClick={onCollapse}
-              aria-label="Seitenleiste ausblenden"
-            >
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10 3l-5 5 5 5" />
-              </svg>
-            </button>
-          )}
         </div>
       </div>
 
@@ -97,7 +82,7 @@ export function FilterPanel({
 
         {/* Color family pills */}
         <div className="filter-section">
-          <div className="filter-label">Color Family</div>
+          <div className="filter-label">Family</div>
           <div className="family-pills">
             {families.map((fam) => {
               const isActive = state.family === fam;
@@ -204,7 +189,7 @@ export function FilterPanel({
               checked={state.stableOnly}
               onChange={(e) => onStableOnlyChange(e.target.checked)}
             />
-            Colour-stable colonies only
+            Color-stable only
           </label>
         </div>
       </div>

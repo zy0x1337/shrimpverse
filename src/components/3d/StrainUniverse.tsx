@@ -371,6 +371,12 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
         </Suspense>
       </Canvas>
 
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {activeFamily
+          ? `${activeFamily} family selected, ${activeFamilyEntry?.strains.length ?? 0} varieties`
+          : ""}
+      </div>
+
       {/* HUD */}
       <div className="universe-hud">
         <AnimatePresence>
@@ -434,7 +440,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 3L5 8l5 5" />
             </svg>
-            All planets
+            All families
           </motion.button>
         )}
       </AnimatePresence>
