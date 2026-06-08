@@ -57,16 +57,26 @@ src/
 - Stronger bloom + vignette effects
 - HUD shows genus when family active
 
-### 🎯 Session 3: 2D View Update
-- Golden SVG sun at center instead of plain node
-- Distinguish Neo vs Caridina rings visually
-- Family node appearance: Neo = solid, Caridina = ice/gem-like
-- Update starfield pattern
+### ✅ Session 3: 2D Dual-Ring + Golden Sun
+- **Dual-ring angle distribution**: Neo families spread evenly on inner ring,
+  Caridina/exotics on outer ring (no longer all compressed into single 360°)
+- **Golden SVG sun at center**: pulsing corona, 8 rays, "Shrimpverse" wordmark;
+  replaces Natural node; click to reset overview
+- **Caridina nodes as hexagons** (vs Neo circles): clear visual distinction
+- **Sulawesi Saturn rings**: two ellipses orbiting the hexagon
+- **Stats bar**: Total / Neocaridina count / Caridina count
+- **Active label**: displays genus (Neocaridina / Caridina / Atyopsis)
+- **Spoke colors**: teal for Neo, blue for Caridina
+- **Starfield**: two zones (outer + sparse between-ring)
 
-### 🎯 Session 4: Polish + Detail
-- StrainDialog: genus, species, waterType badge
-- Optional comparison mode (select 2)
-- Mobile UX refinements
+### ✅ Session 4: StrainDialog Taxonomy + Water Badge
+- **Badge row**: family badge + water type badge (hard=green, soft=blue, neutral=gray)
+- **Water icons**: droplet (soft), outline droplet (hard), circle (neutral)
+- **Taxonomy line**: genus + species in italic serif below strain name
+  (e.g. "*Caridina cantonensis*" for Crystal Red)
+- **Water type inference**: derives from strain.waterType or family for old entries
+- **Meta grid**: expanded 5 → 6 cells; added "Water" row with colour matching badge
+- **New CSS**: .dialog-badges, .dialog-water-badge, .dialog-taxonomy
 
 ## Key Data Model
 
@@ -135,10 +145,27 @@ npm run build && npm run preview
 - **@react-spring/three** for smooth springs
 - **Postprocessing** for Bloom + Vignette
 
-## Notes for Future Sessions
+## Current Status
+
+**All 4 planned sessions complete** — Shrimpverse is a fully functional 3D/2D interactive shrimp atlas:
+- 49 shrimp varieties across 15 families
+- Dual-ring system: Neocaridina (8 inner), Caridina + exotics (6 outer)
+- 3D solar system with pulsing sun, material-mapped planets, moon moons
+- 2D SVG counterpart with golden sun, hexagonal Caridina nodes, Saturn rings for Sulawesi
+- Enriched strain dialog with taxonomy, water type, 6-cell meta grid
+- waterType filter (hard/soft/neutral) + searchable genus/species
+
+**Next directions** (if needed):
+- Comparison mode: pick 2 strains side-by-side
+- Mobile gesture refinements (pinch-to-zoom smoother, tap-hold for tooltip)
+- Strain breeding recommendation engine (show compatible crosses)
+- Export strain care sheet as PDF
+
+## Notes for Development
 
 1. **Memory system**: See `.claude/projects/.../memory/project_shrimpverse.md` for session continuity
 2. **Always tsc check** before committing (`npx tsc --noEmit`)
 3. **Mobile-first**: Test on 380px+ width, optimize touch interactions
 4. **Performance**: Lazy-load 3D canvas, keep shader complexity low on mobile
 5. **Naming**: Strains use lowercase kebab-case IDs; families use Title Case
+6. **Data**: New strains added to `src/data/strains.json` auto-appear in both 2D & 3D views
