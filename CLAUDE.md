@@ -19,19 +19,23 @@ src/
 ├── lib/
 │   ├── constants.ts             # Family colors, genus mapping
 │   ├── strainUtils.ts           # Filter logic (waterType included)
-│   └── orbitalDistance.ts       # 3D spatial positioning
-├── hooks/useStrainFilters.ts    # State: family, waterType, pattern, etc.
+│   └── orbitalDistance.ts       # 3D spatial positioning (radiusScale param for mobile)
+├── hooks/
+│   ├── useStrainFilters.ts      # State: family, waterType, pattern, etc.
+│   └── useIsMobile.ts           # Viewport + pointer detection
 ├── components/
-│   ├── App.tsx                  # Main layout, view toggle
-│   ├── FilterPanel.tsx          # waterType filter (hard/soft/neutral)
-│   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view (Neo + Caridina rings)
+│   ├── App.tsx                  # Main layout, view toggle, sidebar collapse state
+│   ├── FilterPanel.tsx          # waterType filter + desktop collapse button
+│   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view (orbit-layout flex row)
+│   ├── StrainRail.tsx           # Strain card list (horizontal/vertical orientation)
 │   ├── StrainDialog.tsx         # Strain detail modal
 │   ├── 3d/
 │   │   ├── StrainUniverse.tsx   # 3D canvas + layout (two rings + Sun)
-│   │   ├── Sun3D.tsx            # Pulsing golden star (new in Session 2)
-│   │   ├── FamilyNode3D.tsx     # Planet with 6 material types
-│   │   ├── StrainOrbit.tsx      # Moon orbits around planet
-│   │   ├── StrainPlanet.tsx     # Individual moon mesh
+│   │   ├── Sun3D.tsx            # Pulsing golden star
+│   │   ├── FamilyNode3D.tsx     # Planet with 6 material types + mobile label sizing
+│   │   ├── StrainOrbit.tsx      # Moon orbits (radiusScale 1.65× on mobile)
+│   │   ├── StrainPlanet.tsx     # Individual moon mesh + PlanetLabel canvas texture
+│   │   ├── StrainRail3D.tsx     # HTML panel anchored in 3D space
 │   │   ├── OrbitRing.tsx        # Orbital path visualization
 │   │   ├── EffectPipeline.tsx   # Bloom + Vignette effects
 │   │   ├── UniverseBackground.tsx # Starfield
@@ -73,10 +77,25 @@ src/
 - **Badge row**: family badge + water type badge (hard=green, soft=blue, neutral=gray)
 - **Water icons**: droplet (soft), outline droplet (hard), circle (neutral)
 - **Taxonomy line**: genus + species in italic serif below strain name
-  (e.g. "*Caridina cantonensis*" for Crystal Red)
 - **Water type inference**: derives from strain.waterType or family for old entries
 - **Meta grid**: expanded 5 → 6 cells; added "Water" row with colour matching badge
 - **New CSS**: .dialog-badges, .dialog-water-badge, .dialog-taxonomy
+
+### ✅ Session 5: Mobile Optimizations + Layout
+- **Collapsible sidebar**: desktop toggle in toolbar, width-transition animation
+- **Right-side strain panel**: 260px flex column on desktop (not bottom overlay)
+- **Bottom sheet on mobile**: horizontal scroll rail, unchanged behavior
+- **orbit-layout**: flex-row wrapper so SVG + rail sit side by side
+- **StrainRail**: `orientation` prop (`horizontal` | `vertical`), vertical card layout
+- **FilterPanel**: `onCollapse` + `collapsed` props for desktop toggle
+
+### ✅ Session 6: 3D Mobile Label Readability
+- **Family planet labels**: mobile font 0.26→0.30 (inactive) / 0.34→0.38 (active),
+  opacity 0.45→0.88, label offset 1.12→1.28 (FamilyNode3D)
+- **Moon orbits**: `radiusScale = 1.65` on mobile — min orbit 0.85→1.40,
+  safely outside even the Bamboo gas giant (max sphere r≈0.93)
+- **PlanetLabel**: mobile only shows on tap (isHighlighted), not for all active moons;
+  canvas 256×64→384×96, font 18→28px, dark pill background for contrast
 
 ## Key Data Model
 
@@ -147,19 +166,22 @@ npm run build && npm run preview
 
 ## Current Status
 
-**All 4 planned sessions complete** — Shrimpverse is a fully functional 3D/2D interactive shrimp atlas:
+**6 sessions complete** — Shrimpverse is a fully functional 3D/2D interactive shrimp atlas:
 - 49 shrimp varieties across 15 families
 - Dual-ring system: Neocaridina (8 inner), Caridina + exotics (6 outer)
-- 3D solar system with pulsing sun, material-mapped planets, moon moons
+- 3D solar system with pulsing sun, material-mapped planets, orbiting moons
 - 2D SVG counterpart with golden sun, hexagonal Caridina nodes, Saturn rings for Sulawesi
 - Enriched strain dialog with taxonomy, water type, 6-cell meta grid
 - waterType filter (hard/soft/neutral) + searchable genus/species
+- Collapsible sidebar (desktop), right-side strain panel (desktop), bottom sheet (mobile)
+- Mobile 3D: readable labels, correct orbit spacing, tap-to-reveal moon names
 
-**Next directions** (if needed):
-- Comparison mode: pick 2 strains side-by-side
-- Mobile gesture refinements (pinch-to-zoom smoother, tap-hold for tooltip)
-- Strain breeding recommendation engine (show compatible crosses)
-- Export strain care sheet as PDF
+**Next directions** (Session 7 — Polishing):
+- Copy & text review: labels, empty states, onboarding
+- UI/UX consistency pass: visual hierarchy, interaction flows
+- Accessibility: ARIA labels, keyboard navigation, color contrast
+- Performance: mobile 3D geometry budget, lazy loading review
+- Data quality: thin/missing strain entries, field consistency
 
 ## Notes for Development
 
@@ -169,3 +191,5 @@ npm run build && npm run preview
 4. **Performance**: Lazy-load 3D canvas, keep shader complexity low on mobile
 5. **Naming**: Strains use lowercase kebab-case IDs; families use Title Case
 6. **Data**: New strains added to `src/data/strains.json` auto-appear in both 2D & 3D views
+7. **Sidebar**: Desktop collapse via `sidebarCollapsed` state in App.tsx; mobile uses off-canvas drawer
+8. **Strain rail**: `orientation="vertical"` for desktop right panel, `"horizontal"` for mobile bottom sheet
