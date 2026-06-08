@@ -27,7 +27,8 @@ export function StrainOrbit({
 }: Props) {
   const groupRef = useRef<Group>(null);
 
-  const orbits = computeOrbitalPositions(strains, center);
+  // On mobile, push moons further from the family planet to prevent overlap
+  const orbits = computeOrbitalPositions(strains, center, isMobile ? 1.65 : 1.0);
 
   // Rotation only when this family is active
   useFrame((_, delta) => {

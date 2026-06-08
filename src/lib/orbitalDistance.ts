@@ -61,12 +61,13 @@ export function distanceToRadius(d: number): number {
 export function computeOrbitalPositions(
   strains: Strain[],
   center: [number, number, number],
+  radiusScale = 1.0,
 ): Array<{ strain: Strain; position: [number, number, number]; radius: number }> {
   const PHI = Math.PI * (3 - Math.sqrt(5)); // golden angle ≈ 137.5°
 
   return strains.map((strain, i) => {
     const d = wildformDistance(strain);
-    const r = distanceToRadius(d);
+    const r = distanceToRadius(d) * radiusScale;
     const angle = i * PHI;
     // Small inclination: planets at different angles get slight Y variation
     const inclination = Math.sin(angle * 0.5) * 0.28 * d;

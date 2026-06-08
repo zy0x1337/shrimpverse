@@ -172,13 +172,14 @@ export function StrainPlanet({
           </mesh>
         )}
 
-        {/* 5. Canvas-texture label — only when active/highlighted */}
-        {(hovered || isHighlighted || (isMobile && !isIdle && !isDimmed)) && (
+        {/* 5. Canvas-texture label — on desktop: hover; on mobile: only when tapped */}
+        {(hovered || isHighlighted) && (
           <PlanetLabel
             name={strain.name}
             level={strain.level}
             r={baseR}
             isHighlighted={isHighlighted}
+            isMobile={isMobile}
           />
         )}
       </animated.group>
@@ -191,45 +192,63 @@ function PlanetLabel({
   level,
   r,
   isHighlighted,
+  isMobile,
 }: {
   name: string;
   level: string;
   r: number;
   isHighlighted: boolean;
+  isMobile: boolean;
 }) {
   const texture = useMemo(() => {
+    const w = isMobile ? 384 : 256;
+    const h = isMobile ? 96 : 64;
     const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 64;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, 256, 64);
+    ctx.clearRect(0, 0, w, h);
 
-    ctx.font = "600 18px 'IBM Plex Sans', system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    // Pill background for legibility on mobile
+    if (isMobile) {
+      ctx.fillStyle = "rgba(8,12,16,0.72)";
+      ctx.beginPath();
+      ctx.roundRect(12, 6, w - 24, h - 12, 12);
+      ctx.fill();
+    }
+
+    const nameFontSize = isMobile ? 28 : 18;
+    const levelFontSize = isMobile ? 17 : 11;
+    ctx.font = `600 ${nameFontSize}px 'IBM Plex Sans', system-ui, sans-serif`;
+    ctx.fillStyle = "rgba(255,255,255,0.96)";
     ctx.textAlign = "center";
-    ctx.fillText(name, 128, 22);
+    ctx.fillText(name, w / 2, isMobile ? 36 : 22);
 
     const levelColors: Record<string, string> = {
-      Beginner: "rgba(100,210,140,0.75)",
-      Intermediate: "rgba(240,180,60,0.75)",
-      Collector: "rgba(200,100,220,0.75)",
+      Beginner:     "rgba(100,210,140,0.90)",
+      Intermediate: "rgba(240,180,60,0.90)",
+      Collector:    "rgba(200,100,220,0.90)",
     };
-    ctx.font = "400 11px 'IBM Plex Mono', monospace, sans-serif";
-    ctx.fillStyle = levelColors[level] ?? "rgba(200,200,200,0.6)";
-    ctx.fillText(level.toUpperCase(), 128, 40);
+    ctx.font = `400 ${levelFontSize}px 'IBM Plex Mono', monospace, sans-serif`;
+    ctx.fillStyle = levelColors[level] ?? "rgba(200,200,200,0.7)";
+    ctx.fillText(level.toUpperCase(), w / 2, isMobile ? 62 : 40);
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
     return tex;
-  }, [name, level]);
+  }, [name, level, isMobile]);
+
+  const planeW = isMobile ? 1.4 : 0.9;
+  const planeH = isMobile ? 0.34 : 0.22;
+  const yOffset = isMobile ? r + 0.52 : r + 0.28;
 
   return (
-    <mesh position={[0, r + 0.28, 0]}>
-      <planeGeometry args={[0.9, 0.22]} />
+    <mesh position={[0, yOffset, 0]}>
+      <planeGeometry args={[planeW, planeH]} />
       <meshBasicMaterial
         map={texture}
         transparent
-        opacity={isHighlighted ? 1.0 : 0.8}
+        opacity={isHighlighted ? 1.0 : 0.85}
         depthWrite={false}
         side={THREE.DoubleSide}
       />
