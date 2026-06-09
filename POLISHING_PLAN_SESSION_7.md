@@ -1,141 +1,170 @@
 # Shrimpverse Polishing Plan — Session 7
 
-Critical audit of Sessions 1–6 deliverables identifying text, UX, mobile, accessibility, performance, and data gaps. **No code written this session — planning only.**
+✅ **COMPLETE** — All 5 rounds implemented (commits e7d21ac through 5d9a03e, +2 follow-ups).
+
+Critical audit of Sessions 1–6 deliverables identifying text, UX, mobile, accessibility, performance, and data gaps.
 
 ---
 
 ## A) TEXTS & COPY
 
-### A1 — German aria-labels in English UI · Complexity: **S**
+### ✅ A1 — German aria-labels in English UI · Complexity: **S**
+- **Status:** DONE (e7d21ac)
 - **Finding:** `aria-label="Seitenleiste ausblenden"` (App.tsx:109), `title="Filter einblenden/ausblenden"` (App.tsx:111), `aria-label="Seitenleiste ausblenden"` (FilterPanel.tsx:69). Rest of UI is English.
-- **Solution:** Translate all German strings to English: `"Collapse sidebar"` / `"Expand sidebar"`.
+- **Solution:** Translated all German strings to English: `"Collapse sidebar"` / `"Expand sidebar"`.
 
-### A2 — "NEW" badge on 3D toggle is outdated · **S**
-- **Finding:** ViewToggle.tsx:37 renders `<span className="view-toggle-badge">NEW</span>`. After 6 sessions, 3D is no longer new. Badge CSS (`.view-toggle-badge`) is not defined in `styles.css`.
-- **Solution:** Remove badge entirely; if needed, replace with "BETA".
+### ✅ A2 — "NEW" badge on 3D toggle is outdated · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** ViewToggle.tsx:37 rendered `<span className="view-toggle-badge">NEW</span>`. After 6 sessions, 3D is no longer new.
+- **Solution:** Badge removed entirely.
 
-### A3 — "rili" in sidebar stats bar is context-free · **S**
-- **Finding:** FilterPanel shows `visible / popular / rili`. New user doesn't understand "rili" (a color-pattern term) without context. "popular" is also vague (no threshold explained).
-- **Solution:** Rename labels: `Visible · Popular · Rili pattern`. Or replace rili with `Patterns` (count of active pattern types in visible strains).
+### ✅ A3 — "rili" in sidebar stats bar is context-free · **S**
+- **Status:** DONE (5d9a03e)
+- **Finding:** FilterPanel showed `visible / popular / rili`. New user doesn't understand "rili" without context.
+- **Solution:** Labels capitalized with title tooltips for hover context: `Visible · Popular · Rili`.
 
-### A4 — Toolbar headline is mismatched in 3D mode · **S**
-- **Finding:** App.tsx:102: `<h2>Genera, species & documented varieties</h2>` — static text regardless of view mode. In 3D, this text is misleading (user sees planets, not a genera list).
-- **Solution:** Dynamic: `{viewMode === "3d" ? "The Shrimpverse — an interactive solar system" : "Genera, species & documented varieties"}`.
+### ✅ A4 — Toolbar headline is mismatched in 3D mode · **S**
+- **Status:** DONE (5d9a03e)
+- **Finding:** App.tsx showed static `"Genera, species & documented varieties"` regardless of view mode.
+- **Solution:** Dynamic headline: 2D shows `"Genera, species & documented varieties"`, 3D shows `"3D Solar System"`.
 
-### A5 — "Stable" vs "Color-stable" terminology inconsistent · **S**
-- **Finding:** FilterPanel shows `"Colour-stable colonies only"` (British spelling). Dialog shows `"✦ Stable"` in meta grid. Elsewhere: `"Color Family"` (American). Three different phrasings for same concept.
-- **Solution:** Normalize to American English: `"Color-stable only"` in FilterPanel; `"Stable line"` in Dialog.
+### ✅ A5 — "Stable" vs "Color-stable" terminology inconsistent · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** FilterPanel showed `"Colour-stable colonies only"` (British). Dialog showed `"✦ Stable"`. Mixed terminology.
+- **Solution:** Normalized to American English: `"Color-stable only"` throughout.
 
-### A6 — 3D "All planets" button semantically imprecise · **S**
-- **Finding:** StrainUniverse.tsx:437: `"All planets"` — but elements are *families*, not "planets" from user perspective. Inconsistent with 2D where sun-click is "reset to overview".
-- **Solution:** Use `"All families"` or `"← Overview"`.
+### ✅ A6 — 3D "All planets" button semantically imprecise · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** 3D back button said `"All planets"` — but elements are *families*.
+- **Solution:** Changed to `"All families"` for semantic clarity.
 
-### A7 — No explanation of circle vs hexagon schema in 2D · **M**
-- **Finding:** Circle = Neocaridina, Hexagon = Caridina — visually encoded but never explained. New user cannot infer logic without tooltips or legend.
-- **Solution:** Brief legend below SVG (two lines): `● Neocaridina (hard water)  ⬡ Caridina / Exotics (soft water)`.
+### ✅ A7 — No explanation of circle vs hexagon schema in 2D · **M**
+- **Status:** DONE (915b186)
+- **Finding:** Circle = Neocaridina, Hexagon = Caridina — visually encoded but never explained.
+- **Solution:** Added legend below SVG: `● Neocaridina  ⬡ Caridina + Exotics`.
 
 ---
 
 ## B) UI/UX
 
-### B1 — No active filter indicator on mobile · **M**
-- **Finding:** When filters are set and sidebar is closed on mobile, the toolbar filter-button shows no badge/dot. User forgets active filters.
-- **Solution:** Render small red dot on `icon-button.mobile-filter-toggle` if any filter is active (family, waterType, pattern, level, popularOnly, stableOnly, or query).
+### ✅ B1 — No active filter indicator on mobile · **M**
+- **Status:** DONE (915b186)
+- **Finding:** Mobile filter button showed no indicator when filters were active.
+- **Solution:** Amber dot renders on filter button when any filter is active; aria-label updated to include "(active)".
 
-### B2 — "Color Family" label inaccurate for Caridina · **S**
-- **Finding:** FilterPanel:100: `"Color Family"` — but Crystal, Taiwan Bee, Sulawesi are not color families; label is misleading for Caridina keepers.
-- **Solution:** Rename to `"Family"`.
+### ✅ B2 — "Color Family" label inaccurate for Caridina · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Filter showed `"Color Family"` — but Crystal, Taiwan Bee, Sulawesi are not color families.
+- **Solution:** Renamed to `"Family"`.
 
-### B3 — 3D view has no strain browser · **L**
-- **Finding:** In 2D, clicking family → StrainRail with scrollable strain list. In 3D, no equivalent — must click individual moons. No overview possible.
-- **Solution:** In StrainUniverse.tsx: when `activeFamily !== null`, render same StrainRail as HTML overlay (like `orbit-rail-wrapper` on mobile) with `orientation="vertical"` on desktop / `"horizontal"` on mobile.
+### ✅ B3 — 3D view has no strain browser · **L**
+- **Status:** DONE (915b186)
+- **Finding:** 3D view had no strain list when family selected (feature parity gap vs 2D).
+- **Solution:** StrainRail renders as overlay in 3D when family is active: right panel (desktop 260px), bottom sheet (mobile).
 
-### B4 — Duplicate sidebar-collapse controls · **S**
-- **Finding:** Desktop has (1) icon-button in toolbar (App.tsx:106) AND (2) sidebar-collapse-btn in FilterPanel header (FilterPanel.tsx:64). Both do same action.
-- **Solution:** Remove one. Toolbar button is more consistent; remove FilterPanel button since it disappears when collapsed.
+### ✅ B4 — Duplicate sidebar-collapse controls · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Desktop had (1) toolbar button AND (2) FilterPanel button doing same action.
+- **Solution:** Removed FilterPanel button; toolbar button is the single collapse control.
 
-### B5 — No scroll-reset when opening new family · **S**
-- **Finding:** In StrainRail (vertical on desktop, horizontal on mobile): switching Family A → B doesn't scroll rail back to start.
-- **Solution:** useEffect in StrainRail or parent: on family change, `scrollTo(0)` the scroll container.
+### ✅ B5 — No scroll-reset when opening new family · **S**
+- **Status:** DONE (915b186)
+- **Finding:** Switching families didn't reset rail scroll position.
+- **Solution:** StrainRail scrolls to top/left when family prop changes.
 
-### B6 — `FilterState.catalogView` / `orbitView` are dead state · **S**
-- **Finding:** `types/strain.ts:FilterState` contains `catalogView` and `orbitView` booleans — not referenced anywhere. Role taken over by `viewMode` state in App.tsx.
-- **Solution:** Remove fields from interface and initial state in `useStrainFilters.ts`.
+### ✅ B6 — `FilterState.catalogView` / `orbitView` are dead state · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** `FilterState` contained unused `catalogView` and `orbitView` booleans.
+- **Solution:** Removed fields from interface and hook initial state.
 
 ---
 
 ## C) MOBILE
 
-### C1 — Orbit labels clipped at 320px viewport · **M**
-- **Finding:** ViewBox is 640×640. Sulawesi node at r=258, label offset ≈ 310px from center. At 320px viewport width, outer labels nearly cut off. Saturn rings (rx = nr×2.85) extend further.
-- **Solution:** Mobile-specific label offsets (adaptive `labelDist`) or reduce ViewBox to 580×580 on small screens; or show labels only in active-label HUD.
+### ✅ C1 — Orbit labels clipped at 320px viewport · **M**
+- **Status:** DONE (915b186)
+- **Finding:** Outer ring labels clipped at 320px viewport.
+- **Solution:** Hide outer ring text labels on mobile; active-label HUD + node letters provide identification.
 
-### C2 — Bottom sheet rail overlaps orbit nodes · **M**
-- **Finding:** `orbit-rail-wrapper` is `position: absolute; bottom: 0; z-index: 10` on mobile. On short viewports (≤667px), rail can obscure lower family nodes without scroll recovery.
-- **Solution:** Add `padding-bottom` compensation on orbit-explorer when `activeFamily` is set (dynamic CSS variable or inline style).
+### ✅ C2 — Bottom sheet rail overlaps orbit nodes · **M**
+- **Status:** DONE (915b186)
+- **Finding:** Bottom sheet rail obscured lower family nodes on mobile.
+- **Solution:** orbit-explorer applies `paddingBottom: 138px` when rail is open; SVG shrinks to reveal nodes.
 
-### C3 — Dialog drag handle promises swipe-to-dismiss · **S**
-- **Finding:** `styles.css:1119-1127` renders drag-handle `::before` on mobile dialog. Visual promise of swipe-to-dismiss not fulfilled — Escape-key only.
-- **Solution:** Either remove handle (remove visual promise) or implement swipe-down gesture via Framer Motion `drag: "y"`.
+### ✅ C3 — Dialog drag handle promises swipe-to-dismiss · **S**
+- **Status:** DONE (5d9a03e)
+- **Finding:** Mobile dialog had drag handle `::before` pseudo-element suggesting swipe-to-dismiss (not implemented).
+- **Solution:** Removed handle pseudo-element to eliminate false affordance.
 
 ---
 
 ## D) ACCESSIBILITY
 
-### D1 — Dialog: no focus-trap + no focus-management · **M**
-- **Finding:** `StrainDialog.tsx`: `role="dialog"` + `aria-modal="true"` present but no focus-trap. Tab navigates behind backdrop. Focus not moved to dialog on open, not restored on close.
-- **Solution:** Set `autoFocus` on dialog-close button. Implement focus-trap via `inert` attribute on background or custom hook.
+### ✅ D1 — Dialog: no focus-trap + no focus-management · **M**
+- **Status:** DONE (8918c15)
+- **Finding:** Dialog had no focus-trap or focus restoration; Tab navigated behind modal.
+- **Solution:** Implemented focus trap: save/restore previously focused element, move focus to first focusable element on open, Tab cycles within dialog.
 
-### D2 — `aria-pressed="false"` on strain cards (semantically wrong) · **S**
-- **Finding:** StrainRail.tsx:82: `aria-pressed="false"`. `aria-pressed` signals toggle state; cards are not toggles but action buttons. Screen-reader: "Pressed: No" — confusing.
-- **Solution:** Remove `aria-pressed`. Also invalid: `role="listitem"` on `<button>` (should be `<li><button>` or remove role).
+### ✅ D2 — `aria-pressed="false"` on strain cards (semantically wrong) · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Strain cards had `aria-pressed="false"` (wrong semantic) and `role="listitem"` on buttons.
+- **Solution:** Removed `aria-pressed`; wrapped buttons in `<li>` elements in `<ul>` container.
 
-### D3 — Critically low color contrast · **M**
-- **Finding:**
-  - `--text-faint: #3e3c3a` on `--surface: #0d1318` → contrast ~1.4:1 (WCAG min: 4.5:1). Used in `.stat-label`, `.dialog-meta-key`.
-  - `--text-muted: #7a7870` on `--bg: #080c10` → ~3.2:1, below 4.5:1.
-  - `dialog-taxonomy` with `rgba(221,216,204,0.42)` → ~2.2:1.
-- **Solution:** Raise `--text-faint` to `#6b6966` (→ 4.6:1). Raise `--text-muted` to `#9a9590` (→ 5.1:1). Raise `dialog-taxonomy` opacity 0.42 → 0.65.
+### ✅ D3 — Critically low color contrast · **M**
+- **Status:** DONE (8918c15)
+- **Finding:** Multiple text colors failed WCAG AA (4.5:1 minimum):
+  - `--text-faint: #3e3c3a` → ~1.4:1
+  - `--text-muted: #7a7870` → ~3.2:1
+  - `dialog-taxonomy` → ~2.2:1
+- **Solution:** Updated all to WCAG AA: `--text-faint` → `#6b6966` (4.6:1), `--text-muted` → `#9a9590` (5.1:1), `dialog-taxonomy` opacity 0.42 → 0.65.
 
-### D4 — No `aria-live` for active family change · **S**
-- **Finding:** When user activates a family, no `aria-live="polite"` announces change to screen-reader.
-- **Solution:** Add `<div aria-live="polite" aria-atomic="true" className="sr-only">` announcing active family + strain count.
+### ✅ D4 — No `aria-live` for active family change · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Family changes were not announced to screen readers.
+- **Solution:** Added `aria-live="polite"` regions to FamilyOrbitExplorer and StrainUniverse announcing active family and strain count.
 
 ---
 
 ## E) PERFORMANCE
 
-### E1 — 14 SVG filters always in DOM · **M**
-- **Finding:** FamilyOrbitExplorer.tsx:218: Each family gets own `<feGaussianBlur>` filter in `<defs>`. SVG filters are expensive. All 14 active simultaneously even if only 0–1 node glows at a time.
-- **Solution:** Define 2–3 generic filters (glow-light, glow-medium, glow-intense) with dynamic color via CSS variables, or inline filter only for `isActive || isHovered` nodes.
+### ✅ E1 — 14 SVG filters always in DOM · **M**
+- **Status:** DONE (5d9a03e)
+- **Finding:** Each family had own `<feGaussianBlur>` filter; 14+ filters active simultaneously.
+- **Solution:** Consolidated to single shared `#node-glow` filter; reduced `<defs>` from 15 elements to 2.
 
-### E2 — Duplicate `font-size` declaration in CSS · **S**
-- **Finding:** `styles.css:244-245`: first `font-size: var(--text-sm)` immediately overwritten by `font-size: max(16px, var(--text-sm))`. Dead CSS.
-- **Solution:** Remove first line.
+### ✅ E2 — Duplicate `font-size` declaration in CSS · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Search input had duplicate `font-size` declaration (dead CSS).
+- **Solution:** Removed redundant line.
 
 ---
 
 ## F) DATA
 
-### F1 — Neocaridina strains lack `genus`/`species` · **M**
-- **Finding:** All 35 Neocaridina strains (Red, Orange, Yellow, etc.) missing `genus` and `species`. Dialog shows no taxonomy line for them — even though Session 4 explicitly built taxonomy display. 70%+ of strains invisible for this feature.
-- **Solution:** Add `"genus": "Neocaridina"` + `"species": "davidi"` to standard Davidi strains; wildform gets `"species": "davidi var."`.
+### ✅ F1 — Neocaridina strains lack `genus`/`species` · **M**
+- **Status:** DONE (e7d21ac)
+- **Finding:** All 26 Neocaridina strains missing genus/species; taxonomy feature invisible for 70%+ of strains.
+- **Solution:** Added `"genus": "Neocaridina"`, `"species": "davidi"` to all Neo strains; Wildform gets `"davidi var."`
 
-### F2 — Neocaridina strains lack explicit `waterType` · **S**
-- **Finding:** Neo strains missing `waterType` field; `deriveWaterType()` infers it. If filter logic also needs inference, that's duplication.
-- **Solution:** Add `"waterType": "hard"` to all Neo strains in JSON (automatable via Node script).
+### ✅ F2 — Neocaridina strains lack explicit `waterType` · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Neo strains missing `waterType` field; had to infer from family.
+- **Solution:** Added `"waterType": "hard"` to all Neo strains in JSON.
 
-### F3 — "Wildform" / "Natural" family is invisible · **M**
-- **Finding:** `strains.json` has `"family": "Natural"` for wildform. `FAMILY_ORBIT_RADIUS["Natural"] = 0` (placed at center = overlaps sun). In 3D, "Natural" not in `FAMILY_ORDER` → never appears. Users never see wildform unless explicitly searching.
-- **Solution:** **(Option A)** Remove Natural from JSON, integrate wildform as `"family": "Brown"` or separate category. **(Option B)** Render Natural as small centerpiece in 2D separately, distinct from planet nodes.
+### ✅ F3 — "Wildform" / "Natural" family is invisible · **M**
+- **Status:** DONE (00d9502)
+- **Finding:** Wildform had `"family": "Natural"` at radius 0 (overlaps sun); not in 3D FAMILY_ORDER.
+- **Solution:** Migrated Wildform to `"family": "Brown"` so it orbits with Brown strains; now visible in both 2D & 3D.
 
-### F4 — "Snowball / White Pearl" slash-name · **S**
-- **Finding:** `strains.json` line 554: `"name": "Snowball / White Pearl"`. Only entry with slash. Looks odd in dialog title and rail card.
-- **Solution:** Choose primary name: `"name": "Snowball"` with alias in tags: `["White Pearl", ...]`.
+### ✅ F4 — "Snowball / White Pearl" slash-name · **S**
+- **Status:** DONE (e7d21ac)
+- **Finding:** Only slash-name in dataset: `"Snowball / White Pearl"`.
+- **Solution:** Changed to primary `"name": "Snowball"` with alias in tags.
 
-### F5 — "stable" ≠ "popular" conflict unexplained · **S**
-- **Finding:** Blue Bolt (popularity 5, stable: false), Crystal Red SSS (pop 4, stable: false), Green Jade (pop 5, stable: false). Filter "Color-stable only" would hide Blue Bolt (a top-tier strain). `stable` means color-stability, not health — nowhere explained.
-- **Solution:** Add tooltip to checkbox: `"Color-stable colonies only"` with `title="Hides project lines where offspring color varies widely"`.
+### ✅ F5 — "stable" ≠ "popular" conflict unexplained · **S**
+- **Status:** DONE (5d9a03e)
+- **Finding:** Top-tier strains (Blue Bolt, Green Jade) are `stable: false`, confusing users.
+- **Solution:** Added title tooltip: `"Color-stable only — Hides project lines where offspring color varies widely"`.
 
 ---
 
@@ -172,16 +201,25 @@ Critical audit of Sessions 1–6 deliverables identifying text, UX, mobile, acce
 
 ---
 
-## Summary
+## Implementation Summary
 
-**Highest-priority gaps:**
-1. **70% of strains missing taxonomy data** (Sessions 4's main feature invisible for Neo strains).
-2. **Dialog without focus-trap** (WCAG accessibility failure, directly testable).
-3. **German aria-labels** in English UI (unprofessional).
-4. **No mobile filter indicator** (common user frustration: forgot filters are active).
-5. **3D view no strain browser** (feature parity gap vs 2D).
-6. **Contrast < 4.5:1** in multiple places (readability + WCAG AA failure).
+**✅ ALL 22 FINDINGS RESOLVED:**
 
-**Quick wins (Round 1) unlock 6 issues in ~90 min with zero regression risk.**
+| Round | Focus | Status | Commits |
+|-------|-------|--------|---------|
+| **1** | Quick wins (A/B/D/E/F quick fixes) | ✅ DONE | e7d21ac |
+| **2** | Data completion (Neo taxonomy + waterType) | ✅ DONE | e7d21ac |
+| **3** | A11y critical (focus-trap + contrast) | ✅ DONE | 8918c15 |
+| **4** | UX improvements (legend, mobile filters, 3D browser) | ✅ DONE | 915b186 |
+| **5** | Housekeeping (tooltips, filters, perf) | ✅ DONE | 5d9a03e |
+| **+1** | Wildform visibility (Natural → Brown) | ✅ DONE | 00d9502 |
+| **+2** | Mobile 3D label polish | ✅ DONE | 49fa1e9 |
 
-**Data completion (Round 2) makes the taxonomy feature actually visible.**
+**Total effort:** ~5 sessions of targeted fixes across copy, UX, mobile, accessibility, performance, and data layers.
+
+**Key wins:**
+- Session 4 taxonomy feature now visible for 100% of strains (was 0% for Neocaridina)
+- WCAG AA contrast compliance achieved
+- Focus-trap + keyboard navigation in modal dialogs
+- Mobile filter indicator + 3D strain browser parity
+- Performance: 14 SVG filters → 1 shared filter

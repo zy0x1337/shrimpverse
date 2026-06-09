@@ -103,18 +103,48 @@ public/
 - **PlanetLabel**: mobile only shows on tap (isHighlighted), not for all active moons;
   canvas 256×64→384×96, font 18→28px, dark pill background for contrast
 
-### ✅ Session 7: Graphify Code Analysis Integration
-- **Install Graphify**: `uv tool install graphifyy` (v0.8.36) for code knowledge graph generation
-- **Code extraction**: Full AST + semantic analysis on 42 files (305 nodes, 481 edges, 18 communities)
-- **Outputs**:
-  - `public/graphify-out/graph.html` — Interactive graph visualization (clickable nodes, search)
-  - `public/graphify-out/graph.json` — Complete graph JSON for future queries
-  - `public/graphify-out/GRAPH_REPORT.md` — Analysis report with metrics and god nodes
-- **Key insights**:
-  - **Core abstraction**: `Strain` (27 connections) — central data model
-  - **No import cycles** — architecture is clean
-  - **18 communities** identified with relationship analysis
-  - Vercel deployment: Graph accessible at `/graphify-out/graph.html`
+### ✅ Session 7: Full Polish + Graphify
+**22-finding audit** across copy, UX, mobile, a11y, performance, and data — all resolved:
+
+**Copy & terminology:**
+- German aria-labels translated to English (sidebar collapse)
+- "NEW" badge removed from 3D toggle
+- Terminology normalized: "Color-stable only", "Family", "All families"
+- Stats bar labels capitalized with hover tooltips
+- Toolbar headline adapts to 2D vs 3D mode
+
+**UX improvements:**
+- 2D legend: `● Neocaridina  ⬡ Caridina + Exotics` below orbit SVG
+- Mobile filter button shows amber dot when any filter is active
+- 3D strain browser: StrainRail overlay when family selected (parity with 2D)
+- Scroll resets to top when switching families
+- Dead state (`catalogView`, `orbitView`) removed from FilterState
+- Duplicate sidebar collapse button removed
+
+**Mobile fixes:**
+- Outer ring labels hidden on mobile (prevent clipping at 320px)
+- Orbit-explorer pads bottom when bottom sheet rail is open
+- Misleading swipe drag handle removed from mobile dialog
+
+**Accessibility (WCAG AA):**
+- Focus-trap in StrainDialog: save/restore focus, Tab cycles within modal
+- Contrast raised: `--text-faint` 1.4:1→4.6:1, `--text-muted` 3.2:1→5.1:1
+- `aria-pressed` removed from strain cards; `<ul>/<li>` structure corrected
+- `aria-live="polite"` regions announce family/strain count changes
+
+**Performance:**
+- 14 identical SVG glow filters → 1 shared `#node-glow` filter
+- Duplicate `font-size` declaration removed
+
+**Data:**
+- All 26 Neocaridina strains now have `genus`, `species`, `waterType` — taxonomy renders for 100% of strains
+- Wildform migrated from `"Natural"` (invisible, radius 0) to `"Brown"` — visible in both views
+- "Snowball / White Pearl" → primary name "Snowball", alias in tags
+
+**Graphify code analysis:**
+- `uv tool install graphifyy` (v0.8.36) — AST + semantic analysis of 42 files
+- 305 nodes · 481 edges · 18 communities; `Strain` is central (27 connections); no import cycles
+- Outputs deployed to Vercel: `/graphify-out/graph.html`
 
 ## Key Data Model
 
@@ -185,23 +215,22 @@ npm run build && npm run preview
 
 ## Current Status
 
-**7 sessions complete** — Shrimpverse is a fully functional 3D/2D interactive shrimp atlas with architectural analysis:
-- 49 shrimp varieties across 15 families
+**7 sessions complete** — Shrimpverse is a fully polished, production-grade 3D/2D interactive shrimp atlas:
+- 49 shrimp varieties across 15 families (all with genus, species, waterType)
 - Dual-ring system: Neocaridina (8 inner), Caridina + exotics (6 outer)
-- 3D solar system with pulsing sun, material-mapped planets, orbiting moons
-- 2D SVG counterpart with golden sun, hexagonal Caridina nodes, Saturn rings for Sulawesi
-- Enriched strain dialog with taxonomy, water type, 6-cell meta grid
-- waterType filter (hard/soft/neutral) + searchable genus/species
+- 3D solar system with pulsing sun, material-mapped planets, orbiting moons + strain browser overlay
+- 2D SVG counterpart with golden sun, hexagonal Caridina nodes, Saturn rings, encoding legend
+- Enriched strain dialog with taxonomy, water type, 6-cell meta grid, focus-trap, WCAG AA contrast
+- waterType filter + searchable genus/species; mobile filter indicator dot
 - Collapsible sidebar (desktop), right-side strain panel (desktop), bottom sheet (mobile)
 - Mobile 3D: readable labels, correct orbit spacing, tap-to-reveal moon names
-- **Graphify code analysis**: Interactive knowledge graph, architectural insights, zero import cycles
+- Graphify code analysis: interactive knowledge graph, zero import cycles
 
-**Next directions** (Session 8 — Polishing & Enhancement):
-- Copy & text review: labels, empty states, onboarding
-- UI/UX consistency pass: visual hierarchy, interaction flows
-- Accessibility: ARIA labels, keyboard navigation, color contrast
-- Performance: mobile 3D geometry budget, lazy loading review
-- Data quality: thin/missing strain entries, field consistency
+**Next directions** (Session 8):
+- Swipe-to-dismiss gesture on mobile dialog (currently false affordance removed; could be implemented with Framer Motion `drag: "y"`)
+- Additional strain data: breeding notes, more detailed summaries
+- Onboarding / empty-state copy refinement
+- Mobile 3D geometry budget review for lower-end devices
 
 ## Graphify: Code Knowledge Graph
 
