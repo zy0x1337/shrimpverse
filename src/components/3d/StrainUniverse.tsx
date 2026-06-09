@@ -271,7 +271,7 @@ export function StrainUniverse({ visibleStrains, onSelect }: Props) {
           antialias: !isMobile,
           alpha: false,
           powerPreference: "high-performance",
-          logarithmicDepthBuffer: true,
+          logarithmicDepthBuffer: !isMobile,
         }}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
         style={{

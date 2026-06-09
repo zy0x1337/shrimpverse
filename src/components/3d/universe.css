@@ -9,6 +9,20 @@
   background: radial-gradient(ellipse 80% 60% at 50% 55%, #0a1520 0%, #04060c 100%);
 }
 
+.universe-canvas-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 85% at 50% 50%,
+    transparent 55%,
+    rgba(4, 6, 12, 0.45) 78%,
+    rgba(4, 6, 12, 0.78) 100%
+  );
+  z-index: 1;
+}
+
 /* ============================================================
    HUD — top-left stats / active-family label
    Uses position:absolute inside .universe-canvas-wrapper so it

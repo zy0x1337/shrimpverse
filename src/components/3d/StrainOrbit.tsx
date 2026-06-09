@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useReducedMotion } from "motion/react";
 import { Group } from "three";
 import { StrainPlanet } from "./StrainPlanet";
 import { computeOrbitalPositions, wildformDistance, distanceToRadius } from "../../lib/orbitalDistance";
@@ -26,13 +27,14 @@ export function StrainOrbit({
   onSelectStrain,
 }: Props) {
   const groupRef = useRef<Group>(null);
+  const reduced = useReducedMotion();
 
   // On mobile, push moons further from the family planet to prevent overlap
   const orbits = computeOrbitalPositions(strains, center, isMobile ? 1.65 : 1.0);
 
   // Rotation only when this family is active
   useFrame((_, delta) => {
-    if (!isActive || !groupRef.current) return;
+    if (reduced || !isActive || !groupRef.current) return;
     groupRef.current.rotation.y += delta * 0.08;
   });
 

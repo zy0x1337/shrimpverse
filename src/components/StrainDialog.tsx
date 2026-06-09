@@ -107,10 +107,15 @@ export function StrainDialog({ strain, onClose }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.25 }}
+            onDragEnd={(_, info) => { if (info.offset.y > 80) onClose(); }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dialog-title"
           >
+            <div className="dialog-drag-handle" aria-hidden="true" />
             <div className="dialog-header">
               <div className="dialog-header-left">
                 {/* Badge row: family + water type */}

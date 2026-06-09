@@ -1,5 +1,6 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+import { useReducedMotion } from "motion/react";
 import * as THREE from "three";
 import type { Mesh } from "three";
 
@@ -13,8 +14,10 @@ export function Sun3D({ isMobile }: Props) {
   const coronaRef = useRef<Mesh>(null);
   const ring1Ref = useRef<Mesh>(null);
   const ring2Ref = useRef<Mesh>(null);
+  const reduced = useReducedMotion();
 
   useFrame((state) => {
+    if (reduced) return;
     const t = state.clock.elapsedTime;
     if (coreRef.current) {
       coreRef.current.scale.setScalar(1.0 + Math.sin(t * 1.4) * 0.04);
