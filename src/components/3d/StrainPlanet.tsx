@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useSpring, animated } from "@react-spring/three";
 import { useRef, useState, useMemo } from "react";
+import { useReducedMotion } from "motion/react";
 import * as THREE from "three";
 import type { Mesh } from "three";
 import type { Strain } from "../../types/strain";
@@ -31,12 +32,15 @@ export function StrainPlanet({
   const [hovered, setHovered] = useState(false);
   const meshRef = useRef<Mesh>(null);
   const atmoRef = useRef<Mesh>(null);
+  const reduced = useReducedMotion();
 
   useFrame((state, delta) => {
+    if (reduced || isDimmed) return;
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * (0.12 + strain.popularity * 0.035);
     }
     if (atmoRef.current) {
+      if (isMobile && isIdle) return;
       const t = state.clock.elapsedTime;
       const pulse = 1.0 + Math.sin(t * 0.8 + orbitalRadius) * 0.025;
       atmoRef.current.scale.setScalar(pulse);

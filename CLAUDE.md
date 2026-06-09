@@ -35,7 +35,6 @@ src/
 │   │   ├── FamilyNode3D.tsx     # Planet with 6 material types + mobile label sizing
 │   │   ├── StrainOrbit.tsx      # Moon orbits (radiusScale 1.65× on mobile)
 │   │   ├── StrainPlanet.tsx     # Individual moon mesh + PlanetLabel canvas texture
-│   │   ├── StrainRail3D.tsx     # HTML panel anchored in 3D space
 │   │   ├── OrbitRing.tsx        # Orbital path visualization
 │   │   ├── EffectPipeline.tsx   # Bloom + Vignette effects
 │   │   ├── UniverseBackground.tsx # Starfield
