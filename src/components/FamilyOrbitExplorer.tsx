@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
-import { familyColors, familyGenus } from "../lib/constants";
+import { familyColors, familyGenus, familyDescriptions } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
@@ -100,6 +100,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [railOpen, setRailOpen]         = useState(false);
   const [hovered, setHovered]           = useState<string | null>(null);
+  const [sunHovered, setSunHovered]     = useState(false);
+  // Tracks whether the user has clicked a planet at least once this session.
+  // Used to dismiss the first-visit onboarding hint — in-memory only, intentionally.
+  const [hasInteracted, setHasInteracted] = useState(false);
   const isMobile = useIsMobile();
 
   // Build family entries with per-ring angle positions
@@ -140,9 +144,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     : [];
 
   const handleFamilyClick = useCallback((family: string) => {
+    setHasInteracted(true);
     setActiveFamily((prev) => {
       if (prev === family) { setRailOpen(false); return null; }
-      setRailOpen(false); // new family → always close rail, user opens manually on mobile
+      setRailOpen(false);
       return family;
     });
   }, []);
@@ -150,6 +155,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) => CARIDINA_SET.has(s.family)).length;
   const totalCount    = visibleStrains.length;
+
+  // First planet in the list — used to anchor the onboarding pulse ring
+  const firstFamily = families[0];
 
   if (families.length === 0) {
     return (
@@ -170,20 +178,18 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   return (
     <div className="orbit-layout">
       <div className="orbit-explorer" style={activeFamily && isMobile && railOpen ? { paddingBottom: "138px" } : undefined}>
-      {/* Stats bar */}
+
+      {/* Stats bar — written as a sentence, not three isolated numbers */}
       <div className="orbit-stats" aria-label="Visible strain statistics">
-        <div className="orbit-stat">
-          <span className="orbit-stat-value">{totalCount}</span>
-          <span className="orbit-stat-label">Total</span>
-        </div>
-        <div className="orbit-stat">
-          <span className="orbit-stat-value">{neoCount}</span>
-          <span className="orbit-stat-label">Neocaridina</span>
-        </div>
-        <div className="orbit-stat">
-          <span className="orbit-stat-value">{caridineCount}</span>
-          <span className="orbit-stat-label">Caridina</span>
-        </div>
+        <p className="orbit-stats-sentence">
+          <span className="orbit-stats-neo">{neoCount}</span>
+          {" Neocaridina · "}
+          <span className="orbit-stats-cari">{caridineCount}</span>
+          {" Caridina"}
+          {totalCount < neoCount + caridineCount && (
+            <span className="orbit-stats-filtered"> · {totalCount} filtered</span>
+          )}
+        </p>
       </div>
 
       <div aria-live="polite" aria-atomic="true" className="sr-only">
@@ -192,6 +198,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           : ""}
       </div>
 
+      {/* Active family HUD — name, genus, short description */}
       <AnimatePresence>
         {activeFamily && (
           <motion.div
@@ -206,6 +213,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             {activeFamily}
             {familyGenus[activeFamily] && (
               <span className="orbit-active-genus">{familyGenus[activeFamily]}</span>
+            )}
+            {familyDescriptions[activeFamily] && (
+              <motion.span
+                className="orbit-active-desc"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12, duration: 0.22 }}
+              >
+                {familyDescriptions[activeFamily]}
+              </motion.span>
             )}
           </motion.div>
         )}
@@ -476,9 +493,55 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           );
         })}
 
+        {/* ===== First-visit onboarding hint =====
+            Shown once per session (in-memory). Dismissed on first planet click.
+            A pulsing dashed ring around the first planet + a quiet prompt below the orbit. */}
+        <AnimatePresence>
+          {!hasInteracted && firstFamily && (
+            <motion.g
+              key="onboarding-hint"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.5 } }}
+              transition={{ delay: 1.4, duration: 0.7 }}
+              aria-hidden="true"
+              style={{ pointerEvents: "none" }}
+            >
+              {/* Pulsing dashed ring around the first planet */}
+              <motion.circle
+                cx={firstFamily.nx}
+                cy={firstFamily.ny}
+                r={firstFamily.nodeR + 16}
+                fill="none"
+                stroke="rgba(232,160,32,0.55)"
+                strokeWidth="0.8"
+                strokeDasharray="4 5"
+                animate={{
+                  r: [firstFamily.nodeR + 16, firstFamily.nodeR + 28, firstFamily.nodeR + 16],
+                  opacity: [0.55, 0.0, 0.55],
+                }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* Quiet hint text below the orbit */}
+              <text
+                x="0" y="300"
+                textAnchor="middle"
+                fontSize="5.5"
+                fontFamily="'IBM Plex Mono', monospace"
+                letterSpacing="0.14em"
+                fill="rgba(221,216,204,0.32)"
+              >
+                CLICK ANY PLANET TO EXPLORE
+              </text>
+            </motion.g>
+          )}
+        </AnimatePresence>
+
         {/* ===== Central golden sun — always visible ===== */}
         <motion.g
           onClick={() => { setActiveFamily(null); setRailOpen(false); }}
+          onHoverStart={() => setSunHovered(true)}
+          onHoverEnd={() => setSunHovered(false)}
           whileHover={{ scale: 1.06 }}
           whileTap={{ scale: 0.97 }}
           style={{ cursor: "pointer" }}
@@ -537,6 +600,27 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           >
             Shrimpverse
           </text>
+
+          {/* Sun hover hint: "RESET" label — only visible when a family is active */}
+          <AnimatePresence>
+            {sunHovered && activeFamily && (
+              <motion.text
+                x="0" y="40"
+                textAnchor="middle"
+                fontSize="4.2"
+                fontFamily="'IBM Plex Mono', monospace"
+                letterSpacing="0.12em"
+                fill="rgba(255,220,60,0.75)"
+                initial={{ opacity: 0, y: 44 }}
+                animate={{ opacity: 1, y: 40 }}
+                exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.18 }}
+                style={{ pointerEvents: "none", userSelect: "none" }}
+              >
+                RESET
+              </motion.text>
+            )}
+          </AnimatePresence>
         </motion.g>
       </svg>
 

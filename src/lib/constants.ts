@@ -49,3 +49,24 @@ export const familyGenus: Record<string, string> = {
   Amano:        "Caridina",
   Bamboo:       "Atyopsis",
 };
+
+// Short contextual descriptions shown below the active family label in the orbit.
+// Aimed at newcomers — one line that tells you what kind of shrimp this is
+// and why you might care.
+export const familyDescriptions: Record<string, string> = {
+  Natural:      "The wild-type look — understated, incredibly hardy",
+  Red:          "Neocaridina — the classic beginner shrimp, endlessly variable",
+  Orange:       "Neocaridina — warm tones, same easy care as Red",
+  Yellow:       "Neocaridina — bright and cheerful, great in planted tanks",
+  Green:        "Neocaridina — rare in the hobby, surprisingly vivid",
+  Blue:         "Neocaridina — bold color, among the easiest to keep",
+  Black:        "Neocaridina — dramatic contrast, forgiving water parameters",
+  Brown:        "Neocaridina — earthy tones, often overlooked gems",
+  White:        "Neocaridina — clean and striking, pairs well with dark substrate",
+  Crystal:      "Caridina — soft acidic water, iconic red & white patterns",
+  "Taiwan Bee": "Caridina — collector favorites, intricate patterns, delicate",
+  Tiger:        "Caridina — bold stripes, closer to the wild form",
+  Sulawesi:     "Ancient lake endemics — warm, mineral-rich, unlike any other",
+  Amano:        "Caridina — algae specialists, the workhorses of planted tanks",
+  Bamboo:       "Filter feeders — peaceful, fascinating, need flow to thrive",
+};
