@@ -22,6 +22,51 @@ interface Props {
   onClose?: () => void;
 }
 
+const LEVEL_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "Beginner", label: "Beginner" },
+  { value: "Intermediate", label: "Intermediate" },
+  { value: "Collector", label: "Collector" },
+];
+
+const WATER_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "hard", label: "Hard", title: "Hard water — ideal for Neocaridina (Cherry, Blue Dream, etc.)" },
+  { value: "soft", label: "Soft", title: "Soft water — required for Caridina & Sulawesi species" },
+  { value: "neutral", label: "Neutral", title: "Neutral water — filter shrimp like Bamboo & Vampire" },
+];
+
+const PATTERN_OPTIONS = [
+  { value: "all", label: "All" },
+  ...patterns.map((p) => ({ value: p, label: p })),
+];
+
+function ButtonGroup({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: string; label: string; title?: string }[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="btn-group" role="group">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          className={`btn-group-item${value === opt.value ? " active" : ""}`}
+          onClick={() => onChange(opt.value)}
+          aria-pressed={value === opt.value}
+          title={opt.title}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
@@ -42,7 +87,7 @@ export function FilterPanel({
             accentColor={activeFamilyColor ?? "var(--teal)"}
           />
           <div style={{ flex: 1 }}>
-            <div className="sidebar-subtitle">All freshwater shrimp</div>
+            <div className="sidebar-subtitle">A community atlas</div>
             <div className="sidebar-title">Shrimpverse</div>
           </div>
           {/* Mobile close button */}
@@ -131,46 +176,31 @@ export function FilterPanel({
         {/* Pattern */}
         <div className="filter-section">
           <div className="filter-label">Pattern</div>
-          <select
-            className="filter-select"
+          <ButtonGroup
+            options={PATTERN_OPTIONS}
             value={state.pattern}
-            onChange={(e) => onPatternChange(e.target.value)}
-          >
-            <option value="all">All patterns</option>
-            {patterns.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+            onChange={onPatternChange}
+          />
         </div>
 
         {/* Level */}
         <div className="filter-section">
           <div className="filter-label">Care level</div>
-          <select
-            className="filter-select"
+          <ButtonGroup
+            options={LEVEL_OPTIONS}
             value={state.level}
-            onChange={(e) => onLevelChange(e.target.value)}
-          >
-            <option value="all">All levels</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Collector">Collector</option>
-          </select>
+            onChange={onLevelChange}
+          />
         </div>
 
         {/* Water type */}
         <div className="filter-section">
           <div className="filter-label">Water type</div>
-          <select
-            className="filter-select"
+          <ButtonGroup
+            options={WATER_OPTIONS}
             value={state.waterType}
-            onChange={(e) => onWaterTypeChange(e.target.value)}
-          >
-            <option value="all">All water types</option>
-            <option value="hard">Hard — Neocaridina</option>
-            <option value="soft">Soft — Caridina &amp; Sulawesi</option>
-            <option value="neutral">Neutral — Filter shrimp</option>
-          </select>
+            onChange={onWaterTypeChange}
+          />
         </div>
 
         {/* Toggles */}
@@ -200,15 +230,18 @@ export function FilterPanel({
 
       {/* Stats */}
       <div className="sidebar-stats">
-        <div className="stat-cell" title="Currently visible strains">
+        <div className="stat-cell" title="Strains currently matching your filters">
           <span className="stat-value">{stats.visible}</span>
-          <span className="stat-label">Visible</span>
+          <span className="stat-label">Shown</span>
         </div>
-        <div className="stat-cell" title="Strains with popularity ≥ 4 of 5">
+        <div className="stat-cell" title="Well-loved strains with a popularity rating of 4 or 5 out of 5">
           <span className="stat-value">{stats.popular}</span>
           <span className="stat-label">Popular</span>
         </div>
-        <div className="stat-cell" title="Rili-patterned varieties (two-tone with transparent mid-section)">
+        <div
+          className="stat-cell"
+          title="Rili varieties — shrimp with a transparent mid-section, leaving color only at the head and tail"
+        >
           <span className="stat-value">{stats.rili}</span>
           <span className="stat-label">Rili</span>
         </div>
