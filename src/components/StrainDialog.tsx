@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 import { ShrimpVisual } from "./ShrimpVisual";
@@ -7,12 +7,20 @@ import { ShrimpVisual } from "./ShrimpVisual";
 interface Props {
   strain: Strain | null;
   onClose: () => void;
+  /** Optional: called when user clicks a tag — propagates the tag up for filtering */
+  onTagFilter?: (tag: string) => void;
 }
 
 const LEVEL_LABELS: Record<string, string> = {
   Beginner:     "Beginner",
   Intermediate: "Intermediate",
   Collector:    "Collector",
+};
+
+const LEVEL_TIPS: Record<string, string> = {
+  Beginner:     "Great for first-time keepers. Tolerates a range of water parameters.",
+  Intermediate: "Needs stable water chemistry and some experience to thrive.",
+  Collector:    "Rare or demanding. Best kept by experienced shrimp enthusiasts.",
 };
 
 const WATER_LABEL: Record<string, string> = {
@@ -26,6 +34,19 @@ const WATER_COLOR: Record<string, string> = {
   soft:    "#4aa8f0",
   neutral: "#999",
 };
+
+/** Glossary tooltips for meta-grid keys that may be unfamiliar to newcomers */
+const META_TIPS: Record<string, string> = {
+  Line:
+    "A 'line' is a selectively bred strain maintained over many generations for consistent colour and pattern.",
+  Pattern:
+    "The visual marking style — e.g. mosura (solid head), hinomaru (red spot), or racing stripe.",
+  Stability:
+    "Stable lines breed true: offspring reliably inherit the parent's appearance. Project lines are still being refined.",
+};
+
+/** Human-readable colour role names shown in swatch tooltips */
+const SWATCH_ROLES = ["Base colour", "Mid-tone", "Accent"];
 
 function needsLightText(hex: string): boolean {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -42,7 +63,87 @@ function deriveWaterType(strain: Strain): "hard" | "soft" | "neutral" {
   return "hard";
 }
 
-export function StrainDialog({ strain, onClose }: Props) {
+/** Splits the summary into a lead sentence and the rest */
+function splitSummary(text: string): { lead: string; rest: string } {
+  const match = text.match(/^([^.!?]+[.!?])\s*(.*)$/s);
+  if (!match) return { lead: text, rest: "" };
+  return { lead: match[1].trim(), rest: match[2].trim() };
+}
+
+// ---------------------------------------------------------------------------
+// Small tooltip helper
+// ---------------------------------------------------------------------------
+function GlossaryTip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+
+  return (
+    <span className="dialog-glossary-wrap">
+      <button
+        ref={ref}
+        className="dialog-glossary-btn"
+        aria-label="More information"
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onBlur={() => setOpen(false)}
+        type="button"
+      >
+        ?
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="dialog-glossary-tip"
+            role="tooltip"
+            initial={{ opacity: 0, y: 4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+          >
+            {text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Swatch segment with hover tooltip
+// ---------------------------------------------------------------------------
+function SwatchSeg({ color, role }: { color: string; role: string }) {
+  const [hovered, setHovered] = useState(false);
+  const light = needsLightText(color);
+
+  return (
+    <div
+      className="dialog-swatch-seg"
+      style={{ background: color, position: "relative" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            className="dialog-swatch-tooltip"
+            style={{ color: light ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.75)" }}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+          >
+            <span className="dialog-swatch-tooltip-role">{role}</span>
+            <span className="dialog-swatch-tooltip-hex">{color.toUpperCase()}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
   useEffect(() => {
     if (!strain) return;
 
@@ -58,7 +159,6 @@ export function StrainDialog({ strain, onClose }: Props) {
       ).filter((el) => !el.hasAttribute("disabled"));
     };
 
-    // Move focus into dialog after animation settles
     const focusTimer = setTimeout(() => getFocusable()[0]?.focus(), 60);
 
     const handler = (e: KeyboardEvent) => {
@@ -85,10 +185,11 @@ export function StrainDialog({ strain, onClose }: Props) {
 
   if (!strain) return null;
 
-  const color     = familyColors[strain.family] ?? "#888";
-  const waterType = deriveWaterType(strain);
+  const color      = familyColors[strain.family] ?? "#888";
+  const waterType  = deriveWaterType(strain);
   const waterColor = WATER_COLOR[waterType];
   const hasTaxonomy = strain.genus || strain.species;
+  const { lead, rest } = splitSummary(strain.summary ?? "");
 
   return (
     <AnimatePresence>
@@ -116,9 +217,10 @@ export function StrainDialog({ strain, onClose }: Props) {
             aria-labelledby="dialog-title"
           >
             <div className="dialog-drag-handle" aria-hidden="true" />
+
+            {/* ── HEADER ── */}
             <div className="dialog-header">
               <div className="dialog-header-left">
-                {/* Badge row: family + water type */}
                 <div className="dialog-badges">
                   <div
                     className="dialog-family-badge"
@@ -153,18 +255,12 @@ export function StrainDialog({ strain, onClose }: Props) {
                   </div>
                 </div>
 
-                {/* Strain name */}
                 <h2 id="dialog-title" className="dialog-title">{strain.name}</h2>
 
-                {/* Taxonomy line: Genus species */}
                 {hasTaxonomy && (
                   <div className="dialog-taxonomy">
-                    {strain.genus && (
-                      <span className="dialog-genus">{strain.genus}</span>
-                    )}
-                    {strain.species && (
-                      <span className="dialog-species">{strain.species}</span>
-                    )}
+                    {strain.genus  && <span className="dialog-genus">{strain.genus}</span>}
+                    {strain.species && <span className="dialog-species">{strain.species}</span>}
                   </div>
                 )}
               </div>
@@ -185,38 +281,31 @@ export function StrainDialog({ strain, onClose }: Props) {
               </button>
             </div>
 
+            {/* ── BODY ── */}
             <div className="dialog-body">
-              {/* Colour swatches */}
+
+              {/* Colour swatches — hover for tooltip */}
               <div className="dialog-swatch">
-                {strain.colors.map((c, i) => {
-                  const labels = ["Base", "Mid-tone", "Accent"];
-                  const light  = needsLightText(c);
-                  return (
-                    <div key={i} className="dialog-swatch-seg" style={{ background: c }}>
-                      <span
-                        className="dialog-swatch-label"
-                        style={{ color: light ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)" }}
-                      >
-                        <span className="dialog-swatch-role">{labels[i]}</span>
-                        <span className="dialog-swatch-hex">{c.toUpperCase()}</span>
-                      </span>
-                    </div>
-                  );
-                })}
+                {strain.colors.map((c, i) => (
+                  <SwatchSeg key={i} color={c} role={SWATCH_ROLES[i] ?? `Colour ${i + 1}`} />
+                ))}
               </div>
 
-              {/* Meta grid — 6 cells */}
+              {/* Meta grid */}
               <div className="dialog-meta-grid">
                 {([
-                  ["Family",     strain.family],
-                  ["Pattern",    strain.pattern],
-                  ["Line",       strain.line],
-                  ["Care level", LEVEL_LABELS[strain.level] ?? strain.level],
-                  ["Stability",  strain.stable ? "✦ Stable" : "◦ Project line"],
-                  ["Water",      WATER_LABEL[waterType]],
-                ] as [string, string][]).map(([k, v]) => (
+                  ["Family",     strain.family,                               null],
+                  ["Pattern",    strain.pattern,                              META_TIPS.Pattern],
+                  ["Line",       strain.line,                                 META_TIPS.Line],
+                  ["Care level", LEVEL_LABELS[strain.level] ?? strain.level, LEVEL_TIPS[strain.level] ?? null],
+                  ["Stability",  strain.stable ? "✦ Stable" : "◦ Project",   META_TIPS.Stability],
+                  ["Water",      WATER_LABEL[waterType],                      null],
+                ] as [string, string, string | null][]).map(([k, v, tip]) => (
                   <div key={k} className="dialog-meta-cell">
-                    <div className="dialog-meta-key">{k}</div>
+                    <div className="dialog-meta-key">
+                      {k}
+                      {tip && <GlossaryTip text={tip} />}
+                    </div>
                     <div
                       className="dialog-meta-val"
                       style={
@@ -233,25 +322,59 @@ export function StrainDialog({ strain, onClose }: Props) {
                 ))}
               </div>
 
-              <div className="dialog-section">
-                <div className="dialog-section-label">Description</div>
-                <p>{strain.summary}</p>
-              </div>
-
-              {strain.breeding && (
+              {/* Description — first sentence as lead */}
+              {strain.summary && (
                 <div className="dialog-section">
-                  <div className="dialog-section-label">Breeding notes</div>
+                  <div className="dialog-section-label">Description</div>
+                  <p className="dialog-summary">
+                    <strong className="dialog-summary-lead">{lead}</strong>
+                    {rest && ` ${rest}`}
+                  </p>
+                </div>
+              )}
+
+              {/* Breeding notes — visually distinct */}
+              {strain.breeding && (
+                <div className="dialog-section dialog-breeding">
+                  <div className="dialog-section-label">
+                    <svg
+                      className="dialog-breeding-icon"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                      aria-hidden="true"
+                    >
+                      {/* two interlocking circles = breeding / pairing */}
+                      <circle cx="5" cy="7" r="3.5" />
+                      <circle cx="9" cy="7" r="3.5" />
+                    </svg>
+                    Breeding notes
+                  </div>
                   <p>{strain.breeding}</p>
                 </div>
               )}
 
+              {/* Tags — clickable if onTagFilter provided */}
               {strain.tags && strain.tags.length > 0 && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Tags</div>
                   <div className="dialog-tags">
-                    {strain.tags.map((tag) => (
-                      <span key={tag} className="dialog-tag">{tag}</span>
-                    ))}
+                    {strain.tags.map((tag) =>
+                      onTagFilter ? (
+                        <button
+                          key={tag}
+                          className="dialog-tag dialog-tag--interactive"
+                          onClick={() => { onTagFilter(tag); onClose(); }}
+                          type="button"
+                        >
+                          {tag}
+                        </button>
+                      ) : (
+                        <span key={tag} className="dialog-tag">{tag}</span>
+                      )
+                    )}
                   </div>
                 </div>
               )}
@@ -274,7 +397,6 @@ function WaterIcon({ type }: { type: string }) {
       <path d="M6 1C6 1 2 5.5 2 7.5a4 4 0 008 0C10 5.5 6 1 6 1z" />
     </svg>
   );
-  // neutral
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" style={{ width: 9, height: 9, opacity: 0.6 }}>
       <circle cx="6" cy="6" r="3.5" />
