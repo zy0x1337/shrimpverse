@@ -1,0 +1,40 @@
+/* ==========================================================
+   Gift Note — sidebar footer
+   A single quiet sentence at the bottom of the filter panel.
+   Import in styles.css: @import './styles/gift-note.css';
+   ========================================================== */
+
+.sidebar-gift-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-gift-note-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--text-faint);
+  margin-top: 1px;
+  transition: color 200ms ease;
+}
+
+.sidebar-gift-note:hover .sidebar-gift-note-icon {
+  color: var(--teal);
+}
+
+.sidebar-gift-note p {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+  transition: color 200ms ease;
+}
+
+.sidebar-gift-note:hover p {
+  color: var(--text-muted);
+}

@@ -1,16 +1,33 @@
-import { lazy, Suspense, useMemo, useState, useEffect } from "react";
+import { lazy, Suspense, useMemo, useState, useEffect, useCallback } from "react";
 import { FilterPanel } from "./components/FilterPanel";
 import { FamilyOrbitExplorer } from "./components/FamilyOrbitExplorer";
 import { StrainDialog } from "./components/StrainDialog";
 import { ViewToggle } from "./components/ViewToggle";
 import { useStrainFilters } from "./hooks/useStrainFilters";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { strains } from "./lib/constants";
+import { strains, patterns, families } from "./lib/constants";
 
 // Lazy-load the heavy Three.js canvas — only fetched when user switches to 3D
 const StrainUniverse = lazy(() =>
   import("./components/3d/StrainUniverse").then((m) => ({ default: m.StrainUniverse }))
 );
+
+// Tags that map directly to a care-level filter value
+const LEVEL_TAGS = new Set(["beginner-friendly", "intermediate", "collector", "expert"]);
+const LEVEL_TAG_MAP: Record<string, string> = {
+  "beginner-friendly": "Beginner",
+  "intermediate":      "Intermediate",
+  "collector":         "Collector",
+  "expert":            "Collector",
+};
+
+// Tags that map to a water-type filter value
+const WATER_TAGS = new Set(["hard-water", "soft-water", "neutral-water"]);
+const WATER_TAG_MAP: Record<string, string> = {
+  "hard-water":    "hard",
+  "soft-water":    "soft",
+  "neutral-water": "neutral",
+};
 
 export default function App() {
   const {
@@ -68,6 +85,42 @@ export default function App() {
     state.family !== "All" || state.waterType !== "all" ||
     state.pattern !== "all" || state.level !== "all" ||
     state.popularOnly || state.stableOnly || !!state.query;
+
+  /**
+   * Called when user clicks a tag inside StrainDialog.
+   * Routes the tag to the most appropriate filter and closes the dialog.
+   * Priority: level > water > pattern > family > query fallback
+   */
+  const handleTagFilter = useCallback((tag: string) => {
+    const lower = tag.toLowerCase();
+
+    if (LEVEL_TAGS.has(lower)) {
+      setLevel(LEVEL_TAG_MAP[lower]);
+      return;
+    }
+    if (WATER_TAGS.has(lower)) {
+      setWaterType(WATER_TAG_MAP[lower]);
+      return;
+    }
+    // Pattern match (case-insensitive)
+    const matchedPattern = patterns.find(
+      (p) => p.toLowerCase() === lower || lower.includes(p.toLowerCase())
+    );
+    if (matchedPattern) {
+      setPattern(matchedPattern);
+      return;
+    }
+    // Family match
+    const matchedFamily = families.find(
+      (f) => f.toLowerCase() === lower || lower.includes(f.toLowerCase())
+    );
+    if (matchedFamily && matchedFamily !== "All") {
+      setFamily(matchedFamily);
+      return;
+    }
+    // Fallback: put tag text into search query
+    setQuery(tag);
+  }, [setLevel, setWaterType, setPattern, setFamily, setQuery]);
 
   return (
     <>
@@ -183,6 +236,7 @@ export default function App() {
       <StrainDialog
         strain={selectedStrain}
         onClose={() => setSelectedId(null)}
+        onTagFilter={handleTagFilter}
       />
     </>
   );

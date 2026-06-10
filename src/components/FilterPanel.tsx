@@ -246,6 +246,27 @@ export function FilterPanel({
           <span className="stat-label">Rili</span>
         </div>
       </div>
+
+      {/* Gift note — the one sentence that explains why this exists */}
+      <div className="sidebar-gift-note" aria-label="About Shrimpverse">
+        <svg
+          className="sidebar-gift-note-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          {/* shrimp-like curl: a bent body + antennae */}
+          <path d="M10 16c-3 0-5-2.5-5-5.5S8 4 10 4s5 2.5 5 5.5" />
+          <path d="M10 16c1.5 0 3-1 3-2.5" />
+          <path d="M7.5 5.5C6.5 4 5.5 3.5 4.5 3.5" />
+          <path d="M9 5C8.5 3.5 8.5 2.5 9 2" />
+        </svg>
+        <p>A free, open-source gift to the freshwater shrimp community.</p>
+      </div>
     </div>
   );
 }
