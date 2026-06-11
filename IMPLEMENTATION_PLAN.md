@@ -20,17 +20,19 @@ Philosophie: Kein einziges Feature das "cool" ist aber nichts lehrt. Jede Zeile 
 ***
 
 ## ✅ Phase 1 — Stimme & Kontext
-**Status: Abgeschlossen** — Commit `e9e5202` auf `main`.
+**Status: Abgeschlossen** — Commits `e9e5202`, `e87e7bf` auf `main`.
 
 **Was wurde gebaut:**
 - `strain.ts` — `WaterProfile`, `CrossResult`, `factoid` Interfaces
-- `strains.json` — alle 49 Strains mit `waterProfile`, `compatible`, `factoid` befüllt
-- `StrainDialog.tsx` — Wasserprofil-Badge (5-Spalten-Grid), Compatibility-Sektion, Tags als klickbare Filter
+- `strains.json` — alle 49 Strains mit `waterProfile`, `compatible[]`, `factoid` befüllt
+- `StrainDialog.tsx` — **5-Spalten Wasserprofil-Grid** (GH / KH / pH / TDS / Temp) mit Teal-Akzent, **Compatibility-Sektion** mit `compat-badge--{stability}`-Styling, Tags als klickbare Filter
 - `App.tsx` — `handleTagFilter` + `handleApplyPreset` vollständig verdrahtet
+- `styles.css` — `.dialog-water-profile`, `.water-cell`, `.compat-badge--stable/unstable/impossible`
 
 **Entscheidungen:**
 - `temp` als String (display-only) — falls programmatische Vergleiche nötig werden: `tempMin`/`tempMax: number` ergänzen
 - `"impossible"` in `CrossResult.stability` hat echte semantische Funktion: unterscheidet "keine Kreuzung" von "keine Daten"
+- Mobile-Breakpoint: Wasserprofil-Grid fällt auf 3+2 Layout (`@media max-width: 768px`)
 
 ***
 
@@ -243,7 +245,7 @@ Globales Suchen-Ersetzen aller hardcoded Hex-Werte (`#2fc4b5`, `rgba(47, 196, 18
 
 Nach Abschluss jeder Phase `CLAUDE.md` aktualisieren:
 
-- **Phase 1 ✅:** `WaterProfile`, `CrossResult`, `factoid` in Strain-Interface
+- **Phase 1 ✅:** `WaterProfile`, `CrossResult`, `factoid` in Strain-Interface; `dialog-water-profile` Grid + `compat-badge--*` CSS
 - **Phase 2 ✅:** `ButtonGroup`-Komponente, `GUIDED_PATHS`-Konstante, `hasInteracted`-State, `orbit-stats-sentence`
 - **Phase 3 🔜:** `FAMILY_ARCS`-Konstante, `getArcPath`-Hilfsfunktion
 - **Phase 4 ⏳:** Flip-Card-Pattern in StrainCard
