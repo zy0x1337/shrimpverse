@@ -196,7 +196,7 @@ function buildMoonArcs(
 ): MoonArc[] {
   const arcs: MoonArc[] = [];
   for (const moonA of moonsA) {
-    for (const cross of moonA.strain.compatible) {
+    for (const cross of (moonA.strain.compatible ?? [])) {
       // Normalise: compatible[].with is a family name (e.g. "Blue", "Taiwan Bee")
       // Check if it matches familyB
       if (cross.with !== familyB) continue;
@@ -221,7 +221,7 @@ function buildMoonArcs(
   }
   // Also check B → A direction
   for (const moonB of moonsB) {
-    for (const cross of moonB.strain.compatible) {
+    for (const cross of (moonB.strain.compatible ?? [])) {
       if (cross.with !== familyA) continue;
       const bestA = moonsA.reduce((best, m) =>
         m.strain.popularity > best.strain.popularity ? m : best
