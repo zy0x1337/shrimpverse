@@ -7,14 +7,14 @@
 
 Basis: 49 Strains, 14 Familien, vollständige `waterType`/`genus`/`species`-Daten bereits vorhanden.  
 Stack: React + TypeScript + Framer Motion + Vite.  
-Philosophie: Kein einziges Feature das "cool" ist aber nichts lehrt. Jede Zeile Code muss entweder einladen, erklären oder begeistern.
+Philosophie: Kein einziges Feature das „cool" ist aber nichts lehrt. Jede Zeile Code muss entweder einladen, erklären oder begeistern.
 
 | Phase | Titel | Dateien | Aufwand | Status |
 |-------|-------|---------|---------|--------|
 | 1 | Stimme & Kontext | `strain.ts`, `strains.json`, `StrainDialog.tsx` | ~3h | ✅ Abgeschlossen |
 | 2 | Intuition & Navigation | `FilterPanel.tsx`, `FamilyOrbitExplorer.tsx` | ~4h | ✅ Abgeschlossen |
-| 3 | Orbit als Wissensraum | `FamilyOrbitExplorer.tsx` (Arcs) | ~5h | 🔜 Als nächstes |
-| 4 | Lebendigkeit & Tiefe | `StrainRail.tsx`, `styles.css`, Token-System | ~4h | ⏳ Ausstehend |
+| 3 | Orbit als Wissensraum | `FamilyOrbitExplorer.tsx` (Arcs + Moons) | ~5h | ✅ Abgeschlossen |
+| 4 | Lebendigkeit & Tiefe | `StrainRail.tsx`, `styles.css`, Token-System | ~4h | 🔜 Als nächstes |
 | R | Roadmap (kein Datum) | Neue Komponenten | offen | ⏳ Ausstehend |
 
 ***
@@ -31,7 +31,7 @@ Philosophie: Kein einziges Feature das "cool" ist aber nichts lehrt. Jede Zeile 
 
 **Entscheidungen:**
 - `temp` als String (display-only) — falls programmatische Vergleiche nötig werden: `tempMin`/`tempMax: number` ergänzen
-- `"impossible"` in `CrossResult.stability` hat echte semantische Funktion: unterscheidet "keine Kreuzung" von "keine Daten"
+- `"impossible"` in `CrossResult.stability` hat echte semantische Funktion: unterscheidet „keine Kreuzung" von „keine Daten"
 - Mobile-Breakpoint: Wasserprofil-Grid fällt auf 3+2 Layout (`@media max-width: 768px`)
 
 ***
@@ -48,119 +48,32 @@ Philosophie: Kein einziges Feature das "cool" ist aber nichts lehrt. Jede Zeile 
 
 ***
 
-## 🔜 Phase 3 — Orbit als Wissensraum
-**Ziel:** Die Karte zeigt nicht nur Familien — sie zeigt ihre Beziehungen.
+## ✅ Phase 3 — Orbit als Wissensraum
+**Status: Abgeschlossen** — PRs #12, #13, #14 in `main` gemergt. Letzter Commit: `36183b8`.
 
-### 3.1 Breeding Lines als SVG-Arcs
+### 3.1 Breeding Lines als SVG-Arcs ✅
+- `FAMILY_ARCS`-Konstante mit `from / to / type / label`
+- `getArcPath(fromAngle, toAngle, radius, cx, cy, curvature)` — Kontrollpunkt nach außen (`radius * (1 + curvature)`)
+- Arc-Farben: teal (crosses) / amber (hybrid) / rot-dashed (impossible)
+- Highlight bei `activeFamily`, Dimmen der restlichen Arcs
+- Arc-Legende als inline SVG unterhalb des Orbits
+- Wasserprofil-Hintergrundringe via `radialGradient` + `gradientUnits="userSpaceOnUse"`
 
-```typescript
-const FAMILY_ARCS: Array<{
-  from: string; to: string;
-  type: 'crosses' | 'hybrid' | 'impossible';
-  label: string;
-}> = [
-  { from: 'Crystal',    to: 'Taiwan Bee', type: 'crosses',    label: 'Crystal × TB → Panda/King Kong' },
-  { from: 'Crystal',    to: 'Tiger',      type: 'hybrid',     label: 'Crystal × Tiger → Taitibee' },
-  { from: 'Taiwan Bee', to: 'Tiger',      type: 'hybrid',     label: 'TB × Tiger → Mischung' },
-  { from: 'Sulawesi',   to: 'Crystal',    type: 'impossible', label: 'Keine Kreuzung möglich' },
-  { from: 'Sulawesi',   to: 'Taiwan Bee', type: 'impossible', label: 'Keine Kreuzung möglich' },
-];
-```
+### 3.2 Dual Active Moons ✅ (feat/dual-active-moons → main, PR #14)
+- `moonA` / `moonB` State — zwei gleichzeitig aktive Familien-Monde
+- `buildMoons(strains, familyNodes)` — liefert `MoonNode[]` (4–6px, Orbit-Radius = nodeR + 18)
+- `buildMoonArcs(moonA, moonB, moons)` — verbindet kompatible Strain-Monde über `compatible[]`
+- Monde nur sichtbar wenn Familie aktiv, klickbar → `onSelect(strain.id)` → öffnet `StrainDialog`
+- TS-Guard: `(strain.compatible ?? [])` in `buildMoonArcs` — Fix für TS18048
 
-> **Hinweis:** `from`/`to`-Strings müssen exakt mit dem Property übereinstimmen, das `familyNodes` verwendet. Eine `familyId`-Alias-Type verhindert stille Mismatches.
-
-**Arc-Pfad-Hilfsfunktion:**
-
-```typescript
-function getArcPath(
-  fromAngle: number, toAngle: number,
-  radius: number, cx: number, cy: number,
-  curvature = 0.35
-): string {
-  const x1 = cx + radius * Math.cos(fromAngle);
-  const y1 = cy + radius * Math.sin(fromAngle);
-  const x2 = cx + radius * Math.cos(toAngle);
-  const y2 = cy + radius * Math.sin(toAngle);
-  // Kontrollpunkt nach außen — verhindert inward-collapse bei benachbarten Nodes
-  const midAngle = (fromAngle + toAngle) / 2;
-  const mx = cx + radius * (1 + curvature) * Math.cos(midAngle);
-  const my = cy + radius * (1 + curvature) * Math.sin(midAngle);
-  return `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`;
-}
-```
-
-> **Mathematik-Hinweis:** `radius * (1 + curvature)` schiebt den Kontrollpunkt nach außen. Die ursprüngliche Formel `radius * curvature` zog ihn zur Mitte — Arcs bogen einwärts, besonders bei benachbarten Familien.
-
-**Arc-Render im SVG:**
-
-```tsx
-{FAMILY_ARCS.map(arc => {
-  const fromNode = familyNodes.find(n => n.family === arc.from);
-  const toNode   = familyNodes.find(n => n.family === arc.to);
-  if (!fromNode || !toNode) return null;
-
-  const arcColor = {
-    crosses:    'rgba(47, 196, 181, 0.25)',
-    hybrid:     'rgba(255, 196, 80, 0.20)',
-    impossible: 'rgba(180, 60, 60, 0.15)',
-  }[arc.type];
-
-  const isHighlighted = activeFamily === arc.from || activeFamily === arc.to;
-
-  return (
-    <g key={`${arc.from}-${arc.to}`}>
-      <motion.path
-        d={getArcPath(fromNode.angle, toNode.angle, OUTER_RING_RADIUS * 0.85, CENTER, CENTER)}
-        stroke={arcColor}
-        strokeWidth={isHighlighted ? 1.5 : 0.8}
-        fill="none"
-        strokeDasharray={arc.type === 'impossible' ? '4 4' : undefined}
-        opacity={activeFamily && !isHighlighted ? 0.2 : 1}
-        whileHover={{ strokeWidth: 2, opacity: 1 }}
-      />
-      <title>{arc.label}</title>
-    </g>
-  );
-})}
-```
-
-**Arc-Legende** (inline SVG unterhalb des Orbits):
-
-```tsx
-<div className="orbit-arc-legend" aria-hidden="true">
-  <span className="arc-legend-item arc-legend--crosses">crossable</span>
-  <span className="arc-legend-item arc-legend--hybrid">hybrid</span>
-  <span className="arc-legend-item arc-legend--impossible">incompatible</span>
-</div>
-```
-
-### 3.2 Wasserprofil-Hintergrundringe
-
-```tsx
-<defs>
-  <radialGradient id="neo-water" cx="0" cy="0" r={INNER_RING_RADIUS + 18}
-    gradientUnits="userSpaceOnUse">
-    <stop offset="30%" stopColor="transparent" />
-    <stop offset="70%" stopColor="rgba(180, 140, 60, 0.07)" />
-    <stop offset="100%" stopColor="rgba(180, 140, 60, 0.0)" />
-  </radialGradient>
-  <radialGradient id="cari-water" cx="0" cy="0" r={OUTER_RING_RADIUS + 18}
-    gradientUnits="userSpaceOnUse">
-    <stop offset="55%" stopColor="transparent" />
-    <stop offset="85%" stopColor="rgba(47, 130, 196, 0.07)" />
-    <stop offset="100%" stopColor="rgba(47, 130, 196, 0.0)" />
-  </radialGradient>
-</defs>
-
-<circle cx="0" cy="0" r={INNER_RING_RADIUS + 18} fill="url(#neo-water)" />
-<circle cx="0" cy="0" r={OUTER_RING_RADIUS + 18} fill="url(#cari-water)" />
-```
-
-> **Hinweis:** `gradientUnits="userSpaceOnUse"` mit `cx="0" cy="0"` ist zwingend — der SVG-Viewport ist auf `(-320, -320, 640, 640)` zentriert. `objectBoundingBox` (Default) verhält sich auf `<circle>` browserübergreifend unzuverlässig.
+**Entscheidungen:**
+- `compatible` ist optional (`compatible?: CrossResult[]`) → immer `?? []` defensiv verwenden
+- Moon-Arcs verwenden dieselbe `getArcPath`-Hilfsfunktion wie Family-Arcs
+- `gradientUnits="userSpaceOnUse"` zwingend (SVG-Viewport zentriert auf `0,0`)
 
 ***
 
-## Phase 4 — Lebendigkeit & Tiefe
+## 🔜 Phase 4 — Lebendigkeit & Tiefe
 **Ziel:** Die kleinen Momente die jemanden innehalten lassen.
 
 ### 4.1 Flip-Cards im StrainRail
@@ -247,5 +160,5 @@ Nach Abschluss jeder Phase `CLAUDE.md` aktualisieren:
 
 - **Phase 1 ✅:** `WaterProfile`, `CrossResult`, `factoid` in Strain-Interface; `dialog-water-profile` Grid + `compat-badge--*` CSS
 - **Phase 2 ✅:** `ButtonGroup`-Komponente, `GUIDED_PATHS`-Konstante, `hasInteracted`-State, `orbit-stats-sentence`
-- **Phase 3 🔜:** `FAMILY_ARCS`-Konstante, `getArcPath`-Hilfsfunktion
-- **Phase 4 ⏳:** Flip-Card-Pattern in StrainCard
+- **Phase 3 ✅:** `FAMILY_ARCS`-Konstante, `getArcPath`-Hilfsfunktion, `buildMoons`, `buildMoonArcs`, `moonA`/`moonB` Dual-State
+- **Phase 4 🔜:** Flip-Card-Pattern in StrainCard, Swatch-Chips, CSS-Token-System
