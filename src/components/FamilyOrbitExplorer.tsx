@@ -37,7 +37,6 @@ const FAMILY_TEXT: Record<string, string> = {
   Tiger: "#fff", Sulawesi: "#fff", Amano: "#fff", Bamboo: "#fff",
 };
 
-// Inner ring: Neocaridina — outer ring: Caridina & exotics
 const FAMILY_ORBIT_RADIUS: Record<string, number> = {
   Red: 175, Orange: 168, Yellow: 175, Green: 188,
   Blue: 175, Black: 198, Brown: 204, White: 198,
@@ -46,16 +45,18 @@ const FAMILY_ORBIT_RADIUS: Record<string, number> = {
   Sulawesi: 258, Amano: 220, Bamboo: 216,
 };
 
-const VB      = 640;
+const VB         = 640;
 const NODE_R_BASE = 20;
 const NODE_R_MAX  = 34;
+// Radius of the moon orbit ring relative to the planet centre
+const MOON_ORBIT_OFFSET = 20; // px beyond nodeR
 
 function nodeRadius(count: number): number {
   return Math.max(NODE_R_BASE, Math.min(NODE_R_MAX, NODE_R_BASE + count * 2));
 }
 
 // ---------------------------------------------------------------------------
-// Phase 3 — Breeding relationship arcs
+// Phase 3 — Breeding relationship arcs (family-level)
 // ---------------------------------------------------------------------------
 type ArcType = "crosses" | "hybrid" | "impossible";
 
@@ -84,11 +85,6 @@ const ARC_COLOR_ACTIVE: Record<ArcType, string> = {
   impossible: "rgba(220,80,80,0.65)",
 };
 
-/**
- * Quadratic Bézier arc between two points on a circle.
- * Control point is pushed OUTWARD to prevent inward-collapse on adjacent nodes.
- * curvature = fraction of radius to add beyond the ring edge.
- */
 function getArcPath(
   fromAngle: number,
   toAngle: number,
@@ -99,15 +95,24 @@ function getArcPath(
   const y1 = radius * Math.sin(fromAngle);
   const x2 = radius * Math.cos(toAngle);
   const y2 = radius * Math.sin(toAngle);
-  // Midpoint angle — push control point outward by (1 + curvature)
-  const midAngle = (fromAngle + toAngle) / 2;
-  // If the two angles are more than π apart, flip the midpoint to the near side
   const delta = ((toAngle - fromAngle + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
   const effectiveMid = fromAngle + delta / 2;
   const mx = radius * (1 + curvature) * Math.cos(effectiveMid);
   const my = radius * (1 + curvature) * Math.sin(effectiveMid);
-  void midAngle; // effectiveMid handles all cases including wraparound
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${mx.toFixed(2)} ${my.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}
+
+/**
+ * Straight line arc between two absolute SVG points.
+ * Used for moon-to-moon cross-family connections.
+ */
+function getMoonArcPath(x1: number, y1: number, x2: number, y2: number): string {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  // Push control point slightly outward from centre
+  const cx = mx * 1.12;
+  const cy = my * 1.12;
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -147,20 +152,119 @@ function hexPoints(cx: number, cy: number, r: number): string {
   }).join(" ");
 }
 
+// ---------------------------------------------------------------------------
+// Moon position helpers
+// ---------------------------------------------------------------------------
+interface MoonDatum {
+  strain: Strain;
+  mx: number; // absolute SVG x
+  my: number; // absolute SVG y
+  r: number;  // moon radius
+}
+
+function buildMoons(
+  strains: Strain[],
+  planetNx: number,
+  planetNy: number,
+  nodeR: number,
+): MoonDatum[] {
+  const moonOrbitR = nodeR + MOON_ORBIT_OFFSET;
+  return strains.map((s, i) => {
+    const angle = (i / strains.length) * 2 * Math.PI - Math.PI / 2;
+    const mx = planetNx + moonOrbitR * Math.cos(angle);
+    const my = planetNy + moonOrbitR * Math.sin(angle);
+    const r  = 2.5 + (s.popularity / 5) * 2.5; // 2.5–5 px
+    return { strain: s, mx, my, r };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Cross-family moon arc builder
+// ---------------------------------------------------------------------------
+interface MoonArc {
+  fromMoon: MoonDatum;
+  toMoon: MoonDatum;
+  type: ArcType;
+  label: string;
+}
+
+function buildMoonArcs(
+  familyA: string,
+  moonsA: MoonDatum[],
+  familyB: string,
+  moonsB: MoonDatum[],
+): MoonArc[] {
+  const arcs: MoonArc[] = [];
+  for (const moonA of moonsA) {
+    for (const cross of moonA.strain.compatible) {
+      // Normalise: compatible[].with is a family name (e.g. "Blue", "Taiwan Bee")
+      // Check if it matches familyB
+      if (cross.with !== familyB) continue;
+      // Find the best-matching moon in B (highest popularity strain whose family matches)
+      // For a strain-level match we'd need compatible[].withId — for now connect to the
+      // most popular strain of the matching family as a visual proxy.
+      const bestB = moonsB.reduce((best, m) =>
+        m.strain.popularity > best.strain.popularity ? m : best
+      );
+      // Determine arc type from stability
+      const type: ArcType =
+        cross.stability === "impossible" ? "impossible" :
+        cross.stability === "unstable"   ? "hybrid" :
+        "crosses";
+      arcs.push({
+        fromMoon: moonA,
+        toMoon: bestB,
+        type,
+        label: `${moonA.strain.name} × ${familyB}: ${cross.offspring}`,
+      });
+    }
+  }
+  // Also check B → A direction
+  for (const moonB of moonsB) {
+    for (const cross of moonB.strain.compatible) {
+      if (cross.with !== familyA) continue;
+      const bestA = moonsA.reduce((best, m) =>
+        m.strain.popularity > best.strain.popularity ? m : best
+      );
+      const type: ArcType =
+        cross.stability === "impossible" ? "impossible" :
+        cross.stability === "unstable"   ? "hybrid" :
+        "crosses";
+      // Avoid duplicates (A→B arc might already cover this)
+      const alreadyDrawn = arcs.some(
+        (a) => a.fromMoon.strain.id === bestA.strain.id && a.toMoon.strain.id === moonB.strain.id,
+      );
+      if (!alreadyDrawn) {
+        arcs.push({
+          fromMoon: bestA,
+          toMoon: moonB,
+          type,
+          label: `${moonB.strain.name} × ${familyA}: ${cross.offspring}`,
+        });
+      }
+    }
+  }
+  return arcs;
+}
+
 interface Props {
   visibleStrains: Strain[];
   onSelect: (id: string) => void;
 }
 
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
-  const [activeFamily, setActiveFamily] = useState<string | null>(null);
-  const [railOpen, setRailOpen]         = useState(false);
-  const [hovered, setHovered]           = useState<string | null>(null);
-  const [sunHovered, setSunHovered]     = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  // Prio 2: transient mobile label after planet tap
-  const [mobileLabel, setMobileLabel]   = useState<string | null>(null);
+  // Phase 4a: dual-active Set (max 2 families)
+  const [activeFamilies, setActiveFamilies] = useState<Set<string>>(new Set());
+  const [railFamily, setRailFamily]         = useState<string | null>(null);
+  const [railOpen, setRailOpen]             = useState(false);
+  const [hovered, setHovered]               = useState<string | null>(null);
+  const [sunHovered, setSunHovered]         = useState(false);
+  const [hasInteracted, setHasInteracted]   = useState(false);
+  const [mobileLabel, setMobileLabel]       = useState<string | null>(null);
   const isMobile = useIsMobile();
+
+  // Convenience: primary active family = last clicked (drives the rail)
+  const activeFamily = railFamily;
 
   const families = useMemo(() => {
     const grouped = new Map<string, Strain[]>();
@@ -168,10 +272,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
       if (!grouped.has(s.family)) grouped.set(s.family, []);
       grouped.get(s.family)!.push(s);
     }
-
     const neoGroup  = NEO_ORDER.filter((f) => grouped.has(f));
     const cariGroup = CARIDINA_ORDER.filter((f) => grouped.has(f));
-
     return FAMILY_ORDER.filter((f) => grouped.has(f)).map((f) => {
       const isC    = CARIDINA_SET.has(f);
       const group  = isC ? cariGroup : neoGroup;
@@ -182,51 +284,96 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
       const nx     = Math.cos(angle) * orbitR;
       const ny     = Math.sin(angle) * orbitR;
       return {
-        family:     f,
-        strains:    grouped.get(f)!,
-        color:      familyColors[f]  ?? "#888",
-        glow:       FAMILY_GLOW[f]   ?? "rgba(255,255,255,0.3)",
-        textColor:  FAMILY_TEXT[f]   ?? "#fff",
-        nodeR:      nodeRadius(grouped.get(f)!.length),
+        family: f, strains: grouped.get(f)!,
+        color: familyColors[f] ?? "#888",
+        glow:  FAMILY_GLOW[f]  ?? "rgba(255,255,255,0.3)",
+        textColor: FAMILY_TEXT[f] ?? "#fff",
+        nodeR: nodeRadius(grouped.get(f)!.length),
         orbitR, angle, nx, ny,
         isCaridina: isC,
       };
     });
   }, [visibleStrains]);
 
-  const activeStrains = activeFamily
-    ? families.find((f) => f.family === activeFamily)?.strains ?? []
+  const activeStrains = railFamily
+    ? families.find((f) => f.family === railFamily)?.strains ?? []
     : [];
 
-  // Prio 1: open rail immediately on Mobile — one tap is enough
-  // Prio 2: flash a transient family-name label on Mobile before the rail slides in
-  const handleFamilyClick = useCallback((family: string) => {
-    setHasInteracted(true);
-    setActiveFamily((prev) => {
-      if (prev === family) {
-        setRailOpen(false);
-        setMobileLabel(null);
-        return null;
+  const handleFamilyClick = useCallback(
+    (family: string, shiftKey: boolean) => {
+      setHasInteracted(true);
+
+      if (shiftKey && activeFamilies.size > 0) {
+        // Dual-active mode: toggle second family
+        setActiveFamilies((prev) => {
+          const next = new Set(prev);
+          if (next.has(family)) {
+            next.delete(family);
+          } else {
+            // Max 2: if already 2, replace the oldest (the one that is not railFamily)
+            if (next.size >= 2) {
+              const toRemove = [...next].find((f) => f !== railFamily);
+              if (toRemove) next.delete(toRemove);
+            }
+            next.add(family);
+          }
+          return next;
+        });
+        // Don't change the rail when shift-clicking
+        return;
       }
-      if (isMobile) {
-        // Show label briefly, then open rail
-        setMobileLabel(family);
-        setTimeout(() => {
-          setRailOpen(true);
+
+      // Normal click: toggle primary
+      setActiveFamilies((prev) => {
+        if (prev.has(family) && prev.size === 1) {
+          setRailOpen(false);
+          setRailFamily(null);
           setMobileLabel(null);
-        }, 700);
-      } else {
-        setRailOpen(false);
-      }
-      return family;
-    });
-  }, [isMobile]);
+          return new Set();
+        }
+        const next = new Set<string>();
+        next.add(family);
+        return next;
+      });
+
+      setRailFamily((prev) => {
+        if (prev === family && activeFamilies.size === 1) return null;
+        if (isMobile) {
+          setMobileLabel(family);
+          setTimeout(() => { setRailOpen(true); setMobileLabel(null); }, 700);
+        } else {
+          setRailOpen(false);
+        }
+        return family;
+      });
+    },
+    [activeFamilies, railFamily, isMobile],
+  );
+
+  // Precompute moons for every active family
+  const moonsByFamily = useMemo(() => {
+    const map = new Map<string, MoonDatum[]>();
+    for (const item of families) {
+      if (!activeFamilies.has(item.family)) continue;
+      map.set(item.family, buildMoons(item.strains, item.nx, item.ny, item.nodeR));
+    }
+    return map;
+  }, [families, activeFamilies]);
+
+  // Precompute moon-to-moon arcs when exactly 2 families are active
+  const moonArcs = useMemo((): MoonArc[] => {
+    if (activeFamilies.size !== 2) return [];
+    const [famA, famB] = [...activeFamilies];
+    const moonsA = moonsByFamily.get(famA);
+    const moonsB = moonsByFamily.get(famB);
+    if (!moonsA || !moonsB) return [];
+    return buildMoonArcs(famA, moonsA, famB, moonsB);
+  }, [activeFamilies, moonsByFamily]);
 
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
-  const caridineCount = visibleStrains.filter((s) => CARIDINA_SET.has(s.family)).length;
+  const caridineCount = visibleStrains.filter((s) =>  CARIDINA_SET.has(s.family)).length;
   const totalCount    = visibleStrains.length;
-
-  const firstFamily = families[0];
+  const firstFamily   = families[0];
 
   if (families.length === 0) {
     return (
@@ -244,14 +391,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     ? { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 20 } }
     : { initial: { width: 0, opacity: 0 }, animate: { width: 260, opacity: 1 }, exit: { width: 0, opacity: 0 } };
 
-  // Arc radius sits between inner (190) and outer (242) orbit rings
   const ARC_RADIUS = 213;
 
   return (
     <div className="orbit-layout">
       <div className="orbit-explorer" style={activeFamily && isMobile && railOpen ? { paddingBottom: "138px" } : undefined}>
 
-        {/* Stats bar */}
         <div className="orbit-stats" aria-label="Visible strain statistics">
           <p className="orbit-stats-sentence">
             <span className="orbit-stats-neo">{neoCount}</span>
@@ -265,12 +410,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         </div>
 
         <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {activeFamily
-            ? `${activeFamily} family selected, ${families.find(f => f.family === activeFamily)?.strains.length ?? 0} varieties`
+          {activeFamilies.size > 0
+            ? [...activeFamilies].map((f) => {
+                const fc = families.find((x) => x.family === f);
+                return fc ? `${f}: ${fc.strains.length} varieties` : "";
+              }).join(", ")
             : ""}
         </div>
 
-        {/* Active family HUD */}
+        {/* Active family HUD — shows primary family */}
         <AnimatePresence>
           {activeFamily && (
             <motion.div
@@ -296,11 +444,51 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   {familyDescriptions[activeFamily]}
                 </motion.span>
               )}
+              {/* Comparison hint when exactly one family is active */}
+              {activeFamilies.size === 1 && !isMobile && (
+                <motion.span
+                  className="orbit-active-desc"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  style={{ opacity: 0.45, fontSize: "0.68em", letterSpacing: "0.08em" }}
+                >
+                  SHIFT + CLICK another planet to compare
+                </motion.span>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Prio 2: transient mobile family-name label (shown briefly after tap, before rail opens) */}
+        {/* Comparison badge when two families are active */}
+        <AnimatePresence>
+          {activeFamilies.size === 2 && (() => {
+            const [famA, famB] = [...activeFamilies];
+            return (
+              <motion.div
+                key="compare-badge"
+                className="orbit-compare-badge"
+                initial={{ opacity: 0, y: -8, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.92 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <span style={{ color: familyColors[famA] }}>{famA}</span>
+                <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
+                <span style={{ color: familyColors[famB] }}>{famB}</span>
+                {moonArcs.length > 0 && (
+                  <span style={{ opacity: 0.5, marginLeft: 8, fontSize: "0.8em" }}>
+                    {moonArcs.length} connection{moonArcs.length > 1 ? "s" : ""}
+                  </span>
+                )}
+                {moonArcs.length === 0 && (
+                  <span style={{ opacity: 0.4, marginLeft: 8, fontSize: "0.8em" }}>no direct crosses</span>
+                )}
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
         <AnimatePresence>
           {mobileLabel && (
             <motion.div
@@ -325,100 +513,72 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           aria-label="Shrimpverse — freshwater shrimp species atlas"
         >
           <defs>
-            {/* Sun radial gradient */}
             <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
               <stop offset="0%"   stopColor="rgba(255,220,60,0.30)" />
               <stop offset="60%"  stopColor="rgba(255,170,20,0.10)" />
               <stop offset="100%" stopColor="rgba(255,140,0,0)" />
             </radialGradient>
-
-            {/* === Phase 3: Water-type background rings === */}
-            {/* Amber tint for inner Neocaridina zone (hard water) */}
-            <radialGradient id="neo-water" cx="0" cy="0" r="208"
-              gradientUnits="userSpaceOnUse">
+            <radialGradient id="neo-water" cx="0" cy="0" r="208" gradientUnits="userSpaceOnUse">
               <stop offset="30%" stopColor="transparent" />
               <stop offset="70%" stopColor="rgba(180,140,60,0.06)" />
               <stop offset="100%" stopColor="rgba(180,140,60,0.0)" />
             </radialGradient>
-            {/* Blue tint for outer Caridina zone (soft water / Sulawesi alkaline) */}
-            <radialGradient id="cari-water" cx="0" cy="0" r="276"
-              gradientUnits="userSpaceOnUse">
+            <radialGradient id="cari-water" cx="0" cy="0" r="276" gradientUnits="userSpaceOnUse">
               <stop offset="55%" stopColor="transparent" />
               <stop offset="85%" stopColor="rgba(47,130,196,0.06)" />
               <stop offset="100%" stopColor="rgba(47,130,196,0.0)" />
             </radialGradient>
-
-            {/* Shared glow filters */}
             <filter id="node-glow" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="7" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
             <filter id="sun-glow" x="-80%" y="-80%" width="260%" height="260%">
               <feGaussianBlur stdDeviation="8" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <filter id="moon-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
 
-          {/* === Phase 3: Water-type background rings (rendered first, behind everything) === */}
           <circle cx="0" cy="0" r="208" fill="url(#neo-water)"  aria-hidden="true" />
           <circle cx="0" cy="0" r="276" fill="url(#cari-water)" aria-hidden="true" />
 
-          {/* Starfield */}
           <g aria-hidden="true">
             {STARS.map((s, i) => (
               <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#ddd8cc" opacity={s.op} />
             ))}
           </g>
 
-          {/* Inner Neocaridina orbit ring */}
-          <motion.circle
-            cx="0" cy="0" r={190}
-            fill="none"
-            stroke="rgba(47,196,181,0.14)"
-            strokeWidth="0.6"
-            strokeDasharray="4 6"
+          <motion.circle cx="0" cy="0" r={190}
+            fill="none" stroke="rgba(47,196,181,0.14)" strokeWidth="0.6" strokeDasharray="4 6"
             animate={{ rotate: 360 }}
             transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
             style={{ transformOrigin: "0px 0px" }}
           />
-          {/* Outer Caridina orbit ring */}
-          <motion.circle
-            cx="0" cy="0" r={242}
-            fill="none"
-            stroke="rgba(100,150,255,0.11)"
-            strokeWidth="0.6"
-            strokeDasharray="3 9"
+          <motion.circle cx="0" cy="0" r={242}
+            fill="none" stroke="rgba(100,150,255,0.11)" strokeWidth="0.6" strokeDasharray="3 9"
             animate={{ rotate: -360 }}
             transition={{ duration: 130, repeat: Infinity, ease: "linear" }}
             style={{ transformOrigin: "0px 0px" }}
           />
 
-          {/* === Phase 3: Breeding relationship arcs === */}
+          {/* Family-level breeding arcs */}
           <g aria-hidden="true">
             {FAMILY_ARCS.map((arc) => {
               const fromNode = families.find((n) => n.family === arc.from);
               const toNode   = families.find((n) => n.family === arc.to);
               if (!fromNode || !toNode) return null;
-
-              const isHighlighted =
-                activeFamily === arc.from || activeFamily === arc.to;
-              const isDimmed =
-                activeFamily !== null && !isHighlighted;
-
+              const isHighlighted = activeFamilies.has(arc.from) || activeFamilies.has(arc.to);
+              const isDimmed = activeFamilies.size > 0 && !isHighlighted;
               return (
                 <g key={`arc-${arc.from}-${arc.to}`}>
                   <motion.path
                     d={getArcPath(fromNode.angle, toNode.angle, ARC_RADIUS)}
                     stroke={isHighlighted ? ARC_COLOR_ACTIVE[arc.type] : ARC_COLOR[arc.type]}
                     strokeWidth={isHighlighted ? 1.6 : 0.9}
-                    fill="none"
-                    strokeLinecap="round"
+                    fill="none" strokeLinecap="round"
                     strokeDasharray={arc.type === "impossible" ? "4 4" : undefined}
                     animate={{ opacity: isDimmed ? 0.12 : isHighlighted ? 1 : 0.7 }}
                     transition={{ duration: 0.25 }}
@@ -430,9 +590,29 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             })}
           </g>
 
-          {/* Spoke lines from center to each node */}
+          {/* Moon-to-moon cross-family arcs (only when 2 families active) */}
+          <g aria-hidden="true">
+            {moonArcs.map((arc, i) => (
+              <g key={`moon-arc-${i}`}>
+                <motion.path
+                  d={getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my)}
+                  stroke={ARC_COLOR_ACTIVE[arc.type]}
+                  strokeWidth={1.2}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={arc.type === "impossible" ? "3 3" : undefined}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 0.85 }}
+                  transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
+                />
+                <title>{arc.label}</title>
+              </g>
+            ))}
+          </g>
+
+          {/* Spoke lines */}
           {families.map((item, i) => {
-            const isActive = activeFamily === item.family;
+            const isActive = activeFamilies.has(item.family);
             const isHov    = hovered === item.family;
             return (
               <motion.line
@@ -457,9 +637,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           {/* Family planet nodes */}
           {families.map((item, i) => {
             const { nx, ny, nodeR: nr, isCaridina } = item;
-            const isActive = activeFamily === item.family;
+            const isActive = activeFamilies.has(item.family);
             const isHov    = hovered === item.family;
-            const isDimmed = activeFamily !== null && !isActive;
+            const isDimmed = activeFamilies.size > 0 && !isActive;
+            const isPrimary = railFamily === item.family;
 
             const labelDist = item.orbitR + nr + 22;
             const lx     = Math.cos(item.angle) * labelDist;
@@ -469,32 +650,32 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             const topStrain    = [...item.strains].sort((a, b) => b.popularity - a.popularity)[0];
             const swatchColors = topStrain?.colors ?? [];
 
+            const moons = moonsByFamily.get(item.family);
+
             return (
               <motion.g
                 key={item.family}
                 initial={{ opacity: 0, scale: 0.6 }}
                 animate={{
                   opacity: isDimmed ? 0.18 : 1,
-                  scale: isActive ? 1.15 : isHov ? 1.08 : 1,
+                  scale: isActive ? (isPrimary ? 1.15 : 1.08) : isHov ? 1.08 : 1,
                 }}
                 transition={{ delay: i * 0.05, type: "spring", stiffness: 380, damping: 26 }}
-                onClick={() => handleFamilyClick(item.family)}
+                onClick={(e) => handleFamilyClick(item.family, e.shiftKey)}
                 onHoverStart={() => setHovered(item.family)}
                 onHoverEnd={() => setHovered(null)}
                 role="button"
                 aria-label={`${item.family}, ${item.strains.length} variet${item.strains.length === 1 ? "y" : "ies"}`}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family);
+                  if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family, e.shiftKey);
                 }}
                 style={{ cursor: "pointer", transformOrigin: `${nx}px ${ny}px` }}
               >
-                {isActive && (
+                {isPrimary && (
                   <motion.circle
                     cx={nx} cy={ny} r={nr + 6}
-                    fill="none"
-                    stroke={item.color}
-                    strokeWidth="0.8"
+                    fill="none" stroke={item.color} strokeWidth="0.8"
                     initial={{ r: nr + 4, opacity: 0.8 }}
                     animate={{ r: nr + 22, opacity: 0 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
@@ -506,6 +687,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                     fill={item.color}
                     opacity={isActive ? 0.18 : 0.10}
                     filter="url(#node-glow)"
+                  />
+                )}
+                {/* Moon orbit ring */}
+                {isActive && (
+                  <circle
+                    cx={nx} cy={ny}
+                    r={nr + MOON_ORBIT_OFFSET}
+                    fill="none"
+                    stroke={item.color}
+                    strokeWidth="0.4"
+                    strokeDasharray="2 4"
+                    opacity={0.25}
+                    aria-hidden="true"
                   />
                 )}
                 {item.family === "Sulawesi" && (
@@ -539,7 +733,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                     filter={isActive || isHov ? "url(#node-glow)" : undefined}
                   />
                 )}
-                {isActive && swatchColors.length >= 3 && (
+                {isPrimary && swatchColors.length >= 3 && (
                   <>
                     {swatchColors.slice(0, 3).map((col, ci) => {
                       const segAngle   = (2 * Math.PI) / 3;
@@ -600,11 +794,40 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                     {item.family}
                   </text>
                 )}
+
+                {/* Strain moons — rendered only when this family is active */}
+                {moons && moons.map((moon) => (
+                  <g
+                    key={`moon-${moon.strain.id}`}
+                    onClick={(e) => { e.stopPropagation(); onSelect(moon.strain.id); }}
+                    role="button"
+                    aria-label={`Open ${moon.strain.name}`}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); onSelect(moon.strain.id); }
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <motion.circle
+                      cx={moon.mx} cy={moon.my} r={moon.r}
+                      fill={moon.strain.colors[0]}
+                      stroke="rgba(255,255,255,0.25)"
+                      strokeWidth="0.5"
+                      filter="url(#moon-glow)"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.05 }}
+                      whileHover={{ scale: 1.7 }}
+                      style={{ transformOrigin: `${moon.mx}px ${moon.my}px` }}
+                    />
+                    <title>{moon.strain.name}</title>
+                  </g>
+                ))}
               </motion.g>
             );
           })}
 
-          {/* Prio 6: First-visit onboarding hint — includes shape legend for Mobile */}
+          {/* Onboarding hint */}
           <AnimatePresence>
             {!hasInteracted && firstFamily && (
               <motion.g
@@ -618,27 +841,18 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               >
                 <motion.circle
                   cx={firstFamily.nx} cy={firstFamily.ny} r={firstFamily.nodeR + 16}
-                  fill="none"
-                  stroke="rgba(232,160,32,0.55)"
-                  strokeWidth="0.8"
-                  strokeDasharray="4 5"
+                  fill="none" stroke="rgba(232,160,32,0.55)" strokeWidth="0.8" strokeDasharray="4 5"
                   animate={{
                     r: [firstFamily.nodeR + 16, firstFamily.nodeR + 28, firstFamily.nodeR + 16],
                     opacity: [0.55, 0.0, 0.55],
                   }}
                   transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                 />
-                <text
-                  x="0" y="292"
-                  textAnchor="middle"
-                  fontSize="5.5"
-                  fontFamily="'IBM Plex Mono', monospace"
-                  letterSpacing="0.14em"
-                  fill="rgba(221,216,204,0.32)"
-                >
+                <text x="0" y="292" textAnchor="middle" fontSize="5.5"
+                  fontFamily="'IBM Plex Mono', monospace" letterSpacing="0.14em"
+                  fill="rgba(221,216,204,0.32)">
                   CLICK ANY PLANET TO EXPLORE
                 </text>
-                {/* Shape legend: ○ = Neocaridina, ⬡ = Caridina */}
                 <circle cx="-38" cy="308" r="4"
                   fill="rgba(47,196,181,0.35)" stroke="rgba(47,196,181,0.5)" strokeWidth="0.6" />
                 <text x="-30" y="312" fontSize="4.8" fontFamily="'IBM Plex Mono', monospace"
@@ -653,9 +867,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             )}
           </AnimatePresence>
 
-          {/* Central golden sun */}
+          {/* Sun */}
           <motion.g
-            onClick={() => { setActiveFamily(null); setRailOpen(false); setMobileLabel(null); }}
+            onClick={() => {
+              setActiveFamilies(new Set());
+              setRailFamily(null);
+              setRailOpen(false);
+              setMobileLabel(null);
+            }}
             onHoverStart={() => setSunHovered(true)}
             onHoverEnd={() => setSunHovered(false)}
             whileHover={{ scale: 1.06 }}
@@ -665,7 +884,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             aria-label="Shrimpverse — reset to overview"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") { setActiveFamily(null); setRailOpen(false); setMobileLabel(null); }
+              if (e.key === "Enter" || e.key === " ") {
+                setActiveFamilies(new Set());
+                setRailFamily(null);
+                setRailOpen(false);
+                setMobileLabel(null);
+              }
             }}
           >
             <circle cx="0" cy="0" r="72" fill="url(#sun-grad)" />
@@ -701,13 +925,11 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               Shrimpverse
             </text>
             <AnimatePresence>
-              {sunHovered && activeFamily && (
+              {sunHovered && activeFamilies.size > 0 && (
                 <motion.text
                   x="0" y="40"
-                  textAnchor="middle"
-                  fontSize="4.2"
-                  fontFamily="'IBM Plex Mono', monospace"
-                  letterSpacing="0.12em"
+                  textAnchor="middle" fontSize="4.2"
+                  fontFamily="'IBM Plex Mono', monospace" letterSpacing="0.12em"
                   fill="rgba(255,220,60,0.75)"
                   initial={{ opacity: 0, y: 44 }}
                   animate={{ opacity: 1, y: 40 }}
@@ -722,7 +944,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           </motion.g>
         </svg>
 
-        {/* Prio 3: Arc legend as HTML element — scales independently of SVG viewBox */}
+        {/* Arc legend */}
         <div className="orbit-arc-legend" aria-hidden="true">
           <span className="orbit-arc-legend-item orbit-arc-legend-item--crosses">
             <svg width="14" height="4" viewBox="0 0 14 4">
@@ -744,7 +966,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           </span>
         </div>
 
-        {/* Visual encoding legend (circle/hex) — kept as is, now supplemented by onboarding hint */}
+        {/* Shape legend */}
         <div className="orbit-legend" aria-hidden="true">
           <span className="orbit-legend-item">
             <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.5" fill="rgba(47,196,181,0.6)" /></svg>
@@ -758,12 +980,11 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             Caridina / Exotics
           </span>
         </div>
-
       </div>
 
       {/* Strain detail rail */}
       <AnimatePresence>
-        {activeFamily && activeStrains.length > 0 && (!isMobile || railOpen) && (
+        {railFamily && activeStrains.length > 0 && (!isMobile || railOpen) && (
           <motion.div
             className="orbit-rail-wrapper"
             {...railAnimation}
@@ -771,10 +992,13 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             style={!isMobile ? { overflow: "hidden", flexShrink: 0 } : undefined}
           >
             <StrainRail
-              family={activeFamily}
+              family={railFamily}
               strains={activeStrains}
               onSelect={onSelect}
-              onClose={isMobile ? () => setRailOpen(false) : () => setActiveFamily(null)}
+              onClose={isMobile ? () => setRailOpen(false) : () => {
+                setRailFamily(null);
+                setActiveFamilies(new Set());
+              }}
               orientation={isMobile ? "horizontal" : "vertical"}
             />
           </motion.div>
