@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { type Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 
@@ -12,7 +13,6 @@ interface Props {
 
 /**
  * MiniShrimp — a tiny 12×6 px shrimp silhouette used as a popularity pip.
- * `filled` controls whether it uses the accent color or the faint dim color.
  */
 function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
   return (
@@ -24,35 +24,147 @@ function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
       aria-hidden="true"
       style={{ display: "block", flexShrink: 0 }}
     >
-      {/* Carapace */}
       <path
         d="M1.5 4.5 Q2 2 5 1.5 Q8 1 9 2.8 Q9.5 4 8 4.8 Q6 5.5 4 5 Q2 4.6 1.5 4.5Z"
         fill={filled ? color : "rgba(255,255,255,0.12)"}
       />
-      {/* Tail */}
       <path
         d="M8 4.6 Q10 4 11.5 5"
         stroke={filled ? color : "rgba(255,255,255,0.1)"}
         strokeWidth="1.1"
         strokeLinecap="round"
       />
-      {/* Antenna */}
       <path
         d="M2.5 2.5 Q1 1 0.5 0"
         stroke={filled ? color : "rgba(255,255,255,0.1)"}
         strokeWidth="0.7"
         strokeLinecap="round"
       />
-      {/* Eye */}
       <circle cx="2.8" cy="3.4" r="0.7" fill={filled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)"} />
     </svg>
+  );
+}
+
+/** Swatch segment with hover hex-label */
+function SwatchSeg({ color }: { color: string }) {
+  return (
+    <span
+      className="strain-card-swatch-seg"
+      style={{ background: color, "--swatch-hex": `"${color}"` } as React.CSSProperties}
+      data-hex={color}
+    />
+  );
+}
+
+/**
+ * Detect touch-primary devices so we can adjust the flip-card UX hint.
+ * On touch devices a second tap opens the dialog — we make that explicit.
+ */
+function useIsTouch() {
+  const [isTouch] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(hover: none)").matches
+  );
+  return isTouch;
+}
+
+/** Flip-card inner — shows front (swatch+name+meta) or back (factoid) */
+function StrainCard({
+  strain,
+  color,
+  onSelect,
+}: {
+  strain: Strain;
+  color: string;
+  onSelect: () => void;
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const hasFactoid = Boolean(strain.factoid);
+  const isTouch = useIsTouch();
+
+  function handleClick() {
+    if (hasFactoid && !flipped) {
+      setFlipped(true);
+    } else if (flipped) {
+      setFlipped(false);
+      onSelect();
+    } else {
+      onSelect();
+    }
+  }
+
+  return (
+    <button
+      className="strain-card"
+      onClick={handleClick}
+      onMouseLeave={() => !isTouch && setFlipped(false)}
+      aria-label={
+        flipped
+          ? `${strain.name}: ${strain.factoid}. Click to open.`
+          : `Open ${strain.name}, popularity ${strain.popularity} of 5`
+      }
+      style={{ "--card-accent": color } as React.CSSProperties}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        {!flipped ? (
+          <motion.div
+            key="front"
+            className="strain-card-face"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.94 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="strain-card-swatch">
+              {strain.colors.map((c, i) => (
+                <SwatchSeg key={i} color={c} />
+              ))}
+            </div>
+            <div className="strain-card-name">{strain.name}</div>
+            <div className="strain-card-meta">
+              <span className="strain-card-level">{strain.level}</span>
+              <div
+                className="strain-card-pop"
+                role="img"
+                aria-label={`Popularity: ${strain.popularity} out of 5`}
+                style={{ display: "flex", gap: "2px", alignItems: "center", marginTop: "2px" }}
+              >
+                {Array.from({ length: 5 }, (_, i) => (
+                  <MiniShrimp key={i} filled={i < strain.popularity} color={color} />
+                ))}
+              </div>
+            </div>
+            {hasFactoid && (
+              <span className="strain-card-flip-hint" aria-hidden="true">✦</span>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="back"
+            className="strain-card-face strain-card-face--back"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.94 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <p className="strain-card-factoid">{strain.factoid}</p>
+            {/* Prio 4: on touch devices, explicitly hint that a second tap opens the detail view */}
+            <span
+              className="strain-card-flip-hint strain-card-flip-hint--back"
+              aria-hidden="true"
+            >
+              {isTouch ? "tap to open →" : "→"}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </button>
   );
 }
 
 export function StrainRail({ family, strains, onSelect, onClose, orientation = "horizontal" }: Props) {
   const color = familyColors[family] ?? "#888";
   const isVertical = orientation === "vertical";
-  const scrollRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ left: 0, top: 0, behavior: "instant" });
@@ -77,38 +189,15 @@ export function StrainRail({ family, strains, onSelect, onClose, orientation = "
         </button>
       </div>
 
-      {/* Scroll hint gradient is handled via CSS ::after */}
       <div className="strain-rail-scroll-wrap">
-        <ul className="strain-rail-scroll" ref={scrollRef as React.RefObject<HTMLUListElement>}>
+        <ul className="strain-rail-scroll" ref={scrollRef}>
           {strains.map((strain) => (
             <li key={strain.id} style={{ listStyle: "none" }}>
-            <button
-              className="strain-card"
-              onClick={() => onSelect(strain.id)}
-              aria-label={`Open ${strain.name}, popularity ${strain.popularity} of 5`}
-              style={{ "--card-accent": color } as React.CSSProperties}
-            >
-              <div className="strain-card-swatch">
-                {strain.colors.map((c, i) => (
-                  <span key={i} className="strain-card-swatch-seg" style={{ background: c }} />
-                ))}
-              </div>
-              <div className="strain-card-name">{strain.name}</div>
-              <div className="strain-card-meta">
-                <span className="strain-card-level">{strain.level}</span>
-                {/* Mini-shrimp popularity indicator */}
-                <div
-                  className="strain-card-pop"
-                  role="img"
-                  aria-label={`Popularity: ${strain.popularity} out of 5`}
-                  style={{ display: "flex", gap: "2px", alignItems: "center", marginTop: "2px" }}
-                >
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <MiniShrimp key={i} filled={i < strain.popularity} color={color} />
-                  ))}
-                </div>
-              </div>
-            </button>
+              <StrainCard
+                strain={strain}
+                color={color}
+                onSelect={() => onSelect(strain.id)}
+              />
             </li>
           ))}
         </ul>
