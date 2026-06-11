@@ -253,17 +253,33 @@ interface Props {
 }
 
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
-  // Phase 4a: dual-active Set (max 2 families)
-  const [activeFamilies, setActiveFamilies] = useState<Set<string>>(new Set());
-  const [railFamily, setRailFamily]         = useState<string | null>(null);
-  const [railOpen, setRailOpen]             = useState(false);
-  const [hovered, setHovered]               = useState<string | null>(null);
-  const [sunHovered, setSunHovered]         = useState(false);
-  const [hasInteracted, setHasInteracted]   = useState(false);
-  const [mobileLabel, setMobileLabel]       = useState<string | null>(null);
+  // ---------------------------------------------------------------------------
+  // Dual-slot state: moonA = first active family, moonB = second active family.
+  // Planet highlight and moon rendering are driven exclusively by these two slots.
+  // There is no separate activeFamily/activeFamilies state — moonA/moonB IS
+  // the source of truth for "which planets are active".
+  // ---------------------------------------------------------------------------
+  const [moonA, setMoonA] = useState<string | null>(null);
+  const [moonB, setMoonB] = useState<string | null>(null);
+
+  // Rail tracks the most recently activated slot (drives the StrainRail panel).
+  const [railFamily, setRailFamily] = useState<string | null>(null);
+  const [railOpen, setRailOpen]     = useState(false);
+  const [hovered, setHovered]       = useState<string | null>(null);
+  const [sunHovered, setSunHovered] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [mobileLabel, setMobileLabel]     = useState<string | null>(null);
   const isMobile = useIsMobile();
 
-  // Convenience: primary active family = last clicked (drives the rail)
+  // Derived helpers
+  const activeFamilies = useMemo(() => {
+    const s = new Set<string>();
+    if (moonA) s.add(moonA);
+    if (moonB) s.add(moonB);
+    return s;
+  }, [moonA, moonB]);
+
+  // activeFamily alias for HUD / rail (most recent slot)
   const activeFamily = railFamily;
 
   const families = useMemo(() => {
@@ -299,55 +315,62 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     ? families.find((f) => f.family === railFamily)?.strains ?? []
     : [];
 
+  // ---------------------------------------------------------------------------
+  // handleFamilyClick — slot-based dual-active logic (no Shift required)
+  //
+  // Rules:
+  //   • Node is moonA       → clear moonA (toggle off); if railFamily was moonA,
+  //                           move rail to moonB (if set)
+  //   • Node is moonB       → clear moonB (toggle off); rail stays on moonA
+  //   • moonA is empty      → set moonA = node; open rail for node
+  //   • moonA set, moonB empty → set moonB = node; open rail for node
+  //   • Both slots filled   → replace moonA with node (oldest slot recycled);
+  //                           moonB stays; open rail for node
+  // ---------------------------------------------------------------------------
   const handleFamilyClick = useCallback(
-    (family: string, shiftKey: boolean) => {
+    (family: string) => {
       setHasInteracted(true);
 
-      if (shiftKey && activeFamilies.size > 0) {
-        // Dual-active mode: toggle second family
-        setActiveFamilies((prev) => {
-          const next = new Set(prev);
-          if (next.has(family)) {
-            next.delete(family);
-          } else {
-            // Max 2: if already 2, replace the oldest (the one that is not railFamily)
-            if (next.size >= 2) {
-              const toRemove = [...next].find((f) => f !== railFamily);
-              if (toRemove) next.delete(toRemove);
-            }
-            next.add(family);
-          }
-          return next;
-        });
-        // Don't change the rail when shift-clicking
+      // Toggle off moonA
+      if (moonA === family) {
+        setMoonA(moonB);   // moonB slides up to slot A
+        setMoonB(null);
+        const nextRail = moonB ?? null;
+        setRailFamily(nextRail);
+        if (!nextRail) {
+          setRailOpen(false);
+          setMobileLabel(null);
+        }
         return;
       }
 
-      // Normal click: toggle primary
-      setActiveFamilies((prev) => {
-        if (prev.has(family) && prev.size === 1) {
-          setRailOpen(false);
-          setRailFamily(null);
-          setMobileLabel(null);
-          return new Set();
-        }
-        const next = new Set<string>();
-        next.add(family);
-        return next;
-      });
+      // Toggle off moonB
+      if (moonB === family) {
+        setMoonB(null);
+        // Rail stays on moonA
+        return;
+      }
 
-      setRailFamily((prev) => {
-        if (prev === family && activeFamilies.size === 1) return null;
-        if (isMobile) {
-          setMobileLabel(family);
-          setTimeout(() => { setRailOpen(true); setMobileLabel(null); }, 700);
-        } else {
-          setRailOpen(false);
-        }
-        return family;
-      });
+      // Activate into first free slot
+      if (moonA === null) {
+        setMoonA(family);
+      } else if (moonB === null) {
+        setMoonB(family);
+      } else {
+        // Both slots full — recycle slot A (oldest), keep slot B
+        setMoonA(family);
+      }
+
+      // Update rail to the newly activated family
+      setRailFamily(family);
+      if (isMobile) {
+        setMobileLabel(family);
+        setTimeout(() => { setRailOpen(true); setMobileLabel(null); }, 700);
+      } else {
+        setRailOpen(false);
+      }
     },
-    [activeFamilies, railFamily, isMobile],
+    [moonA, moonB, isMobile],
   );
 
   // Precompute moons for every active family
@@ -362,13 +385,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
   // Precompute moon-to-moon arcs when exactly 2 families are active
   const moonArcs = useMemo((): MoonArc[] => {
-    if (activeFamilies.size !== 2) return [];
-    const [famA, famB] = [...activeFamilies];
-    const moonsA = moonsByFamily.get(famA);
-    const moonsB = moonsByFamily.get(famB);
+    if (!moonA || !moonB) return [];
+    const moonsA = moonsByFamily.get(moonA);
+    const moonsB = moonsByFamily.get(moonB);
     if (!moonsA || !moonsB) return [];
-    return buildMoonArcs(famA, moonsA, famB, moonsB);
-  }, [activeFamilies, moonsByFamily]);
+    return buildMoonArcs(moonA, moonsA, moonB, moonsB);
+  }, [moonA, moonB, moonsByFamily]);
 
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) =>  CARIDINA_SET.has(s.family)).length;
@@ -418,7 +440,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             : ""}
         </div>
 
-        {/* Active family HUD — shows primary family */}
+        {/* Active family HUD — shows primary (rail) family */}
         <AnimatePresence>
           {activeFamily && (
             <motion.div
@@ -444,8 +466,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   {familyDescriptions[activeFamily]}
                 </motion.span>
               )}
-              {/* Comparison hint when exactly one family is active */}
-              {activeFamilies.size === 1 && !isMobile && (
+              {/* Comparison hint when exactly one planet is active */}
+              {activeFamilies.size === 1 && (
                 <motion.span
                   className="orbit-active-desc"
                   initial={{ opacity: 0 }}
@@ -453,17 +475,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   transition={{ delay: 0.5 }}
                   style={{ opacity: 0.45, fontSize: "0.68em", letterSpacing: "0.08em" }}
                 >
-                  SHIFT + CLICK another planet to compare
+                  {isMobile ? "TAP another planet to compare" : "CLICK another planet to compare"}
                 </motion.span>
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Comparison badge when two families are active */}
+        {/* Comparison badge when two families are active — visible on all devices */}
         <AnimatePresence>
-          {activeFamilies.size === 2 && (() => {
-            const [famA, famB] = [...activeFamilies];
+          {moonA && moonB && (() => {
             return (
               <motion.div
                 key="compare-badge"
@@ -473,9 +494,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 exit={{ opacity: 0, y: -6, scale: 0.92 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               >
-                <span style={{ color: familyColors[famA] }}>{famA}</span>
+                <span style={{ color: familyColors[moonA] }}>{moonA}</span>
                 <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
-                <span style={{ color: familyColors[famB] }}>{famB}</span>
+                <span style={{ color: familyColors[moonB] }}>{moonB}</span>
                 {moonArcs.length > 0 && (
                   <span style={{ opacity: 0.5, marginLeft: 8, fontSize: "0.8em" }}>
                     {moonArcs.length} connection{moonArcs.length > 1 ? "s" : ""}
@@ -590,7 +611,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             })}
           </g>
 
-          {/* Moon-to-moon cross-family arcs (only when 2 families active) */}
+          {/* Moon-to-moon cross-family arcs (only when 2 families active) — desktop + mobile */}
           <g aria-hidden="true">
             {moonArcs.map((arc, i) => (
               <g key={`moon-arc-${i}`}>
@@ -637,9 +658,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           {/* Family planet nodes */}
           {families.map((item, i) => {
             const { nx, ny, nodeR: nr, isCaridina } = item;
-            const isActive = activeFamilies.has(item.family);
-            const isHov    = hovered === item.family;
-            const isDimmed = activeFamilies.size > 0 && !isActive;
+            // Highlight driven purely by moonA/moonB slots — no separate activeFamily state
+            const isActive  = item.family === moonA || item.family === moonB;
+            const isHov     = hovered === item.family;
+            const isDimmed  = activeFamilies.size > 0 && !isActive;
             const isPrimary = railFamily === item.family;
 
             const labelDist = item.orbitR + nr + 22;
@@ -661,14 +683,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   scale: isActive ? (isPrimary ? 1.15 : 1.08) : isHov ? 1.08 : 1,
                 }}
                 transition={{ delay: i * 0.05, type: "spring", stiffness: 380, damping: 26 }}
-                onClick={(e) => handleFamilyClick(item.family, e.shiftKey)}
+                onClick={() => handleFamilyClick(item.family)}
                 onHoverStart={() => setHovered(item.family)}
                 onHoverEnd={() => setHovered(null)}
                 role="button"
-                aria-label={`${item.family}, ${item.strains.length} variet${item.strains.length === 1 ? "y" : "ies"}`}
+                aria-label={`${item.family}, ${item.strains.length} variet${item.strains.length === 1 ? "y" : "ies"}${isActive ? ", active" : ""}`}
+                aria-pressed={isActive}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family, e.shiftKey);
+                  if (e.key === "Enter" || e.key === " ") handleFamilyClick(item.family);
                 }}
                 style={{ cursor: "pointer", transformOrigin: `${nx}px ${ny}px` }}
               >
@@ -679,6 +702,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                     initial={{ r: nr + 4, opacity: 0.8 }}
                     animate={{ r: nr + 22, opacity: 0 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                  />
+                )}
+                {/* Secondary active planet gets a steady ring instead of a pulse */}
+                {isActive && !isPrimary && (
+                  <circle
+                    cx={nx} cy={ny} r={nr + 6}
+                    fill="none" stroke={item.color} strokeWidth="0.7"
+                    opacity={0.55}
                   />
                 )}
                 {(isActive || isHov) && (
@@ -795,7 +826,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   </text>
                 )}
 
-                {/* Strain moons — rendered only when this family is active */}
+                {/* Strain moons — rendered for both active slots */}
                 {moons && moons.map((moon) => (
                   <g
                     key={`moon-${moon.strain.id}`}
@@ -851,7 +882,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 <text x="0" y="292" textAnchor="middle" fontSize="5.5"
                   fontFamily="'IBM Plex Mono', monospace" letterSpacing="0.14em"
                   fill="rgba(221,216,204,0.32)">
-                  CLICK ANY PLANET TO EXPLORE
+                  {isMobile ? "TAP ANY PLANET TO EXPLORE" : "CLICK ANY PLANET TO EXPLORE"}
                 </text>
                 <circle cx="-38" cy="308" r="4"
                   fill="rgba(47,196,181,0.35)" stroke="rgba(47,196,181,0.5)" strokeWidth="0.6" />
@@ -870,7 +901,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
           {/* Sun */}
           <motion.g
             onClick={() => {
-              setActiveFamilies(new Set());
+              setMoonA(null);
+              setMoonB(null);
               setRailFamily(null);
               setRailOpen(false);
               setMobileLabel(null);
@@ -885,7 +917,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
-                setActiveFamilies(new Set());
+                setMoonA(null);
+                setMoonB(null);
                 setRailFamily(null);
                 setRailOpen(false);
                 setMobileLabel(null);
@@ -996,8 +1029,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               strains={activeStrains}
               onSelect={onSelect}
               onClose={isMobile ? () => setRailOpen(false) : () => {
+                setMoonA(null);
+                setMoonB(null);
                 setRailFamily(null);
-                setActiveFamilies(new Set());
               }}
               orientation={isMobile ? "horizontal" : "vertical"}
             />
