@@ -564,7 +564,7 @@
     "waterType": "hard",
     "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
     "compatible": [
-      { "with": "Blue", "offspring": "Blue Dream × Snowball / mixed Neo", "stability": "unstable", "note": "Orange eye trait from OE Blue Dream may not breed true; offspring color variable." }
+      { "with": "White", "offspring": "Blue Dream × Snowball / mixed Neo", "stability": "unstable", "note": "Orange eye trait from OE Blue Dream may not breed true; offspring color variable." }
     ],
     "factoid": "Named for its egg sacs — females carry a dense white cluster that looks like a snowball.",
     "summary": "White to milky-translucent Neocaridina. Popular in the hobby, though not always treated cleanly as davidi in taxonomy.",
