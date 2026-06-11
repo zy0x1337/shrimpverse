@@ -6,6 +6,7 @@ import { ViewToggle } from "./components/ViewToggle";
 import { useStrainFilters } from "./hooks/useStrainFilters";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { strains, patterns, families } from "./lib/constants";
+import type { FilterState } from "./types/strain";
 
 // Lazy-load the heavy Three.js canvas — only fetched when user switches to 3D
 const StrainUniverse = lazy(() =>
@@ -122,6 +123,20 @@ export default function App() {
     setQuery(tag);
   }, [setLevel, setWaterType, setPattern, setFamily, setQuery]);
 
+  /**
+   * Called when user clicks a Guided Path preset button in FilterPanel.
+   * Atomically sets all filter fields included in the preset.
+   */
+  const handleApplyPreset = useCallback((preset: Partial<FilterState>) => {
+    if (preset.family      !== undefined) setFamily(preset.family);
+    if (preset.pattern     !== undefined) setPattern(preset.pattern);
+    if (preset.level       !== undefined) setLevel(preset.level);
+    if (preset.waterType   !== undefined) setWaterType(preset.waterType);
+    if (preset.query       !== undefined) setQuery(preset.query);
+    if (preset.popularOnly !== undefined) setPopularOnly(preset.popularOnly);
+    if (preset.stableOnly  !== undefined) setStableOnly(preset.stableOnly);
+  }, [setFamily, setPattern, setLevel, setWaterType, setQuery, setPopularOnly, setStableOnly]);
+
   return (
     <>
       <main className="app-shell">
@@ -147,6 +162,7 @@ export default function App() {
               onPopularOnlyChange={setPopularOnly}
               onStableOnlyChange={setStableOnly}
               onWaterTypeChange={setWaterType}
+              onApplyPreset={handleApplyPreset}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
             />
           </div>

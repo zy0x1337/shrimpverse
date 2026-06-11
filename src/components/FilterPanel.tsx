@@ -19,6 +19,7 @@ interface Props {
   onPopularOnlyChange: (v: boolean) => void;
   onStableOnlyChange: (v: boolean) => void;
   onWaterTypeChange: (v: string) => void;
+  onApplyPreset: (preset: Partial<FilterState>) => void;
   onClose?: () => void;
 }
 
@@ -41,6 +42,36 @@ const PATTERN_OPTIONS = [
   ...patterns.map((p) => ({ value: p, label: p })),
 ];
 
+const GUIDED_PATHS = [
+  {
+    id: "beginner",
+    label: "🌱 Just starting out",
+    title: "Easy Neocaridina varieties — hard water, beginner-friendly",
+    preset: { level: "Beginner", waterType: "hard", family: "All", pattern: "all", query: "" },
+  },
+  {
+    id: "intermediate",
+    label: "🔬 Ready for more",
+    title: "Caridina & soft-water varieties for experienced keepers",
+    preset: { level: "Intermediate", waterType: "soft", family: "All", pattern: "all", query: "" },
+  },
+  {
+    id: "collector",
+    label: "🌊 Deep water",
+    title: "Collector-level rarities — Sulawesi, Taiwan Bee, extreme grades",
+    preset: { level: "Collector", waterType: "soft", family: "All", pattern: "all", query: "" },
+  },
+] as const;
+
+function isPresetActive(state: FilterState, preset: Partial<FilterState>): boolean {
+  return (
+    state.level === preset.level &&
+    state.waterType === preset.waterType &&
+    state.family === preset.family &&
+    state.pattern === preset.pattern
+  );
+}
+
 function ButtonGroup({
   options,
   value,
@@ -56,7 +87,7 @@ function ButtonGroup({
         <button
           key={opt.value}
           className={`btn-group-item${value === opt.value ? " active" : ""}`}
-          onClick={() => onChange(opt.value)}
+          onClick={() => onChange(opt.value === value ? "all" : opt.value)}
           aria-pressed={value === opt.value}
           title={opt.title}
         >
@@ -71,7 +102,7 @@ export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
-  onWaterTypeChange,
+  onWaterTypeChange, onApplyPreset,
   onClose,
 }: Props) {
   const activeFamilyColor =
@@ -107,6 +138,28 @@ export function FilterPanel({
 
       {/* Filters */}
       <div className="filter-panel">
+
+        {/* Guided Paths */}
+        <div className="filter-section">
+          <div className="filter-label">Quick start</div>
+          <div className="guided-paths" role="group" aria-label="Guided filter presets">
+            {GUIDED_PATHS.map((path) => {
+              const active = isPresetActive(state, path.preset);
+              return (
+                <button
+                  key={path.id}
+                  className={`guided-path-btn${active ? " active" : ""}`}
+                  onClick={() => onApplyPreset(active ? { level: "all", waterType: "all", family: "All", pattern: "all", query: "" } : path.preset)}
+                  aria-pressed={active}
+                  title={path.title}
+                >
+                  {path.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Search */}
         <div className="filter-section">
           <div className="filter-label">Search</div>
@@ -259,7 +312,6 @@ export function FilterPanel({
           strokeLinejoin="round"
           aria-hidden="true"
         >
-          {/* shrimp-like curl: a bent body + antennae */}
           <path d="M10 16c-3 0-5-2.5-5-5.5S8 4 10 4s5 2.5 5 5.5" />
           <path d="M10 16c1.5 0 3-1 3-2.5" />
           <path d="M7.5 5.5C6.5 4 5.5 3.5 4.5 3.5" />
