@@ -83,7 +83,7 @@ body {
 img, svg { display: block; max-width: 100%; }
 button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
 input, select { font: inherit; color: inherit; }
-::selection { background: rgba(232,160,32,0.25); color: var(--text); }
+::selection { background: oklch(from var(--accent) l c h / 0.25); color: var(--text); }
 :focus-visible {
   outline: 1.5px solid var(--accent);
   outline-offset: 3px;
@@ -258,7 +258,7 @@ input, select { font: inherit; color: inherit; }
 }
 .filter-search input::placeholder { color: var(--text-faint); }
 .filter-search input:focus {
-  border-color: rgba(232,160,32,0.4);
+  border-color: oklch(from var(--accent) l c h / 0.4);
   box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
@@ -332,10 +332,10 @@ input, select { font: inherit; color: inherit; }
   background: var(--surface-3);
 }
 .btn-group-item.active {
-  background: rgba(232, 160, 32, 0.14);
-  border-color: rgba(232, 160, 32, 0.45);
+  background: var(--accent-dim);
+  border-color: oklch(from var(--accent) l c h / 0.45);
   color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(232, 160, 32, 0.12);
+  box-shadow: 0 0 0 1px oklch(from var(--accent) l c h / 0.12);
 }
 @media (hover: none) {
   .btn-group-item:hover {
@@ -365,7 +365,7 @@ input, select { font: inherit; color: inherit; }
   min-height: 40px;
 }
 .filter-select:focus {
-  border-color: rgba(232,160,32,0.4);
+  border-color: oklch(from var(--accent) l c h / 0.4);
   box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
@@ -436,7 +436,7 @@ input, select { font: inherit; color: inherit; }
   padding: var(--s5) var(--s8);
   border-bottom: 1px solid var(--divider);
   flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(13,19,24,0.95) 0%, transparent 100%);
+  background: linear-gradient(180deg, oklch(from var(--surface) l c h / 0.95) 0%, transparent 100%);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -608,7 +608,7 @@ input, select { font: inherit; color: inherit; }
   height: 44px;
   border-radius: var(--r-full);
   border: 1px solid var(--border-hover);
-  background: rgba(13, 19, 24, 0.90);
+  background: oklch(from var(--surface) l c h / 0.90);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   font-family: var(--font-mono);
@@ -619,7 +619,7 @@ input, select { font: inherit; color: inherit; }
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease;
 }
-.orbit-rail-peek:hover { background: rgba(20, 30, 44, 0.95); }
+.orbit-rail-peek:hover { background: oklch(from var(--surface-2) l c h / 0.95); }
 .orbit-rail-peek-dot {
   width: 7px;
   height: 7px;
@@ -682,7 +682,7 @@ input, select { font: inherit; color: inherit; }
    STRAIN RAIL
    ===================== */
 .strain-rail {
-  background: rgba(13,19,24,0.94);
+  background: oklch(from var(--surface) l c h / 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-hover);
@@ -792,7 +792,7 @@ input, select { font: inherit; color: inherit; }
   top: 0;
   bottom: 0;
   width: 40px;
-  background: linear-gradient(to right, transparent, rgba(13,19,24,0.9));
+  background: linear-gradient(to right, transparent, oklch(from var(--surface) l c h / 0.9));
   pointer-events: none;
   border-radius: 0 var(--r-lg) var(--r-lg) 0;
 }
@@ -881,7 +881,7 @@ input, select { font: inherit; color: inherit; }
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(8,12,16,0.88);
+  background: oklch(from var(--bg) l c h / 0.88);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   z-index: 100;
@@ -1024,7 +1024,7 @@ input, select { font: inherit; color: inherit; }
   border-radius: var(--r-md);
   overflow: visible;
   display: flex;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
 }
 .dialog-swatch-seg {
   flex: 1;
@@ -1196,7 +1196,7 @@ input, select { font: inherit; color: inherit; }
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(8,12,16,0.6);
+    background: oklch(from var(--bg) l c h / 0.6);
     backdrop-filter: blur(2px);
     z-index: 49;
     animation: fadeIn 220ms ease;
@@ -1394,7 +1394,7 @@ input, select { font: inherit; color: inherit; }
   background: var(--divider);
   border-radius: var(--r-md);
   overflow: hidden;
-  border: 1px solid rgba(47, 196, 181, 0.18);
+  border: 1px solid oklch(from var(--teal) l c h / 0.18);
 }
 .water-cell {
   background: var(--surface-2);
@@ -1480,17 +1480,17 @@ input, select { font: inherit; color: inherit; }
   white-space: nowrap;
 }
 .compat-badge--stable {
-  background: rgba(47, 196, 181, 0.12);
-  border: 1px solid rgba(47, 196, 181, 0.3);
+  background: var(--teal-dim);
+  border: 1px solid oklch(from var(--teal) l c h / 0.3);
   color: var(--teal);
 }
 .compat-badge--unstable {
-  background: rgba(232, 160, 32, 0.12);
-  border: 1px solid rgba(232, 160, 32, 0.3);
+  background: oklch(from var(--accent) l c h / 0.12);
+  border: 1px solid oklch(from var(--accent) l c h / 0.3);
   color: var(--accent);
 }
 .compat-badge--impossible {
-  background: rgba(180, 50, 50, 0.12);
-  border: 1px solid rgba(180, 50, 50, 0.3);
+  background: var(--color-danger-dim);
+  border: 1px solid oklch(from var(--color-danger) l c h / 0.3);
   color: #e07070;
 }
