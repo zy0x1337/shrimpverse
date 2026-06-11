@@ -1266,8 +1266,19 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
-  /* Arc legend: hide on mobile — too cramped, arcs still visible in SVG */
-  .orbit-arc-legend { display: none; }
+  /* Arc legend: compact on mobile — 2 columns, smaller gap, SVG icons stay visible */
+  .orbit-arc-legend {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s2) var(--s3);
+    font-size: 0.6rem;
+    bottom: calc(var(--s3) + 22px);
+    padding: 0 var(--s4);
+    width: 100%;
+  }
+  .orbit-arc-legend-item {
+    gap: 4px;
+  }
 }
 
 /* iPhone notch / home indicator safe areas */
