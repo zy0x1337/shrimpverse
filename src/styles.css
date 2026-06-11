@@ -1,6 +1,7 @@
 @import './components/3d/universe.css';
 @import './styles/dialog-phase2.css';
 @import './styles/gift-note.css';
+@import './styles/phase4.css';
 
 :root {
   --bg: #080c10;
