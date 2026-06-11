@@ -35,6 +35,20 @@ const WATER_COLOR: Record<string, string> = {
   neutral: "#999",
 };
 
+const WATER_PROFILE_KEYS: { key: keyof NonNullable<Strain["waterProfile"]>; label: string }[] = [
+  { key: "gh",   label: "GH" },
+  { key: "kh",   label: "KH" },
+  { key: "ph",   label: "pH" },
+  { key: "tds",  label: "TDS" },
+  { key: "temp", label: "Temp" },
+];
+
+const STABILITY_LABEL: Record<string, string> = {
+  stable:     "Stable",
+  unstable:   "Unstable",
+  impossible: "Impossible",
+};
+
 /** Glossary tooltips for meta-grid keys that may be unfamiliar to newcomers */
 const META_TIPS: Record<string, string> = {
   Line:
@@ -182,6 +196,11 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
   const hasTaxonomy = strain.genus || strain.species;
   const { lead, rest } = splitSummary(strain.summary ?? "");
 
+  const hasWaterProfile = strain.waterProfile &&
+    WATER_PROFILE_KEYS.some(({ key }) => strain.waterProfile![key]);
+
+  const hasCompat = strain.compatible && strain.compatible.length > 0;
+
   return (
     <AnimatePresence>
       {strain && (
@@ -311,6 +330,58 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                   </div>
                 ))}
               </div>
+
+              {/* ── Phase 1: Water Profile Grid ── */}
+              {hasWaterProfile && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Water parameters</div>
+                  <div className="dialog-water-profile">
+                    {WATER_PROFILE_KEYS.map(({ key, label }) => (
+                      <div key={key} className="water-cell">
+                        <span className="water-cell-key">{label}</span>
+                        <span className="water-cell-val">
+                          {strain.waterProfile![key] ?? "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Phase 1: Compatibility Section ── */}
+              {hasCompat && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Breeding compatibility</div>
+                  <div className="dialog-compat-list">
+                    {strain.compatible!.map((entry, i) => (
+                      <div key={i} className="dialog-compat-row">
+                        <div className="dialog-compat-top">
+                          <span className="dialog-compat-partner">
+                            {strain.name}
+                          </span>
+                          <span className="dialog-compat-arrow">×</span>
+                          <span className="dialog-compat-partner">
+                            {entry.with}
+                          </span>
+                          <span
+                            className={`compat-badge compat-badge--${entry.stability}`}
+                          >
+                            {STABILITY_LABEL[entry.stability] ?? entry.stability}
+                          </span>
+                        </div>
+                        {entry.offspring && entry.offspring !== "—" && (
+                          <span className="dialog-compat-offspring">
+                            → {entry.offspring}
+                          </span>
+                        )}
+                        {entry.note && (
+                          <span className="dialog-compat-note">{entry.note}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {strain.summary && (
                 <div className="dialog-section">
