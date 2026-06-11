@@ -8,21 +8,16 @@
     "level": "Beginner",
     "popularity": 2,
     "stable": true,
-    "colors": [
-      "#6d5945",
-      "#b7a27d",
-      "#38483d"
-    ],
+    "colors": ["#6d5945", "#b7a27d", "#38483d"],
     "genus": "Neocaridina",
     "species": "davidi var.",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–8", "ph": "7.0–7.8", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [],
+    "factoid": "All color Neocaridina lines eventually drift back toward this look.",
     "summary": "Brownish to translucent with mottling. Useful as a reference because mixed color lines often drift back toward this look.",
     "breeding": "Keep show colonies separate. In mixed-color tanks, wild-type offspring commonly reappear over generations.",
-    "tags": [
-      "wild type",
-      "robust",
-      "reference"
-    ]
+    "tags": ["wild type", "robust", "reference"]
   },
   {
     "id": "red-cherry",
@@ -33,21 +28,18 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#d81f2f",
-      "#f26866",
-      "#95131f"
-    ],
+    "colors": ["#d81f2f", "#f26866", "#95131f"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Color lines blend; culling needed to restore red." }
+    ],
+    "factoid": "The world's most-kept dwarf shrimp — sold in virtually every aquarium shop.",
     "summary": "The classic starter shrimp: red coloration, often with clearer patches, and very forgiving for new keepers.",
     "breeding": "The red line responds well to selection. Remove pale animals if you want the colony to become more intense.",
-    "tags": [
-      "Cherry",
-      "classic",
-      "easy"
-    ]
+    "tags": ["Cherry", "classic", "easy"]
   },
   {
     "id": "red-sakura",
@@ -58,21 +50,18 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#eb2333",
-      "#ff7a73",
-      "#a9091b"
-    ],
+    "colors": ["#eb2333", "#ff7a73", "#a9091b"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Color lines blend; culling needed to restore red." }
+    ],
+    "factoid": "Sakura means \"cherry blossom\" — named for its denser, more vivid red than base Cherry.",
     "summary": "More densely colored than basic Cherry shrimp and very common in the trade.",
     "breeding": "Sakura is a strong balance of price, color, and stability. Do not mix it with other color lines if offspring should stay red.",
-    "tags": [
-      "Sakura",
-      "popular",
-      "good coverage"
-    ]
+    "tags": ["Sakura", "popular", "good coverage"]
   },
   {
     "id": "fire-red",
@@ -83,21 +72,18 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#c90019",
-      "#ff332d",
-      "#6b0010"
-    ],
+    "colors": ["#c90019", "#ff332d", "#6b0010"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Color lines blend; separate for purity." }
+    ],
+    "factoid": "Dark substrate makes Fire Red look almost luminescent under bright lighting.",
     "summary": "A stronger, more opaque red. Often sold as a higher red grade than Cherry or Sakura.",
     "breeding": "Regular selection keeps the color dense. Dark substrate makes the animals look more saturated.",
-    "tags": [
-      "Fire",
-      "opaque",
-      "great starter"
-    ]
+    "tags": ["Fire", "opaque", "great starter"]
   },
   {
     "id": "painted-fire-red",
@@ -108,21 +94,18 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#ab0015",
-      "#e51023",
-      "#4e000b"
-    ],
+    "colors": ["#ab0015", "#e51023", "#4e000b"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Color lines blend." }
+    ],
+    "factoid": "Red pigment covers even the legs and swimmerets — hence \"painted\".",
     "summary": "A very high red grade with strong coverage across the shell, legs, and body.",
     "breeding": "High grades benefit from strict selection. Cull translucent patches and weak leg coloration consistently.",
-    "tags": [
-      "high grade",
-      "colored legs",
-      "selection"
-    ]
+    "tags": ["high grade", "colored legs", "selection"]
   },
   {
     "id": "bloody-mary",
@@ -133,21 +116,18 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#8f0018",
-      "#cf1233",
-      "#ff697d"
-    ],
+    "colors": ["#8f0018", "#cf1233", "#ff697d"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Color lines blend." }
+    ],
+    "factoid": "Its red comes from colored muscle tissue, not the shell — unique among Neo varieties.",
     "summary": "A deep wine-red look created by colored tissue under a more translucent shell.",
     "breeding": "Not every dark red shrimp is Bloody Mary. For true lines, check origin and offspring stability.",
-    "tags": [
-      "dark red",
-      "translucent",
-      "line-dependent"
-    ]
+    "tags": ["dark red", "translucent", "line-dependent"]
   },
   {
     "id": "red-rili",
@@ -158,21 +138,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#e6222d",
-      "#f9f2e6",
-      "#bd101d"
-    ],
+    "colors": ["#e6222d", "#f9f2e6", "#bd101d"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Yellow", "offspring": "Yellow Rili / mixed", "stability": "unstable", "note": "Rili pattern may persist but color shifts." }
+    ],
+    "factoid": "\"Rili\" means \"transparent body\" in the Taiwan shrimp hobby — the middle fades to near-glass.",
     "summary": "Red head and tail sections with a pale to transparent middle body.",
     "breeding": "The Rili pattern varies. Breed from shrimp with a clear middle and clean red end sections.",
-    "tags": [
-      "Rili",
-      "contrast",
-      "pattern selection"
-    ]
+    "tags": ["Rili", "contrast", "pattern selection"]
   },
   {
     "id": "red-blue-rili",
@@ -183,21 +160,18 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#d91f32",
-      "#83c4db",
-      "#f5fbff"
-    ],
+    "colors": ["#d91f32", "#83c4db", "#f5fbff"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Blue", "offspring": "Mixed Rili colors", "stability": "unstable", "note": "Blue body sections shift; keep as separate project line." }
+    ],
+    "factoid": "Red head, blue body, clear midband — three colors on one tiny shrimp.",
     "summary": "A Rili variant with red head and tail sections plus a blue-tinted middle body.",
     "breeding": "Attractive but often variable. Best kept as its own project line instead of mixing with Blue Jelly.",
-    "tags": [
-      "Rili",
-      "blue body",
-      "project line"
-    ]
+    "tags": ["Rili", "blue body", "project line"]
   },
   {
     "id": "yellow-fire",
@@ -208,21 +182,19 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#f2c230",
-      "#ffe36d",
-      "#a97900"
-    ],
+    "colors": ["#f2c230", "#ffe36d", "#a97900"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Orange", "offspring": "Orange-yellow Neo", "stability": "unstable", "note": "Color blends toward orange over generations." },
+      { "with": "Red", "offspring": "Orange / mixed Neo", "stability": "unstable", "note": "Produces orange offspring; separate for color purity." }
+    ],
+    "factoid": "Yellow Neocaridina are nearly invisible against sand substrate — use dark gravel to show them off.",
     "summary": "A bright yellow variety, very common in the trade and excellent for colorful species tanks.",
     "breeding": "Yellow lines look intense on dark substrate. Remove pale or greenish animals from the breeding group.",
-    "tags": [
-      "Yellow",
-      "bright",
-      "stable"
-    ]
+    "tags": ["Yellow", "bright", "stable"]
   },
   {
     "id": "yellow-neon",
@@ -233,21 +205,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#ffd526",
-      "#fff07b",
-      "#c49300"
-    ],
+    "colors": ["#ffd526", "#fff07b", "#c49300"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Orange", "offspring": "Orange-yellow Neo", "stability": "unstable", "note": "Stripe pattern weakens in mixed offspring." }
+    ],
+    "factoid": "Also sold as Goldenback — the pale dorsal stripe is a distinct genetic expression.",
     "summary": "A yellow line with a pale dorsal stripe, often sold as Goldenback or Neon.",
     "breeding": "Select for the dorsal stripe if it is part of your breeding goal. Without selection it becomes less consistent.",
-    "tags": [
-      "Goldenback",
-      "back stripe",
-      "bright"
-    ]
+    "tags": ["Goldenback", "back stripe", "bright"]
   },
   {
     "id": "yellow-rili",
@@ -258,21 +227,18 @@
     "level": "Intermediate",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#f2c735",
-      "#fff8df",
-      "#ce9900"
-    ],
+    "colors": ["#f2c735", "#fff8df", "#ce9900"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Orange", "offspring": "Orange Rili / mixed", "stability": "unstable", "note": "Rili pattern may persist but color shifts to orange." }
+    ],
+    "factoid": "Yellow Rili is one of the rarest Neocaridina Rili forms — less stable than Red or Orange Rili.",
     "summary": "A yellow Rili pattern with a transparent middle section. Less common than Red or Orange Rili.",
     "breeding": "The pattern needs selection over several generations. Stabilize it as a separate line.",
-    "tags": [
-      "Rili",
-      "yellow",
-      "less common"
-    ]
+    "tags": ["Rili", "yellow", "less common"]
   },
   {
     "id": "orange-sakura",
@@ -283,21 +249,19 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#f06f1d",
-      "#ffae48",
-      "#ad3f00"
-    ],
+    "colors": ["#f06f1d", "#ffae48", "#ad3f00"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Red", "offspring": "Orange-red Neo", "stability": "unstable", "note": "Red genes shift color toward red over generations." },
+      { "with": "Yellow", "offspring": "Yellow-orange Neo", "stability": "unstable", "note": "Yellow genes shift color toward yellow over generations." }
+    ],
+    "factoid": "Also marketed as Sunkist or Orange Fire — three names for essentially the same line.",
     "summary": "Rich orange animals, often also sold as Sunkist or Orange Fire.",
     "breeding": "Avoid mixing orange lines with red lines if you want to preserve a clean orange tone.",
-    "tags": [
-      "Sunkist",
-      "Orange Fire",
-      "warm"
-    ]
+    "tags": ["Sunkist", "Orange Fire", "warm"]
   },
   {
     "id": "pumpkin-orange",
@@ -308,21 +272,18 @@
     "level": "Intermediate",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#d95811",
-      "#ff8c31",
-      "#7a2d05"
-    ],
+    "colors": ["#d95811", "#ff8c31", "#7a2d05"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Red", "offspring": "Orange-red Neo", "stability": "unstable", "note": "Red genes shift color toward red over generations." }
+    ],
+    "factoid": "Deeper and more saturated than Orange Sakura — closer to a Halloween pumpkin tone.",
     "summary": "A darker pumpkin-orange tone with strong coverage.",
     "breeding": "Watch for even color. Separate animals that are too yellow or too red if you want a tight color range.",
-    "tags": [
-      "Pumpkin",
-      "rich",
-      "selected"
-    ]
+    "tags": ["Pumpkin", "rich", "selected"]
   },
   {
     "id": "orange-rili",
@@ -333,21 +294,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#f47b20",
-      "#fff2df",
-      "#c94a0a"
-    ],
+    "colors": ["#f47b20", "#fff2df", "#c94a0a"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Red", "offspring": "Red Rili / mixed Rili", "stability": "unstable", "note": "Rili pattern may persist but color shifts." }
+    ],
+    "factoid": "Orange Rili is one of the more stable Rili forms — the pattern holds well across generations.",
     "summary": "Orange head and tail sections with a clear middle body. A common Rili strain for colorful aquascapes.",
     "breeding": "A clean split between orange and transparent areas is the goal. Partly solid animals weaken the pattern.",
-    "tags": [
-      "Rili",
-      "Sunkist",
-      "high contrast"
-    ]
+    "tags": ["Rili", "Sunkist", "high contrast"]
   },
   {
     "id": "green-jade",
@@ -358,21 +316,18 @@
     "level": "Intermediate",
     "popularity": 5,
     "stable": false,
-    "colors": [
-      "#15945c",
-      "#4ec47e",
-      "#0d593d"
-    ],
+    "colors": ["#15945c", "#4ec47e", "#0d593d"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Brown", "offspring": "Olive / wild-tone Neo", "stability": "unstable", "note": "Green lines revert toward wild-type olive easily." }
+    ],
+    "factoid": "Green Neocaridina are among the hardest colors to stabilize — quality varies hugely between sellers.",
     "summary": "Ranges from olive to emerald green. Very popular, but often less uniform than red, yellow, or blue lines.",
     "breeding": "Green can vary strongly in quality and offspring. Good starter stock and consistent selection are worth it.",
-    "tags": [
-      "Jade",
-      "Emerald",
-      "variable"
-    ]
+    "tags": ["Jade", "Emerald", "variable"]
   },
   {
     "id": "green-rili",
@@ -383,21 +338,16 @@
     "level": "Collector",
     "popularity": 2,
     "stable": false,
-    "colors": [
-      "#168a55",
-      "#eef9e9",
-      "#3fbf78"
-    ],
+    "colors": ["#168a55", "#eef9e9", "#3fbf78"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [],
+    "factoid": "One of the rarest Neocaridina Rili forms — few breeders maintain a stable green Rili line.",
     "summary": "A green Rili variant, much rarer and usually more project-like than Red or Orange Rili.",
     "breeding": "Stabilize it patiently. Offspring can vary widely between green, clear, and wild-type looks.",
-    "tags": [
-      "Rili",
-      "rare",
-      "project"
-    ]
+    "tags": ["Rili", "rare", "project"]
   },
   {
     "id": "blue-dream",
@@ -408,21 +358,18 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#0d4f9e",
-      "#2e87d1",
-      "#061d4f"
-    ],
+    "colors": ["#0d4f9e", "#2e87d1", "#061d4f"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Black", "offspring": "Dark blue / charcoal Neo", "stability": "unstable", "note": "Blue darkens toward charcoal; hard to recover pure blue." }
+    ],
+    "factoid": "Blue Dream displaced Blue Velvet as the most popular blue Neo in the mid-2010s trade.",
     "summary": "A strong blue variety and one of the most popular modern Neocaridina strains.",
     "breeding": "Do not casually cross Blue Dream with Blue Velvet or Blue Jelly. Trade names are sometimes used loosely.",
-    "tags": [
-      "Blue Dream",
-      "high demand",
-      "dark substrate"
-    ]
+    "tags": ["Blue Dream", "high demand", "dark substrate"]
   },
   {
     "id": "blue-velvet",
@@ -433,21 +380,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#328fd4",
-      "#78c7ef",
-      "#145a9d"
-    ],
+    "colors": ["#328fd4", "#78c7ef", "#145a9d"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Black", "offspring": "Dark blue Neo", "stability": "unstable", "note": "Blue shifts toward darker tones." }
+    ],
+    "factoid": "Blue Velvet likely traces back to a Rili mutation — its lighter shade hints at the transparent ancestor.",
     "summary": "A light to medium blue strain with a clean, bright aquarium presence.",
     "breeding": "Blue Velvet and Blue Dream can be different lines depending on origin. Keep them separate for stable color.",
-    "tags": [
-      "Velvet",
-      "light blue",
-      "popular"
-    ]
+    "tags": ["Velvet", "light blue", "popular"]
   },
   {
     "id": "blue-jelly",
@@ -458,21 +402,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#79c5e8",
-      "#d9f6ff",
-      "#2c8bbf"
-    ],
+    "colors": ["#79c5e8", "#d9f6ff", "#2c8bbf"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Red", "offspring": "Red Blue Rili / mixed", "stability": "unstable", "note": "Crossing these two can produce Red Blue Rili." }
+    ],
+    "factoid": "Blue Jelly's translucent shell makes internal organs faintly visible — a uniquely alien look.",
     "summary": "A translucent pale blue, often connected to Rili-related lines.",
     "breeding": "Reddish markings can appear. Breed only suitable animals if you want a clear Jelly blue.",
-    "tags": [
-      "Jelly",
-      "translucent",
-      "bright"
-    ]
+    "tags": ["Jelly", "translucent", "bright"]
   },
   {
     "id": "blue-diamond",
@@ -483,21 +424,18 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#12316f",
-      "#2456a8",
-      "#081733"
-    ],
+    "colors": ["#12316f", "#2456a8", "#081733"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Black", "offspring": "Very dark blue / near-black Neo", "stability": "unstable", "note": "Blue darkens significantly." }
+    ],
+    "factoid": "Blue Diamond is the darkest blue Neocaridina — a deeper navy than Blue Dream or Blue Velvet.",
     "summary": "A dark, deep-blue appearance, often associated with black/blue lineages.",
     "breeding": "Select for even dark coverage and separate very pale offspring.",
-    "tags": [
-      "Diamond",
-      "dark blue",
-      "selected"
-    ]
+    "tags": ["Diamond", "dark blue", "selected"]
   },
   {
     "id": "blue-carbon-rili",
@@ -508,21 +446,18 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": false,
-    "colors": [
-      "#1d2630",
-      "#62a8d7",
-      "#e7f7ff"
-    ],
+    "colors": ["#1d2630", "#62a8d7", "#e7f7ff"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Black", "offspring": "Carbon / near-black Neo", "stability": "unstable", "note": "Blue areas darken toward black." }
+    ],
+    "factoid": "Carbon Rili balances three tones: near-black head, blue midband, pale tail.",
     "summary": "Dark head and tail sections with a blue or transparent body area.",
     "breeding": "The balance of black, blue, and clear areas varies. Good line management matters more than the name.",
-    "tags": [
-      "Carbon",
-      "Rili",
-      "high contrast"
-    ]
+    "tags": ["Carbon", "Rili", "high contrast"]
   },
   {
     "id": "oe-blue-dream",
@@ -533,21 +468,18 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#0d448e",
-      "#f09b2d",
-      "#071c44"
-    ],
+    "colors": ["#0d448e", "#f09b2d", "#071c44"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Blue", "offspring": "Blue Dream / OE Blue Dream mix", "stability": "unstable", "note": "Orange eye trait may not breed true from standard Blue Dream cross." }
+    ],
+    "factoid": "The orange eyes are caused by a separate genetic mutation independent of body color.",
     "summary": "Blue Dream animals with orange eyes. Eye-catching, but less common than standard Blue Dream.",
     "breeding": "Maintain Orange Eyes separately. When buying, check whether eye color and body color breed true.",
-    "tags": [
-      "Orange Eyes",
-      "collector",
-      "rare"
-    ]
+    "tags": ["Orange Eyes", "collector", "rare"]
   },
   {
     "id": "black-rose",
@@ -558,21 +490,18 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#111315",
-      "#36393b",
-      "#000000"
-    ],
+    "colors": ["#111315", "#36393b", "#000000"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Blue", "offspring": "Dark blue / charcoal Neo", "stability": "unstable", "note": "Black genes dominate; blue color is diluted significantly." }
+    ],
+    "factoid": "Black Rose pops most dramatically against a bright white or green planted background.",
     "summary": "Very dark to black Neocaridina, popular in bright planted tanks.",
     "breeding": "Brownish or bluish offspring can appear. Select for dense shell color if you want a rich black colony.",
-    "tags": [
-      "Black",
-      "high contrast",
-      "popular"
-    ]
+    "tags": ["Black", "high contrast", "popular"]
   },
   {
     "id": "black-sakura",
@@ -583,21 +512,18 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#1c1f20",
-      "#45494a",
-      "#090a0a"
-    ],
+    "colors": ["#1c1f20", "#45494a", "#090a0a"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Blue", "offspring": "Dark blue / charcoal Neo", "stability": "unstable", "note": "Black Sakura and Black Rose are often interchangeable in the trade." }
+    ],
+    "factoid": "Trade distinction between Black Sakura and Black Rose is mostly marketing — judge the line, not the name.",
     "summary": "A dark Sakura/Fire-style interpretation with high coverage, often close to Black Rose depending on seller.",
     "breeding": "Names overlap. Judge the line rather than the trade label and remove pale animals.",
-    "tags": [
-      "Sakura",
-      "dark",
-      "opaque"
-    ]
+    "tags": ["Sakura", "dark", "opaque"]
   },
   {
     "id": "chocolate",
@@ -608,21 +534,18 @@
     "level": "Beginner",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#5b2f20",
-      "#9b6445",
-      "#2a140e"
-    ],
+    "colors": ["#5b2f20", "#9b6445", "#2a140e"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [
+      { "with": "Brown", "offspring": "Wild-tone / olive Neo", "stability": "unstable", "note": "Chocolate and wild form are genetically close; offspring revert easily." }
+    ],
+    "factoid": "Good Chocolate lines have a rich, even tone — not the mottled look of wild-type davidi.",
     "summary": "A warm brown to chocolate-colored variety. Less flashy, but excellent in natural-style layouts.",
     "breeding": "Do not confuse it with wild type. Good Chocolate lines are clearly more even and richer brown.",
-    "tags": [
-      "Chocolate",
-      "natural",
-      "warm"
-    ]
+    "tags": ["Chocolate", "natural", "warm"]
   },
   {
     "id": "snowball",
@@ -633,22 +556,16 @@
     "level": "Beginner",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#f3f7f4",
-      "#ffffff",
-      "#c8d7d3"
-    ],
+    "colors": ["#f3f7f4", "#ffffff", "#c8d7d3"],
     "genus": "Neocaridina",
     "species": "davidi",
     "waterType": "hard",
+    "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
+    "compatible": [],
+    "factoid": "Named for its egg sacs — females carry a dense white cluster that looks like a snowball.",
     "summary": "White to milky-translucent Neocaridina. Popular in the hobby, though not always treated cleanly as davidi in taxonomy.",
     "breeding": "For strict davidi collections, verify origin. In practice it is often kept alongside davidi color strains as a Neo variety.",
-    "tags": [
-      "White Pearl",
-      "White Pearl",
-      "Snowball",
-      "verify origin"
-    ]
+    "tags": ["White Pearl", "White Pearl", "Snowball", "verify origin"]
   },
   {
     "id": "crystal-red-b",
@@ -659,22 +576,20 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#cc1a1a",
-      "#f5f5f5",
-      "#880000"
-    ],
+    "colors": ["#cc1a1a", "#f5f5f5", "#880000"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "Classic cross that produced Taiwan Bee complex. F2 offspring highly variable." },
+      { "with": "Tiger", "offspring": "Taitibee", "stability": "unstable", "note": "Crystal × Tiger hybrid; offspring show mixed banding and striping." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Sulawesi shrimp require alkaline water; cannot share a tank with Crystal." }
+    ],
+    "factoid": "Crystal Red was discovered as a natural mutation in a Cherry Red Bee colony in Japan in 1996.",
     "summary": "Entry-level Crystal Red with sparse red banding over a white body. A good introduction to Caridina keeping.",
     "breeding": "Soft, acidic water is essential. Crystal shrimp will not thrive or breed in hard water. Use RO water buffered with active substrate.",
-    "tags": [
-      "Crystal Red",
-      "B grade",
-      "banded",
-      "entry level"
-    ]
+    "tags": ["Crystal Red", "B grade", "banded", "entry level"]
   },
   {
     "id": "crystal-red-s",
@@ -685,22 +600,20 @@
     "level": "Intermediate",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#cc1a1a",
-      "#f2f2f2",
-      "#7a0000"
-    ],
+    "colors": ["#cc1a1a", "#f2f2f2", "#7a0000"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "F2 offspring highly variable." },
+      { "with": "Tiger", "offspring": "Taitibee", "stability": "unstable", "note": "Crystal × Tiger hybrid." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "S grade means roughly equal red and white — the most balanced and widely traded Crystal grade.",
     "summary": "Balanced red and white banding, the most common grade in the trade. Good starter grade for Crystal Red.",
     "breeding": "Select for clean, crisp band edges. Fuzzy or uneven transitions lower the grade of offspring over time.",
-    "tags": [
-      "Crystal Red",
-      "S grade",
-      "balanced",
-      "popular"
-    ]
+    "tags": ["Crystal Red", "S grade", "balanced", "popular"]
   },
   {
     "id": "crystal-red-ss",
@@ -711,22 +624,20 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#bb0000",
-      "#f8f8f8",
-      "#650000"
-    ],
+    "colors": ["#bb0000", "#f8f8f8", "#650000"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "F2 offspring highly variable." },
+      { "with": "Tiger", "offspring": "Taitibee", "stability": "unstable", "note": "Crystal × Tiger hybrid." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "SS grade shrimp have more red than white — clean mosura heads are the signature trait.",
     "summary": "More intense red than S grade. White areas remain bright and well-defined.",
     "breeding": "Grade stability improves with strict culling. Remove animals with soft band edges or excessive white.",
-    "tags": [
-      "Crystal Red",
-      "SS grade",
-      "intense",
-      "selected"
-    ]
+    "tags": ["Crystal Red", "SS grade", "intense", "selected"]
   },
   {
     "id": "crystal-red-sss",
@@ -737,22 +648,20 @@
     "level": "Collector",
     "popularity": 4,
     "stable": false,
-    "colors": [
-      "#a80000",
-      "#ffffff",
-      "#580000"
-    ],
+    "colors": ["#a80000", "#ffffff", "#580000"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "F2 offspring highly variable." },
+      { "with": "Tiger", "offspring": "Taitibee", "stability": "unstable", "note": "Crystal × Tiger hybrid." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "SSS × SSS does not reliably produce SSS — grade is a continuum, not a fixed trait.",
     "summary": "Near-perfect red saturation with minimal white. The top standard grade before specialty variants.",
     "breeding": "SSS to SSS pairings do not reliably produce SSS offspring. Expect a spread of grades; only the top fraction qualifies.",
-    "tags": [
-      "Crystal Red",
-      "SSS grade",
-      "high grade",
-      "collector"
-    ]
+    "tags": ["Crystal Red", "SSS grade", "high grade", "collector"]
   },
   {
     "id": "crystal-red-c",
@@ -763,23 +672,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#960000",
-      "#ffffff",
-      "#420000"
-    ],
+    "colors": ["#960000", "#ffffff", "#420000"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "F2 offspring highly variable." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Hinomaru (\"rising sun\") C grade: a small white circle on a fully red body — Japan's flag in miniature.",
     "summary": "Hinomaru and related extreme grades with maximum red coverage. Often nearly fully red with a white patch on the head only.",
     "breeding": "True C-grade animals are rare even from top breeders. Water quality deviations will cause moulting failures and deaths.",
-    "tags": [
-      "Crystal Red",
-      "C grade",
-      "Hinomaru",
-      "extreme",
-      "rare"
-    ]
+    "tags": ["Crystal Red", "C grade", "Hinomaru", "extreme", "rare"]
   },
   {
     "id": "crystal-black-s",
@@ -790,22 +695,20 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#0a0a0a",
-      "#f5f5f5",
-      "#1a1a1a"
-    ],
+    "colors": ["#0a0a0a", "#f5f5f5", "#1a1a1a"],
     "genus": "Caridina",
     "species": "cantonensis",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.2–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Taiwan Bee", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "Crystal Black × TB produces Panda-type offspring." },
+      { "with": "Tiger", "offspring": "Taitibee (black form)", "stability": "unstable", "note": "Crystal × Tiger hybrid, dark expression." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Crystal Black and Crystal Red are colormorph siblings — same species, same grade system, opposite pigment.",
     "summary": "The black counterpart to Crystal Red, with high-contrast black and white banding.",
     "breeding": "Same water requirements as Crystal Red. Black and Red can produce a mix of both in offspring — keep lines separate for purity.",
-    "tags": [
-      "Crystal Black",
-      "banded",
-      "high contrast",
-      "Caridina"
-    ]
+    "tags": ["Crystal Black", "banded", "high contrast", "Caridina"]
   },
   {
     "id": "blue-bolt",
@@ -816,22 +719,20 @@
     "level": "Collector",
     "popularity": 5,
     "stable": false,
-    "colors": [
-      "#1a3a9e",
-      "#d8e8ff",
-      "#0a1a60"
-    ],
+    "colors": ["#1a3a9e", "#d8e8ff", "#0a1a60"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "Classic cross origin of Taiwan Bee complex. F2 highly variable." },
+      { "with": "Tiger", "offspring": "Taitibee (blue form)", "stability": "unstable", "note": "Adds tiger vigor; blue expression partially preserved." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Blue Bolt's vivid blue is caused by a recessive gene — both parents must carry it for blue offspring.",
     "summary": "Vivid blue body with white banding, one of the most sought-after Taiwan Bee variants. Blue Bolt originate from crossing Crystal with other Caridina.",
     "breeding": "Crossing with other Taiwan Bee variants is common. Keep pairings intentional — mixed offspring lose the clean blue.",
-    "tags": [
-      "Taiwan Bee",
-      "blue",
-      "high demand",
-      "collector"
-    ]
+    "tags": ["Taiwan Bee", "blue", "high demand", "collector"]
   },
   {
     "id": "panda",
@@ -842,22 +743,20 @@
     "level": "Collector",
     "popularity": 4,
     "stable": false,
-    "colors": [
-      "#0a0a0a",
-      "#f8f8f8",
-      "#1e1e1e"
-    ],
+    "colors": ["#0a0a0a", "#f8f8f8", "#1e1e1e"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "Back-crossing to Crystal gives variable banded offspring." },
+      { "with": "Tiger", "offspring": "Taitibee", "stability": "unstable", "note": "Tiger adds vigor; pattern becomes irregular." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Panda shrimp are one of the earliest Taiwan Bee forms — the starting point of the whole TB complex.",
     "summary": "Black and white banding in a distinctive panda pattern. One of the foundational Taiwan Bee forms.",
     "breeding": "Panda x Panda gives the most consistent panda offspring. Crossing with Blue Bolt shifts the black toward blue in some offspring.",
-    "tags": [
-      "Taiwan Bee",
-      "panda",
-      "black white",
-      "classic"
-    ]
+    "tags": ["Taiwan Bee", "panda", "black white", "classic"]
   },
   {
     "id": "shadow-panda",
@@ -868,22 +767,19 @@
     "level": "Collector",
     "popularity": 4,
     "stable": false,
-    "colors": [
-      "#1a1a2e",
-      "#c8d0e8",
-      "#0a0a1a"
-    ],
+    "colors": ["#1a1a2e", "#c8d0e8", "#0a0a1a"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Mixed banded Caridina", "stability": "unstable", "note": "Blue-charcoal tone partially lost in offspring." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "The blue-charcoal tone intensifies under cool-spectrum lighting — blue LEDs bring out the shadow.",
     "summary": "A darker, cooler variation on the Panda — the black takes on a blue-charcoal tone against pale-blue white areas.",
     "breeding": "Shadow coloration is influenced by both genetics and light spectrum. Consistent blue-tinted lighting helps express the shade.",
-    "tags": [
-      "Taiwan Bee",
-      "shadow",
-      "charcoal blue",
-      "rare"
-    ]
+    "tags": ["Taiwan Bee", "shadow", "charcoal blue", "rare"]
   },
   {
     "id": "king-kong",
@@ -894,22 +790,19 @@
     "level": "Collector",
     "popularity": 4,
     "stable": false,
-    "colors": [
-      "#100000",
-      "#f0f0f0",
-      "#050000"
-    ],
+    "colors": ["#100000", "#f0f0f0", "#050000"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Panda / King Kong (F1)", "stability": "unstable", "note": "Classic Panda/KK cross origin." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "King Kong is among the darkest Caridina — almost fully black with only faint residual white.",
     "summary": "Nearly fully black body with only residual white markings. One of the darkest Taiwan Bee expressions.",
     "breeding": "The extreme dark coverage makes grade assessment difficult in juveniles. Evaluate adults only.",
-    "tags": [
-      "Taiwan Bee",
-      "black",
-      "extreme",
-      "King Kong"
-    ]
+    "tags": ["Taiwan Bee", "black", "extreme", "King Kong"]
   },
   {
     "id": "wine-red",
@@ -920,22 +813,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#5c1020",
-      "#f0f0f0",
-      "#300010"
-    ],
+    "colors": ["#5c1020", "#f0f0f0", "#300010"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Mixed red/wine Caridina", "stability": "unstable", "note": "Wine color dilutes toward standard red." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Wine Red's deep burgundy only fully develops at 20–22 °C — higher temps shift it toward brown.",
     "summary": "A deep burgundy to dark wine-red Taiwan Bee. The distinctive color comes from selective breeding within the Taiwan Bee complex.",
     "breeding": "Wine Red x Wine Red gives the highest chance of consistent offspring. Crossing with Panda or Blue Bolt shifts color significantly.",
-    "tags": [
-      "Taiwan Bee",
-      "burgundy",
-      "wine",
-      "rare"
-    ]
+    "tags": ["Taiwan Bee", "burgundy", "wine", "rare"]
   },
   {
     "id": "snow-white-bee",
@@ -946,22 +836,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#e8f4ff",
-      "#ffffff",
-      "#b0ccee"
-    ],
+    "colors": ["#e8f4ff", "#ffffff", "#b0ccee"],
     "genus": "Caridina",
     "species": "sp. 'Taiwan Bee'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–6", "kh": "0–1", "ph": "6.0–6.8", "tds": "100–150", "temp": "20–24 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Pale banded Caridina", "stability": "unstable", "note": "White dilutes Crystal banding; offspring may lack contrast." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Snow White crossed with Blue Bolt can yield a pale ice-blue form prized in colour projects.",
     "summary": "A white-to-pale-blue Taiwan Bee with a clean, translucent shell. Often called White Bee or Snow Bee.",
     "breeding": "Snow White crossed with Blue Bolt can produce pale-blue offspring that fall between both forms — useful in colour projects.",
-    "tags": [
-      "Taiwan Bee",
-      "white",
-      "pale blue",
-      "translucent"
-    ]
+    "tags": ["Taiwan Bee", "white", "pale blue", "translucent"]
   },
   {
     "id": "obt",
@@ -972,22 +859,20 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#e07020",
-      "#ff9f30",
-      "#884000"
-    ],
+    "colors": ["#e07020", "#ff9f30", "#884000"],
     "genus": "Caridina",
     "species": "cf. cantonensis 'Tiger'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–8", "kh": "0–2", "ph": "6.2–7.0", "tds": "100–200", "temp": "20–25 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Taitibee", "stability": "unstable", "note": "Tiger × Crystal hybrid; one of the most common intentional crosses." },
+      { "with": "Taiwan Bee", "offspring": "Taitibee (orange form)", "stability": "unstable", "note": "Adds hybrid vigor to TB lines." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "OBT is the most-used outcross partner in Taiwan Bee breeding — it donates hybrid vigor without extreme sensitivity.",
     "summary": "Orange body with dark vertical stripes and distinctive orange eyes. OBT is also used in Taiwan Bee crossing to add vigour.",
     "breeding": "OBT is hardier than Crystal or Taiwan Bee variants. It tolerates slightly harder water but still benefits from soft, acidic conditions.",
-    "tags": [
-      "Tiger",
-      "orange",
-      "OBT",
-      "crossing"
-    ]
+    "tags": ["Tiger", "orange", "OBT", "crossing"]
   },
   {
     "id": "red-tiger",
@@ -998,22 +883,19 @@
     "level": "Intermediate",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#cc2200",
-      "#ff4422",
-      "#7a0000"
-    ],
+    "colors": ["#cc2200", "#ff4422", "#7a0000"],
     "genus": "Caridina",
     "species": "cf. cantonensis 'Tiger'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–8", "kh": "0–2", "ph": "6.2–7.0", "tds": "100–200", "temp": "20–25 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Taitibee (red form)", "stability": "unstable", "note": "Red Tiger × Crystal gives reddish Taitibee offspring." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Red Tiger is rarer than OBT and more sensitive to water swings — less used in commercial crossing.",
     "summary": "Red base colour with dark striping. Rarer than OBT and often more sensitive to water quality swings.",
     "breeding": "Keep with other Tiger variants or pure. Crossing with OBT is possible but shifts the red toward orange in offspring.",
-    "tags": [
-      "Tiger",
-      "red",
-      "striped",
-      "less common"
-    ]
+    "tags": ["Tiger", "red", "striped", "less common"]
   },
   {
     "id": "black-tiger",
@@ -1024,22 +906,19 @@
     "level": "Intermediate",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#1a1a1a",
-      "#444444",
-      "#0a0a0a"
-    ],
+    "colors": ["#1a1a1a", "#444444", "#0a0a0a"],
     "genus": "Caridina",
     "species": "cf. cantonensis 'Tiger'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–8", "kh": "0–2", "ph": "6.2–7.0", "tds": "100–200", "temp": "20–25 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Taitibee (black form)", "stability": "unstable", "note": "Black Tiger × Crystal gives dark Taitibee." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Black Tiger's near-invisible stripes make it look almost solid black — a striking display animal.",
     "summary": "Near-black body with subtle darker striping. The darkest of the Tiger forms.",
     "breeding": "Black Tiger selection is straightforward: remove animals that show significant orange or grey areas.",
-    "tags": [
-      "Tiger",
-      "black",
-      "dark",
-      "striped"
-    ]
+    "tags": ["Tiger", "black", "dark", "striped"]
   },
   {
     "id": "fancy-tiger",
@@ -1050,22 +929,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": false,
-    "colors": [
-      "#cc2000",
-      "#e07020",
-      "#700000"
-    ],
+    "colors": ["#cc2000", "#e07020", "#700000"],
     "genus": "Caridina",
     "species": "cf. cantonensis 'Tiger'",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–8", "kh": "0–2", "ph": "6.2–7.0", "tds": "100–200", "temp": "20–25 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "Taitibee (fancy form)", "stability": "unstable", "note": "Pattern becomes highly unpredictable." },
+      { "with": "Sulawesi", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Fancy Tiger is intentionally variable — no two animals look the same, which is half the appeal.",
     "summary": "A mixed-expression Tiger showing elements of both red and orange in overlapping or gradient banding. Results from crossing different Tiger lines.",
     "breeding": "Breeding Fancy Tiger is unpredictable by definition. Offspring vary widely — stabilising a specific pattern requires dedicated selection.",
-    "tags": [
-      "Tiger",
-      "multi-colour",
-      "project line",
-      "variable"
-    ]
+    "tags": ["Tiger", "multi-colour", "project line", "variable"]
   },
   {
     "id": "cardinal",
@@ -1076,23 +952,20 @@
     "level": "Collector",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#e01020",
-      "#ffffff",
-      "#8a0010"
-    ],
+    "colors": ["#e01020", "#ffffff", "#8a0010"],
     "genus": "Caridina",
     "species": "dennerli",
     "waterType": "soft",
+    "waterProfile": { "gh": "6–10", "kh": "2–4", "ph": "7.8–8.5", "tds": "100–200", "temp": "28–30 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "—", "stability": "impossible", "note": "Cardinal requires warm alkaline water; Crystal requires cool acidic water." },
+      { "with": "Taiwan Bee", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." },
+      { "with": "Tiger", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Cardinal Shrimp are endemic to Lake Matano — one of the world's oldest and deepest lakes.",
     "summary": "Vivid scarlet body with brilliant white spots. Endemic to Lake Matano, Sulawesi. One of the most visually striking freshwater shrimp in the hobby.",
     "breeding": "Requires very specific warm, alkaline water (pH 7.8–8.5, 28–30 °C) — opposite of other soft-water Caridina. Cannot be kept with Crystal or Taiwan Bee.",
-    "tags": [
-      "Sulawesi",
-      "Lake Matano",
-      "spotted",
-      "warm water",
-      "endemic"
-    ]
+    "tags": ["Sulawesi", "Lake Matano", "spotted", "warm water", "endemic"]
   },
   {
     "id": "white-glove",
@@ -1103,22 +976,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#1e1410",
-      "#f5f5f5",
-      "#0a0a0a"
-    ],
+    "colors": ["#1e1410", "#f5f5f5", "#0a0a0a"],
     "genus": "Caridina",
     "species": "spinata",
     "waterType": "soft",
+    "waterProfile": { "gh": "6–10", "kh": "2–4", "ph": "7.8–8.5", "tds": "100–200", "temp": "28–30 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." },
+      { "with": "Taiwan Bee", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "The white legs are genetically stable but fade visibly under poor water quality — a reliable health indicator.",
     "summary": "Dark brown to black body with striking white legs — giving the appearance of wearing gloves. Endemic to Sulawesi lakes.",
     "breeding": "Same Sulawesi parameters as Cardinal shrimp. The white leg coloration is genetically stable but can fade under poor water quality.",
-    "tags": [
-      "Sulawesi",
-      "white legs",
-      "dark body",
-      "endemic"
-    ]
+    "tags": ["Sulawesi", "white legs", "dark body", "endemic"]
   },
   {
     "id": "white-orchid",
@@ -1129,22 +999,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#f0e0d0",
-      "#ffffff",
-      "#c0a080"
-    ],
+    "colors": ["#f0e0d0", "#ffffff", "#c0a080"],
     "genus": "Caridina",
     "species": "sp. 'Sulawesi'",
     "waterType": "soft",
+    "waterProfile": { "gh": "6–10", "kh": "2–4", "ph": "7.8–8.5", "tds": "100–200", "temp": "28–30 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." },
+      { "with": "Taiwan Bee", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "White Orchid is one of the most elegant Sulawesi species — creamy and delicate rather than vivid.",
     "summary": "Creamy white to pale tan with a soft mottled pattern. Less vivid than Cardinal but highly elegant.",
     "breeding": "Sulawesi parameters required. Sensitive to fluctuations — a stable setup matters more than exact values at the extremes.",
-    "tags": [
-      "Sulawesi",
-      "white",
-      "cream",
-      "elegant"
-    ]
+    "tags": ["Sulawesi", "white", "cream", "elegant"]
   },
   {
     "id": "blue-leg-poso",
@@ -1155,23 +1022,19 @@
     "level": "Collector",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#001e40",
-      "#5580aa",
-      "#000a18"
-    ],
+    "colors": ["#001e40", "#5580aa", "#000a18"],
     "genus": "Caridina",
     "species": "spinata",
     "waterType": "soft",
+    "waterProfile": { "gh": "5–8", "kh": "2–4", "ph": "7.5–8.0", "tds": "100–180", "temp": "28–30 °C" },
+    "compatible": [
+      { "with": "Crystal", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." },
+      { "with": "Taiwan Bee", "offspring": "—", "stability": "impossible", "note": "Incompatible water chemistry." }
+    ],
+    "factoid": "Blue Leg Poso comes from Lake Poso — a different lake than Cardinal's Lake Matano, so keep them separate.",
     "summary": "Dark translucent body with vivid blue legs. Endemic to Lake Poso, Sulawesi. Smaller and rarer than Cardinal.",
     "breeding": "Lake Poso water is warmer and slightly different from Matano — replicate accordingly. Not easily mixed with Cardinal in the same tank.",
-    "tags": [
-      "Sulawesi",
-      "Lake Poso",
-      "blue legs",
-      "rare",
-      "endemic"
-    ]
+    "tags": ["Sulawesi", "Lake Poso", "blue legs", "rare", "endemic"]
   },
   {
     "id": "amano",
@@ -1182,23 +1045,16 @@
     "level": "Beginner",
     "popularity": 5,
     "stable": true,
-    "colors": [
-      "#a0b478",
-      "#d0ddb0",
-      "#5a6840"
-    ],
+    "colors": ["#a0b478", "#d0ddb0", "#5a6840"],
     "genus": "Caridina",
     "species": "multidentata",
     "waterType": "soft",
+    "waterProfile": { "gh": "4–8", "kh": "1–4", "ph": "6.5–7.5", "tds": "80–200", "temp": "18–26 °C" },
+    "compatible": [],
+    "factoid": "Amano larvae need saltwater to develop — every tank-kept adult was essentially wild-caught or hatchery-raised.",
     "summary": "Olive-translucent with a row of dashes along the lateral line. The most effective algae-eating shrimp in the hobby, popularised by Takashi Amano.",
     "breeding": "Requires brackish water for larvae to develop — nearly impossible to breed in a standard freshwater tank. Wild-caught or hatchery stock only.",
-    "tags": [
-      "Amano",
-      "algae eater",
-      "classic",
-      "Takashi Amano",
-      "brackish larvae"
-    ]
+    "tags": ["Amano", "algae eater", "classic", "Takashi Amano", "brackish larvae"]
   },
   {
     "id": "bamboo-shrimp",
@@ -1209,23 +1065,16 @@
     "level": "Intermediate",
     "popularity": 4,
     "stable": true,
-    "colors": [
-      "#9a6030",
-      "#c49050",
-      "#5a3010"
-    ],
+    "colors": ["#9a6030", "#c49050", "#5a3010"],
     "genus": "Atyopsis",
     "species": "moluccensis",
     "waterType": "neutral",
+    "waterProfile": { "gh": "4–10", "kh": "2–8", "ph": "6.5–7.8", "tds": "100–250", "temp": "22–28 °C" },
+    "compatible": [],
+    "factoid": "Bamboo shrimp \"fan\" microparticles from the current — position them near a filter outlet for best feeding.",
     "summary": "Large earthy-brown filter-feeder that fans fine particles from the water column. Dramatic posture and behaviour make it a display centrepiece.",
     "breeding": "Larvae require brackish conditions and cannot be raised in freshwater. In a mature tank they pose no threat to other shrimp.",
-    "tags": [
-      "filter feeder",
-      "large",
-      "fan",
-      "display shrimp",
-      "peaceful"
-    ]
+    "tags": ["filter feeder", "large", "fan", "display shrimp", "peaceful"]
   },
   {
     "id": "vampire-shrimp",
@@ -1236,22 +1085,15 @@
     "level": "Intermediate",
     "popularity": 3,
     "stable": true,
-    "colors": [
-      "#2a4060",
-      "#6080a0",
-      "#101828"
-    ],
+    "colors": ["#2a4060", "#6080a0", "#101828"],
     "genus": "Atya",
     "species": "gabonensis",
     "waterType": "neutral",
+    "waterProfile": { "gh": "4–10", "kh": "2–8", "ph": "6.5–7.8", "tds": "100–250", "temp": "24–28 °C" },
+    "compatible": [],
+    "factoid": "Despite the ominous name, Vampire Shrimp are completely peaceful filter-feeders from West Africa.",
     "summary": "West African filter-feeder with a dusty blue-grey body. Uses fan-like appendages to catch microparticles, similar to Bamboo shrimp but from a different continent.",
     "breeding": "Same constraints as Bamboo shrimp — brackish larvae. Rarely bred in captivity. Best kept in well-established, high-flow tanks.",
-    "tags": [
-      "filter feeder",
-      "blue grey",
-      "West Africa",
-      "display",
-      "Atya"
-    ]
+    "tags": ["filter feeder", "blue grey", "West Africa", "display", "Atya"]
   }
 ]
