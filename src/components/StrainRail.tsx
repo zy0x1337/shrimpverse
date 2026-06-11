@@ -56,6 +56,17 @@ function SwatchSeg({ color }: { color: string }) {
   );
 }
 
+/**
+ * Detect touch-primary devices so we can adjust the flip-card UX hint.
+ * On touch devices a second tap opens the dialog — we make that explicit.
+ */
+function useIsTouch() {
+  const [isTouch] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(hover: none)").matches
+  );
+  return isTouch;
+}
+
 /** Flip-card inner — shows front (swatch+name+meta) or back (factoid) */
 function StrainCard({
   strain,
@@ -68,6 +79,7 @@ function StrainCard({
 }) {
   const [flipped, setFlipped] = useState(false);
   const hasFactoid = Boolean(strain.factoid);
+  const isTouch = useIsTouch();
 
   function handleClick() {
     if (hasFactoid && !flipped) {
@@ -84,7 +96,7 @@ function StrainCard({
     <button
       className="strain-card"
       onClick={handleClick}
-      onMouseLeave={() => setFlipped(false)}
+      onMouseLeave={() => !isTouch && setFlipped(false)}
       aria-label={
         flipped
           ? `${strain.name}: ${strain.factoid}. Click to open.`
@@ -135,7 +147,13 @@ function StrainCard({
             transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
           >
             <p className="strain-card-factoid">{strain.factoid}</p>
-            <span className="strain-card-flip-hint strain-card-flip-hint--back" aria-hidden="true">→</span>
+            {/* Prio 4: on touch devices, explicitly hint that a second tap opens the detail view */}
+            <span
+              className="strain-card-flip-hint strain-card-flip-hint--back"
+              aria-hidden="true"
+            >
+              {isTouch ? "tap to open →" : "→"}
+            </span>
           </motion.div>
         )}
       </AnimatePresence>

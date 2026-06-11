@@ -158,6 +158,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
   const [hovered, setHovered]           = useState<string | null>(null);
   const [sunHovered, setSunHovered]     = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  // Prio 2: transient mobile label after planet tap
+  const [mobileLabel, setMobileLabel]   = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const families = useMemo(() => {
@@ -196,14 +198,29 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     ? families.find((f) => f.family === activeFamily)?.strains ?? []
     : [];
 
+  // Prio 1: open rail immediately on Mobile — one tap is enough
+  // Prio 2: flash a transient family-name label on Mobile before the rail slides in
   const handleFamilyClick = useCallback((family: string) => {
     setHasInteracted(true);
     setActiveFamily((prev) => {
-      if (prev === family) { setRailOpen(false); return null; }
-      setRailOpen(false);
+      if (prev === family) {
+        setRailOpen(false);
+        setMobileLabel(null);
+        return null;
+      }
+      if (isMobile) {
+        // Show label briefly, then open rail
+        setMobileLabel(family);
+        setTimeout(() => {
+          setRailOpen(true);
+          setMobileLabel(null);
+        }, 700);
+      } else {
+        setRailOpen(false);
+      }
       return family;
     });
-  }, []);
+  }, [isMobile]);
 
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) => CARIDINA_SET.has(s.family)).length;
@@ -279,6 +296,23 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   {familyDescriptions[activeFamily]}
                 </motion.span>
               )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Prio 2: transient mobile family-name label (shown briefly after tap, before rail opens) */}
+        <AnimatePresence>
+          {mobileLabel && (
+            <motion.div
+              key="mobile-label"
+              className="orbit-mobile-tap-label"
+              initial={{ opacity: 0, scale: 0.88, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{ color: familyColors[mobileLabel] ?? "var(--accent)" }}
+            >
+              {mobileLabel}
             </motion.div>
           )}
         </AnimatePresence>
@@ -570,7 +604,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             );
           })}
 
-          {/* First-visit onboarding hint */}
+          {/* Prio 6: First-visit onboarding hint — includes shape legend for Mobile */}
           <AnimatePresence>
             {!hasInteracted && firstFamily && (
               <motion.g
@@ -595,7 +629,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                   transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <text
-                  x="0" y="300"
+                  x="0" y="292"
                   textAnchor="middle"
                   fontSize="5.5"
                   fontFamily="'IBM Plex Mono', monospace"
@@ -604,13 +638,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 >
                   CLICK ANY PLANET TO EXPLORE
                 </text>
+                {/* Shape legend: ○ = Neocaridina, ⬡ = Caridina */}
+                <circle cx="-38" cy="308" r="4"
+                  fill="rgba(47,196,181,0.35)" stroke="rgba(47,196,181,0.5)" strokeWidth="0.6" />
+                <text x="-30" y="312" fontSize="4.8" fontFamily="'IBM Plex Mono', monospace"
+                  letterSpacing="0.06em" fill="rgba(221,216,204,0.28)">Neocaridina</text>
+                <polygon
+                  points={hexPoints(32, 308, 4.5)}
+                  fill="rgba(100,150,255,0.32)" stroke="rgba(100,150,255,0.45)" strokeWidth="0.6"
+                />
+                <text x="40" y="312" fontSize="4.8" fontFamily="'IBM Plex Mono', monospace"
+                  letterSpacing="0.06em" fill="rgba(221,216,204,0.28)">Caridina</text>
               </motion.g>
             )}
           </AnimatePresence>
 
           {/* Central golden sun */}
           <motion.g
-            onClick={() => { setActiveFamily(null); setRailOpen(false); }}
+            onClick={() => { setActiveFamily(null); setRailOpen(false); setMobileLabel(null); }}
             onHoverStart={() => setSunHovered(true)}
             onHoverEnd={() => setSunHovered(false)}
             whileHover={{ scale: 1.06 }}
@@ -620,7 +665,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             aria-label="Shrimpverse — reset to overview"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") { setActiveFamily(null); setRailOpen(false); }
+              if (e.key === "Enter" || e.key === " ") { setActiveFamily(null); setRailOpen(false); setMobileLabel(null); }
             }}
           >
             <circle cx="0" cy="0" r="72" fill="url(#sun-grad)" />
@@ -675,52 +720,31 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               )}
             </AnimatePresence>
           </motion.g>
-
-          {/* === Phase 3: Arc legend (inside SVG, bottom of viewport) === */}
-          <g
-            className="arc-legend"
-            transform="translate(-148, 296)"
-            aria-hidden="true"
-            style={{ pointerEvents: "none" }}
-          >
-            {/* crossable */}
-            <line x1="0" y1="5" x2="12" y2="5"
-              stroke="rgba(47,196,181,0.7)" strokeWidth="1.5" strokeLinecap="round" />
-            <text x="16" y="9" fontSize="5.2" fontFamily="'IBM Plex Mono', monospace"
-              letterSpacing="0.06em" fill="rgba(221,216,204,0.45)">crossable</text>
-            {/* hybrid */}
-            <line x1="74" y1="5" x2="86" y2="5"
-              stroke="rgba(255,196,80,0.7)" strokeWidth="1.5" strokeLinecap="round" />
-            <text x="90" y="9" fontSize="5.2" fontFamily="'IBM Plex Mono', monospace"
-              letterSpacing="0.06em" fill="rgba(221,216,204,0.45)">hybrid</text>
-            {/* incompatible */}
-            <line x1="130" y1="5" x2="142" y2="5"
-              stroke="rgba(200,70,70,0.7)" strokeWidth="1.5" strokeLinecap="round"
-              strokeDasharray="3 3" />
-            <text x="146" y="9" fontSize="5.2" fontFamily="'IBM Plex Mono', monospace"
-              letterSpacing="0.06em" fill="rgba(221,216,204,0.45)">incompatible</text>
-          </g>
         </svg>
 
-        {/* Peek button — mobile only */}
-        <AnimatePresence>
-          {activeFamily && isMobile && !railOpen && activeStrains.length > 0 && (
-            <motion.button
-              className="orbit-rail-peek"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setRailOpen(true)}
-              style={{ borderColor: `${familyColors[activeFamily] ?? "var(--border-hover)"}50` }}
-            >
-              <span className="orbit-rail-peek-dot" style={{ background: familyColors[activeFamily] ?? "var(--accent)" }} />
-              {activeStrains.length} strain{activeStrains.length !== 1 ? "s" : ""} ↑
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {/* Prio 3: Arc legend as HTML element — scales independently of SVG viewBox */}
+        <div className="orbit-arc-legend" aria-hidden="true">
+          <span className="orbit-arc-legend-item orbit-arc-legend-item--crosses">
+            <svg width="14" height="4" viewBox="0 0 14 4">
+              <line x1="0" y1="2" x2="14" y2="2" stroke="rgba(47,196,181,0.75)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            crossable
+          </span>
+          <span className="orbit-arc-legend-item orbit-arc-legend-item--hybrid">
+            <svg width="14" height="4" viewBox="0 0 14 4">
+              <line x1="0" y1="2" x2="14" y2="2" stroke="rgba(255,196,80,0.75)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            hybrid
+          </span>
+          <span className="orbit-arc-legend-item orbit-arc-legend-item--impossible">
+            <svg width="14" height="4" viewBox="0 0 14 4">
+              <line x1="0" y1="2" x2="14" y2="2" stroke="rgba(200,70,70,0.75)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3" />
+            </svg>
+            incompatible
+          </span>
+        </div>
 
-        {/* Visual encoding legend */}
+        {/* Visual encoding legend (circle/hex) — kept as is, now supplemented by onboarding hint */}
         <div className="orbit-legend" aria-hidden="true">
           <span className="orbit-legend-item">
             <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4.5" fill="rgba(47,196,181,0.6)" /></svg>
