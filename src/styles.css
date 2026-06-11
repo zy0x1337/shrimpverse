@@ -1279,6 +1279,15 @@ input, select { font: inherit; color: inherit; }
   .orbit-arc-legend-item {
     gap: 4px;
   }
+
+  /* Water profile: 3+2 layout on mobile */
+  .dialog-water-profile {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dialog-water-profile .water-cell:nth-child(4),
+  .dialog-water-profile .water-cell:nth-child(5) {
+    grid-column: span 1;
+  }
 }
 
 /* iPhone notch / home indicator safe areas */
@@ -1372,4 +1381,116 @@ input, select { font: inherit; color: inherit; }
   fill: var(--text-faint);
   pointer-events: none;
   user-select: none;
+}
+
+/* =====================
+   PHASE 1 — DIALOG WATER PROFILE
+   5-column teal-accented parameter grid
+   ===================== */
+.dialog-water-profile {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--divider);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid rgba(47, 196, 181, 0.18);
+}
+.water-cell {
+  background: var(--surface-2);
+  padding: var(--s3) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.water-cell-key {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.75;
+}
+.water-cell-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* =====================
+   PHASE 1 — DIALOG COMPATIBILITY LIST
+   Breeding partner rows with stability badges
+   ===================== */
+.dialog-compat-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.dialog-compat-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s3) var(--s4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.dialog-compat-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.dialog-compat-partner {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+}
+.dialog-compat-arrow {
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+}
+.dialog-compat-offspring {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.dialog-compat-note {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.55;
+}
+
+/* Stability badges */
+.compat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--s2);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.compat-badge--stable {
+  background: rgba(47, 196, 181, 0.12);
+  border: 1px solid rgba(47, 196, 181, 0.3);
+  color: var(--teal);
+}
+.compat-badge--unstable {
+  background: rgba(232, 160, 32, 0.12);
+  border: 1px solid rgba(232, 160, 32, 0.3);
+  color: var(--accent);
+}
+.compat-badge--impossible {
+  background: rgba(180, 50, 50, 0.12);
+  border: 1px solid rgba(180, 50, 50, 0.3);
+  color: #e07070;
 }
