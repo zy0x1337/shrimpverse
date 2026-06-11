@@ -1265,6 +1265,9 @@ input, select { font: inherit; color: inherit; }
     padding-bottom: var(--s1);
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
+
+  /* Arc legend: hide on mobile — too cramped, arcs still visible in SVG */
+  .orbit-arc-legend { display: none; }
 }
 
 /* iPhone notch / home indicator safe areas */
@@ -1297,4 +1300,65 @@ input, select { font: inherit; color: inherit; }
     color: var(--text-muted);
     background: var(--surface);
   }
+}
+
+/* =====================
+   ORBIT ARC LEGEND
+   (Phase 3 — breeding relationship key)
+   ===================== */
+.orbit-arc-legend {
+  position: absolute;
+  bottom: calc(var(--s4) + 28px); /* sits above .orbit-legend */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.orbit-arc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* =====================
+   ORBIT MOBILE TAP LABEL
+   (Phase 2 — transient family name after planet tap)
+   Animated by parent Framer Motion motion.div via AnimatePresence.
+   ===================== */
+.orbit-mobile-tap-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+/* =====================
+   ORBIT HINT TEXT
+   (Phase 2 — static SVG <text> inside FM motion.g,
+   opacity animated by parent AnimatePresence group)
+   No CSS animation needed — parent FM handles fade in/out.
+   ===================== */
+.orbit-hint-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  fill: var(--text-faint);
+  pointer-events: none;
+  user-select: none;
 }
