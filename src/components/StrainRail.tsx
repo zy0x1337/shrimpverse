@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { type Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 
@@ -71,10 +71,8 @@ function StrainCard({
 
   function handleClick() {
     if (hasFactoid && !flipped) {
-      // First tap: flip to factoid
       setFlipped(true);
     } else if (flipped) {
-      // Second tap: open dialog
       setFlipped(false);
       onSelect();
     } else {
@@ -148,7 +146,7 @@ function StrainCard({
 export function StrainRail({ family, strains, onSelect, onClose, orientation = "horizontal" }: Props) {
   const color = familyColors[family] ?? "#888";
   const isVertical = orientation === "vertical";
-  const scrollRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ left: 0, top: 0, behavior: "instant" });
@@ -174,7 +172,7 @@ export function StrainRail({ family, strains, onSelect, onClose, orientation = "
       </div>
 
       <div className="strain-rail-scroll-wrap">
-        <ul className="strain-rail-scroll" ref={scrollRef as React.RefObject<HTMLUListElement>}>
+        <ul className="strain-rail-scroll" ref={scrollRef}>
           {strains.map((strain) => (
             <li key={strain.id} style={{ listStyle: "none" }}>
               <StrainCard
