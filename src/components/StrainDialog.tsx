@@ -35,6 +35,20 @@ const WATER_COLOR: Record<string, string> = {
   neutral: "#999",
 };
 
+const WATER_PROFILE_KEYS: { key: keyof NonNullable<Strain["waterProfile"]>; label: string }[] = [
+  { key: "gh",   label: "GH" },
+  { key: "kh",   label: "KH" },
+  { key: "ph",   label: "pH" },
+  { key: "tds",  label: "TDS" },
+  { key: "temp", label: "Temp" },
+];
+
+const STABILITY_LABEL: Record<string, string> = {
+  stable:     "Stable",
+  unstable:   "Unstable",
+  impossible: "Impossible",
+};
+
 /** Glossary tooltips for meta-grid keys that may be unfamiliar to newcomers */
 const META_TIPS: Record<string, string> = {
   Line:
@@ -70,9 +84,6 @@ function splitSummary(text: string): { lead: string; rest: string } {
   return { lead: match[1].trim(), rest: match[2].trim() };
 }
 
-// ---------------------------------------------------------------------------
-// Small tooltip helper
-// ---------------------------------------------------------------------------
 function GlossaryTip({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
@@ -107,9 +118,6 @@ function GlossaryTip({ text }: { text: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Swatch segment with hover tooltip
-// ---------------------------------------------------------------------------
 function SwatchSeg({ color, role }: { color: string; role: string }) {
   const [hovered, setHovered] = useState(false);
   const light = needsLightText(color);
@@ -140,9 +148,6 @@ function SwatchSeg({ color, role }: { color: string; role: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
   useEffect(() => {
     if (!strain) return;
@@ -191,6 +196,11 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
   const hasTaxonomy = strain.genus || strain.species;
   const { lead, rest } = splitSummary(strain.summary ?? "");
 
+  const hasWaterProfile = strain.waterProfile &&
+    WATER_PROFILE_KEYS.some(({ key }) => strain.waterProfile![key]);
+
+  const hasCompat = strain.compatible && strain.compatible.length > 0;
+
   return (
     <AnimatePresence>
       {strain && (
@@ -208,17 +218,20 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.25 }}
-            onDragEnd={(_, info) => { if (info.offset.y > 80) onClose(); }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dialog-title"
           >
-            <div className="dialog-drag-handle" aria-hidden="true" />
+            <motion.div
+              className="dialog-drag-handle"
+              aria-hidden="true"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.25 }}
+              onDragEnd={(_, info) => { if (info.offset.y > 80) onClose(); }}
+              style={{ cursor: "grab", touchAction: "none" }}
+            />
 
-            {/* ── HEADER ── */}
             <div className="dialog-header">
               <div className="dialog-header-left">
                 <div className="dialog-badges">
@@ -281,17 +294,13 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
               </button>
             </div>
 
-            {/* ── BODY ── */}
             <div className="dialog-body">
-
-              {/* Colour swatches — hover for tooltip */}
               <div className="dialog-swatch">
                 {strain.colors.map((c, i) => (
                   <SwatchSeg key={i} color={c} role={SWATCH_ROLES[i] ?? `Colour ${i + 1}`} />
                 ))}
               </div>
 
-              {/* Meta grid */}
               <div className="dialog-meta-grid">
                 {([
                   ["Family",     strain.family,                               null],
@@ -322,7 +331,58 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                 ))}
               </div>
 
-              {/* Description — first sentence as lead */}
+              {/* ── Phase 1: Water Profile Grid ── */}
+              {hasWaterProfile && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Water parameters</div>
+                  <div className="dialog-water-profile">
+                    {WATER_PROFILE_KEYS.map(({ key, label }) => (
+                      <div key={key} className="water-cell">
+                        <span className="water-cell-key">{label}</span>
+                        <span className="water-cell-val">
+                          {strain.waterProfile![key] ?? "—"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Phase 1: Compatibility Section ── */}
+              {hasCompat && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Breeding compatibility</div>
+                  <div className="dialog-compat-list">
+                    {strain.compatible!.map((entry, i) => (
+                      <div key={i} className="dialog-compat-row">
+                        <div className="dialog-compat-top">
+                          <span className="dialog-compat-partner">
+                            {strain.name}
+                          </span>
+                          <span className="dialog-compat-arrow">×</span>
+                          <span className="dialog-compat-partner">
+                            {entry.with}
+                          </span>
+                          <span
+                            className={`compat-badge compat-badge--${entry.stability}`}
+                          >
+                            {STABILITY_LABEL[entry.stability] ?? entry.stability}
+                          </span>
+                        </div>
+                        {entry.offspring && entry.offspring !== "—" && (
+                          <span className="dialog-compat-offspring">
+                            → {entry.offspring}
+                          </span>
+                        )}
+                        {entry.note && (
+                          <span className="dialog-compat-note">{entry.note}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {strain.summary && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Description</div>
@@ -333,7 +393,6 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                 </div>
               )}
 
-              {/* Breeding notes — visually distinct */}
               {strain.breeding && (
                 <div className="dialog-section dialog-breeding">
                   <div className="dialog-section-label">
@@ -346,7 +405,6 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                       strokeLinecap="round"
                       aria-hidden="true"
                     >
-                      {/* two interlocking circles = breeding / pairing */}
                       <circle cx="5" cy="7" r="3.5" />
                       <circle cx="9" cy="7" r="3.5" />
                     </svg>
@@ -356,7 +414,6 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                 </div>
               )}
 
-              {/* Tags — clickable if onTagFilter provided */}
               {strain.tags && strain.tags.length > 0 && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Tags</div>

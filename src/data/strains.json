@@ -166,7 +166,8 @@
     "waterType": "hard",
     "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
     "compatible": [
-      { "with": "Blue", "offspring": "Mixed Rili colors", "stability": "unstable", "note": "Blue body sections shift; keep as separate project line." }
+      { "with": "Blue", "offspring": "Mixed Rili colors", "stability": "unstable", "note": "Blue body sections shift; keep as separate project line." },
+      { "with": "Blue Jelly", "offspring": "Mixed Rili / Blue Jelly hybrid", "stability": "unstable", "note": "Crossing these two can reinforce or blur the blue body section." }
     ],
     "factoid": "Red head, blue body, clear midband — three colors on one tiny shrimp.",
     "summary": "A Rili variant with red head and tail sections plus a blue-tinted middle body.",
@@ -408,7 +409,8 @@
     "waterType": "hard",
     "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
     "compatible": [
-      { "with": "Red", "offspring": "Red Blue Rili / mixed", "stability": "unstable", "note": "Crossing these two can produce Red Blue Rili." }
+      { "with": "Red", "offspring": "Red Blue Rili / mixed", "stability": "unstable", "note": "Crossing these two can produce Red Blue Rili." },
+      { "with": "Red Blue Rili", "offspring": "Mixed Rili / Blue Jelly hybrid", "stability": "unstable", "note": "Can reinforce or blur the blue body section of Red Blue Rili." }
     ],
     "factoid": "Blue Jelly's translucent shell makes internal organs faintly visible — a uniquely alien look.",
     "summary": "A translucent pale blue, often connected to Rili-related lines.",
@@ -474,7 +476,7 @@
     "waterType": "hard",
     "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
     "compatible": [
-      { "with": "Blue", "offspring": "Blue Dream / OE Blue Dream mix", "stability": "unstable", "note": "Orange eye trait may not breed true from standard Blue Dream cross." }
+      { "with": "White", "offspring": "Blue Dream × Snowball / mixed Neo", "stability": "unstable", "note": "Orange eye trait may not breed true; offspring color variable." }
     ],
     "factoid": "The orange eyes are caused by a separate genetic mutation independent of body color.",
     "summary": "Blue Dream animals with orange eyes. Eye-catching, but less common than standard Blue Dream.",
@@ -561,7 +563,9 @@
     "species": "davidi",
     "waterType": "hard",
     "waterProfile": { "gh": "6–10", "kh": "2–6", "ph": "7.0–7.5", "tds": "150–250", "temp": "18–26 °C" },
-    "compatible": [],
+    "compatible": [
+      { "with": "White", "offspring": "Blue Dream × Snowball / mixed Neo", "stability": "unstable", "note": "Orange eye trait from OE Blue Dream may not breed true; offspring color variable." }
+    ],
     "factoid": "Named for its egg sacs — females carry a dense white cluster that looks like a snowball.",
     "summary": "White to milky-translucent Neocaridina. Popular in the hobby, though not always treated cleanly as davidi in taxonomy.",
     "breeding": "For strict davidi collections, verify origin. In practice it is often kept alongside davidi color strains as a Neo variety.",

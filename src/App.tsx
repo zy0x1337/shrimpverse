@@ -6,6 +6,7 @@ import { ViewToggle } from "./components/ViewToggle";
 import { useStrainFilters } from "./hooks/useStrainFilters";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { strains, patterns, families } from "./lib/constants";
+import { validateCompatFamilies, validateCompatSymmetry } from "./lib/strains";
 import type { FilterState } from "./types/strain";
 
 // Lazy-load the heavy Three.js canvas — only fetched when user switches to 3D
@@ -49,6 +50,14 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const isMobile = useIsMobile();
+
+  // Run data-integrity validators once on mount (DEV only)
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      validateCompatFamilies(strains);
+      validateCompatSymmetry(strains);
+    }
+  }, []);
 
   // Close sidebar overlay when clicking outside on mobile
   useEffect(() => {

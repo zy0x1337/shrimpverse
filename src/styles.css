@@ -1,6 +1,7 @@
 @import './components/3d/universe.css';
 @import './styles/dialog-phase2.css';
 @import './styles/gift-note.css';
+@import './styles/phase4.css';
 
 :root {
   --bg: #080c10;
@@ -82,7 +83,7 @@ body {
 img, svg { display: block; max-width: 100%; }
 button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
 input, select { font: inherit; color: inherit; }
-::selection { background: rgba(232,160,32,0.25); color: var(--text); }
+::selection { background: oklch(from var(--accent) l c h / 0.25); color: var(--text); }
 :focus-visible {
   outline: 1.5px solid var(--accent);
   outline-offset: 3px;
@@ -95,7 +96,6 @@ input, select { font: inherit; color: inherit; }
   }
 }
 
-/* Visually hidden but accessible to screen readers */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -258,7 +258,7 @@ input, select { font: inherit; color: inherit; }
 }
 .filter-search input::placeholder { color: var(--text-faint); }
 .filter-search input:focus {
-  border-color: rgba(232,160,32,0.4);
+  border-color: oklch(from var(--accent) l c h / 0.4);
   box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
@@ -332,10 +332,10 @@ input, select { font: inherit; color: inherit; }
   background: var(--surface-3);
 }
 .btn-group-item.active {
-  background: rgba(232, 160, 32, 0.14);
-  border-color: rgba(232, 160, 32, 0.45);
+  background: var(--accent-dim);
+  border-color: oklch(from var(--accent) l c h / 0.45);
   color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(232, 160, 32, 0.12);
+  box-shadow: 0 0 0 1px oklch(from var(--accent) l c h / 0.12);
 }
 @media (hover: none) {
   .btn-group-item:hover {
@@ -365,7 +365,7 @@ input, select { font: inherit; color: inherit; }
   min-height: 40px;
 }
 .filter-select:focus {
-  border-color: rgba(232,160,32,0.4);
+  border-color: oklch(from var(--accent) l c h / 0.4);
   box-shadow: 0 0 0 3px var(--accent-dim);
   outline: none;
 }
@@ -436,7 +436,7 @@ input, select { font: inherit; color: inherit; }
   padding: var(--s5) var(--s8);
   border-bottom: 1px solid var(--divider);
   flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(13,19,24,0.95) 0%, transparent 100%);
+  background: linear-gradient(180deg, oklch(from var(--surface) l c h / 0.95) 0%, transparent 100%);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
@@ -608,7 +608,7 @@ input, select { font: inherit; color: inherit; }
   height: 44px;
   border-radius: var(--r-full);
   border: 1px solid var(--border-hover);
-  background: rgba(13, 19, 24, 0.90);
+  background: oklch(from var(--surface) l c h / 0.90);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   font-family: var(--font-mono);
@@ -619,7 +619,7 @@ input, select { font: inherit; color: inherit; }
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease;
 }
-.orbit-rail-peek:hover { background: rgba(20, 30, 44, 0.95); }
+.orbit-rail-peek:hover { background: oklch(from var(--surface-2) l c h / 0.95); }
 .orbit-rail-peek-dot {
   width: 7px;
   height: 7px;
@@ -682,7 +682,7 @@ input, select { font: inherit; color: inherit; }
    STRAIN RAIL
    ===================== */
 .strain-rail {
-  background: rgba(13,19,24,0.94);
+  background: oklch(from var(--surface) l c h / 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-hover);
@@ -792,7 +792,7 @@ input, select { font: inherit; color: inherit; }
   top: 0;
   bottom: 0;
   width: 40px;
-  background: linear-gradient(to right, transparent, rgba(13,19,24,0.9));
+  background: linear-gradient(to right, transparent, oklch(from var(--surface) l c h / 0.9));
   pointer-events: none;
   border-radius: 0 var(--r-lg) var(--r-lg) 0;
 }
@@ -881,7 +881,7 @@ input, select { font: inherit; color: inherit; }
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(8,12,16,0.88);
+  background: oklch(from var(--bg) l c h / 0.88);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   z-index: 100;
@@ -1024,7 +1024,7 @@ input, select { font: inherit; color: inherit; }
   border-radius: var(--r-md);
   overflow: visible;
   display: flex;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
 }
 .dialog-swatch-seg {
   flex: 1;
@@ -1196,7 +1196,7 @@ input, select { font: inherit; color: inherit; }
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(8,12,16,0.6);
+    background: oklch(from var(--bg) l c h / 0.6);
     backdrop-filter: blur(2px);
     z-index: 49;
     animation: fadeIn 220ms ease;
@@ -1265,6 +1265,29 @@ input, select { font: inherit; color: inherit; }
     padding-bottom: var(--s1);
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
+
+  /* Arc legend: compact on mobile — 2 columns, smaller gap, SVG icons stay visible */
+  .orbit-arc-legend {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s2) var(--s3);
+    font-size: 0.6rem;
+    bottom: calc(var(--s3) + 22px);
+    padding: 0 var(--s4);
+    width: 100%;
+  }
+  .orbit-arc-legend-item {
+    gap: 4px;
+  }
+
+  /* Water profile: 3+2 layout on mobile */
+  .dialog-water-profile {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dialog-water-profile .water-cell:nth-child(4),
+  .dialog-water-profile .water-cell:nth-child(5) {
+    grid-column: span 1;
+  }
 }
 
 /* iPhone notch / home indicator safe areas */
@@ -1297,4 +1320,177 @@ input, select { font: inherit; color: inherit; }
     color: var(--text-muted);
     background: var(--surface);
   }
+}
+
+/* =====================
+   ORBIT ARC LEGEND
+   (Phase 3 — breeding relationship key)
+   ===================== */
+.orbit-arc-legend {
+  position: absolute;
+  bottom: calc(var(--s4) + 28px); /* sits above .orbit-legend */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+.orbit-arc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* =====================
+   ORBIT MOBILE TAP LABEL
+   (Phase 2 — transient family name after planet tap)
+   Animated by parent Framer Motion motion.div via AnimatePresence.
+   ===================== */
+.orbit-mobile-tap-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+/* =====================
+   ORBIT HINT TEXT
+   (Phase 2 — static SVG <text> inside FM motion.g,
+   opacity animated by parent AnimatePresence group)
+   No CSS animation needed — parent FM handles fade in/out.
+   ===================== */
+.orbit-hint-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  fill: var(--text-faint);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* =====================
+   PHASE 1 — DIALOG WATER PROFILE
+   5-column teal-accented parameter grid
+   ===================== */
+.dialog-water-profile {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--divider);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid oklch(from var(--teal) l c h / 0.18);
+}
+.water-cell {
+  background: var(--surface-2);
+  padding: var(--s3) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.water-cell-key {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+  opacity: 0.75;
+}
+.water-cell-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* =====================
+   PHASE 1 — DIALOG COMPATIBILITY LIST
+   Breeding partner rows with stability badges
+   ===================== */
+.dialog-compat-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.dialog-compat-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s3) var(--s4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.dialog-compat-top {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+.dialog-compat-partner {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+}
+.dialog-compat-arrow {
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+}
+.dialog-compat-offspring {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.dialog-compat-note {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  line-height: 1.55;
+}
+
+/* Stability badges */
+.compat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--s2);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.compat-badge--stable {
+  background: var(--teal-dim);
+  border: 1px solid oklch(from var(--teal) l c h / 0.3);
+  color: var(--teal);
+}
+.compat-badge--unstable {
+  background: oklch(from var(--accent) l c h / 0.12);
+  border: 1px solid oklch(from var(--accent) l c h / 0.3);
+  color: var(--accent);
+}
+.compat-badge--impossible {
+  background: var(--color-danger-dim);
+  border: 1px solid oklch(from var(--color-danger) l c h / 0.3);
+  color: #e07070;
 }

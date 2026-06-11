@@ -1,0 +1,164 @@
+/* =====================
+   PHASE 4 — Flip-cards, Swatch hex-labels, Token aliases
+   ===================== */
+
+/* Semantic token aliases */
+:root {
+  --color-teal:    var(--teal);
+  --color-teal-dim: var(--teal-dim);
+  --color-amber:   var(--accent);
+  --color-amber-dim: var(--accent-dim);
+  --color-amber-glow: var(--accent-glow);
+  --color-danger:  #c0544f;
+  --color-danger-dim: rgba(192, 84, 79, 0.14);
+  --color-muted:   var(--text-muted);
+  --color-faint:   var(--text-faint);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border:  var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-bg:      var(--bg);
+  --color-text:    var(--text);
+}
+
+/* =====================
+   STRAIN CARD — Flip layout
+   ===================== */
+.strain-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Face wrapper — fills the card */
+.strain-card-face {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+/* Back face — factoid text */
+.strain-card-face--back {
+  justify-content: center;
+  align-items: center;
+  padding: var(--s2);
+  gap: var(--s2);
+}
+
+.strain-card-factoid {
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 0.65rem + 0.2vw, 0.8rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text);
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Hint icon — top-right corner */
+.strain-card-flip-hint {
+  position: absolute;
+  top: var(--s1);
+  right: var(--s2);
+  font-size: 0.5rem;
+  color: var(--text-faint);
+  opacity: 0.55;
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: 0;
+  transition: opacity 180ms ease;
+}
+.strain-card:hover .strain-card-flip-hint {
+  opacity: 1;
+  color: var(--accent);
+}
+.strain-card-flip-hint--back {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  color: var(--accent);
+}
+
+/* Vertical rail: face fills row layout */
+.strain-rail--vertical .strain-card-face {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 56px;
+}
+.strain-rail--vertical .strain-card-face--back {
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0;
+}
+.strain-rail--vertical .strain-card-factoid {
+  text-align: left;
+  font-size: var(--text-xs);
+}
+
+/* =====================
+   SWATCH SEGMENTS — Hex-label on hover
+   ===================== */
+
+/* Dialog swatch seg already has its own label — target only card swatches */
+.strain-card-swatch .strain-card-swatch-seg {
+  position: relative;
+  overflow: hidden;
+}
+
+.strain-card-swatch .strain-card-swatch-seg::after {
+  content: attr(data-hex);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2px 3px;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+  pointer-events: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.strain-card:hover .strain-card-swatch .strain-card-swatch-seg::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: none) {
+  .strain-card-swatch .strain-card-swatch-seg::after { display: none; }
+}
+
+/* =====================
+   DIALOG TAG — Klickbar
+   ===================== */
+.dialog-tag {
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+.dialog-tag:hover {
+  background: var(--surface-3);
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.dialog-tag:active {
+  background: var(--surface-2);
+}
