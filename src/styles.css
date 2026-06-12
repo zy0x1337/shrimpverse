@@ -345,6 +345,49 @@ input, select { font: inherit; color: inherit; }
   }
 }
 
+/* =====================
+   GUIDED PATHS (Quick Start presets)
+   ===================== */
+.guided-paths {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.guided-path-btn {
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-base);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.guided-path-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.guided-path-btn.active {
+  border-color: var(--accent);
+  background: oklch(from var(--accent) l c h / 0.15);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px oklch(from var(--accent) l c h / 0.25);
+}
+
+@media (hover: none) {
+  .guided-path-btn:hover {
+    background: var(--surface-2);
+    border-color: var(--border);
+  }
+}
+
 /* Keep .filter-select for any legacy usage but visually de-prioritise */
 .filter-select {
   width: 100%;
