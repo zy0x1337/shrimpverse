@@ -544,14 +544,14 @@ input, select { font: inherit; color: inherit; }
 }
 .orbit-active-label {
   position: absolute;
-  top: calc(var(--s5) + 48px);
+  top: calc(var(--s5) + 32px);
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
   font-size: var(--text-xl);
   font-weight: 300;
   letter-spacing: 0.05em;
-  opacity: 0.92;
+  opacity: 0.96;
   pointer-events: none;
   z-index: 2;
   white-space: normal;
@@ -561,14 +561,20 @@ input, select { font: inherit; color: inherit; }
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  background: rgba(8, 12, 16, 0.65);
+  padding: 0.75rem 1.25rem;
+  border-radius: 1.5rem;
+  backdrop-filter: blur(6px);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 .orbit-active-genus {
   font-size: 0.62rem;
   font-weight: 400;
   font-style: italic;
   letter-spacing: 0.06em;
-  color: rgba(221, 216, 204, 0.4);
+  color: rgba(221, 216, 204, 0.65);
   font-family: var(--font-mono);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 /* Orbit empty state */
@@ -1231,7 +1237,7 @@ input, select { font: inherit; color: inherit; }
   .sidebar-collapse-btn { display: none; }
   .strain-card { width: 130px; }
   .orbit-stats { gap: var(--s4); top: var(--s3); }
-  .orbit-active-label { font-size: var(--text-lg); }
+  .orbit-active-label { font-size: var(--text-lg); padding: 0.6rem 1rem; }
 
   .dialog-backdrop {
     align-items: flex-end;
