@@ -557,6 +557,21 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
         {/* Comparison badge when two families are active — visible on all devices */}
         <AnimatePresence>
           {moonA && moonB && (() => {
+            // Distinguish crossable connections from impossible ones, so the
+            // badge communicates the actual relationship rather than a raw count.
+            const crossable  = moonArcs.filter((a) => a.type !== "impossible").length;
+            const impossible = moonArcs.filter((a) => a.type === "impossible").length;
+            let summary: { text: string; color: string };
+            if (crossable > 0) {
+              summary = {
+                text: `${crossable} crossable${impossible > 0 ? " · rest incompatible" : ""}`,
+                color: "rgba(47,196,181,0.85)",
+              };
+            } else if (impossible > 0) {
+              summary = { text: "cannot crossbreed", color: "rgba(220,80,80,0.85)" };
+            } else {
+              summary = { text: "no direct crosses", color: "rgba(221,216,204,0.4)" };
+            }
             return (
               <motion.div
                 key="compare-badge"
@@ -569,14 +584,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                 <span style={{ color: familyColors[moonA] }}>{moonA}</span>
                 <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
                 <span style={{ color: familyColors[moonB] }}>{moonB}</span>
-                {moonArcs.length > 0 && (
-                  <span style={{ opacity: 0.5, marginLeft: 8, fontSize: "0.8em" }}>
-                    {moonArcs.length} connection{moonArcs.length > 1 ? "s" : ""}
-                  </span>
-                )}
-                {moonArcs.length === 0 && (
-                  <span style={{ opacity: 0.4, marginLeft: 8, fontSize: "0.8em" }}>no direct crosses</span>
-                )}
+                <span style={{ color: summary.color, marginLeft: 8, fontSize: "0.8em" }}>
+                  {summary.text}
+                </span>
               </motion.div>
             );
           })()}
@@ -663,7 +673,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               const fromNode = families.find((n) => n.family === arc.from);
               const toNode   = families.find((n) => n.family === arc.to);
               if (!fromNode || !toNode) return null;
-              const isHighlighted = activeFamilies.has(arc.from) || activeFamilies.has(arc.to);
+              // Count how many of this arc's endpoints are currently active
+              const endpointsActive =
+                (activeFamilies.has(arc.from) ? 1 : 0) +
+                (activeFamilies.has(arc.to)   ? 1 : 0);
+              // With two planets active, only the arc connecting BOTH counts
+              // (its direct relationship). With one active, any arc touching it counts.
+              const isHighlighted =
+                activeFamilies.size >= 2
+                  ? endpointsActive === 2
+                  : endpointsActive >= 1;
               const isDimmed = activeFamilies.size > 0 && !isHighlighted;
               return (
                 <g key={`arc-${arc.from}-${arc.to}`}>
