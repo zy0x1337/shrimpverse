@@ -151,7 +151,7 @@ function SwatchSeg({ color, role }: { color: string; role: string }) {
   );
 }
 
-export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
+export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props) {
   useEffect(() => {
     if (!strain) return;
 
