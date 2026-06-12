@@ -56,22 +56,65 @@ function nodeRadius(count: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 3 — Breeding relationship arcs (family-level)
+// Phase 3/4 — Breeding relationship arcs (family-level, data-driven)
 // ---------------------------------------------------------------------------
-type ArcType = "crosses" | "hybrid" | "impossible";
+type ArcType = "crosses" | "hybrid" | "stabilizing" | "impossible";
 
-const FAMILY_ARCS: Array<{
+/**
+ * Generate family-level arcs from strain crossing data.
+ * Single source of truth: derives from strains.json compatible[] entries.
+ * Groups by (family A, family B) pairs, takes the most common stability.
+ */
+function generateFamilyArcs(strains: Strain[]): Array<{
   from: string;
   to: string;
   type: ArcType;
   label: string;
-}> = [
-  { from: "Crystal",    to: "Taiwan Bee", type: "crosses",    label: "Crystal × TB → Panda / King Kong" },
-  { from: "Crystal",    to: "Tiger",      type: "hybrid",     label: "Crystal × Tiger → Taitibee" },
-  { from: "Taiwan Bee", to: "Tiger",      type: "hybrid",     label: "TB × Tiger → mixed offspring" },
-  { from: "Sulawesi",   to: "Crystal",    type: "impossible", label: "No crossing possible" },
-  { from: "Sulawesi",   to: "Taiwan Bee", type: "impossible", label: "No crossing possible" },
-];
+}> {
+  const familyPairs = new Map<string, Map<string, Array<{ stability: string; offspring: string }>>>();
+
+  // Collect all cross-family crossing entries
+  for (const strain of strains) {
+    for (const cross of strain.compatible ?? []) {
+      const key = `${strain.family}→${cross.with}`;
+      if (!familyPairs.has(key)) {
+        familyPairs.set(key, []);
+      }
+      familyPairs.get(key)!.push({ stability: cross.stability, offspring: cross.offspring });
+    }
+  }
+
+  const arcs: Array<{ from: string; to: string; type: ArcType; label: string }> = [];
+  const seen = new Set<string>();
+
+  for (const [key, crosses] of familyPairs) {
+    const [from, to] = key.split("→");
+
+    // Avoid duplicates by checking both directions
+    const revKey = `${to}→${from}`;
+    if (seen.has(key) || seen.has(revKey)) continue;
+    seen.add(key);
+
+    // Determine type: prioritize impossible > stabilizing > hybrid > crosses
+    let type: ArcType = "crosses";
+    if (crosses.some((c) => c.stability === "impossible")) {
+      type = "impossible";
+    } else if (crosses.some((c) => c.stability === "stabilizing")) {
+      type = "stabilizing";
+    } else if (crosses.some((c) => c.stability === "unstable")) {
+      type = "hybrid";
+    } else if (crosses.some((c) => c.stability === "stable")) {
+      type = "crosses";
+    }
+
+    // Sample label from first offspring
+    const label = `${from} × ${to} → ${crosses[0]?.offspring || "offspring"}`;
+
+    arcs.push({ from, to, type, label });
+  }
+
+  return arcs;
+}
 
 const ARC_COLOR: Record<ArcType, string> = {
   crosses:     "rgba(47,196,181,0.30)",    // teal — stable
@@ -417,6 +460,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     return buildMoonArcs(moonA, moonsA, moonB, moonsB);
   }, [moonA, moonB, moonsByFamily]);
 
+  // Generate family-level arcs from strain data (data-driven, not hardcoded)
+  const familyArcs = useMemo(() => generateFamilyArcs(visibleStrains), [visibleStrains]);
+
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) =>  CARIDINA_SET.has(s.family)).length;
   const totalCount    = visibleStrains.length;
@@ -610,9 +656,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             style={{ transformOrigin: "0px 0px" }}
           />
 
-          {/* Family-level breeding arcs */}
+          {/* Family-level breeding arcs (data-driven) */}
           <g aria-hidden="true">
-            {FAMILY_ARCS.map((arc) => {
+            {familyArcs.map((arc) => {
               const fromNode = families.find((n) => n.family === arc.from);
               const toNode   = families.find((n) => n.family === arc.to);
               if (!fromNode || !toNode) return null;
