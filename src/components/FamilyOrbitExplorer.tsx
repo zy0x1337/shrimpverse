@@ -6,8 +6,11 @@ import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
 import { useIsMobile } from "../hooks/useIsMobile";
 
-const NEO_ORDER    = ["Red", "Orange", "Yellow", "Green", "Blue", "Black", "Brown", "White"];
-const CARIDINA_ORDER = ["Crystal", "Taiwan Bee", "Tiger", "Sulawesi", "Amano", "Bamboo"];
+// Family ordering around each ring — curated by colour adjacency so neighbours
+// share related hues (warm reds/oranges/browns cluster, cool greens/blues cluster,
+// achromatic black/white bridge the wrap). See geo validation: no overlaps.
+const NEO_ORDER    = ["Red", "Orange", "Brown", "Yellow", "Green", "Blue", "Black", "White"];
+const CARIDINA_ORDER = ["Sulawesi", "Tiger", "Bamboo", "Amano", "Crystal", "Taiwan Bee"];
 const FAMILY_ORDER = [...NEO_ORDER, ...CARIDINA_ORDER];
 
 const CARIDINA_SET = new Set(CARIDINA_ORDER);
@@ -37,12 +40,15 @@ const FAMILY_TEXT: Record<string, string> = {
   Tiger: "#fff", Sulawesi: "#fff", Amano: "#fff", Bamboo: "#fff",
 };
 
+// Bounded-organic radii. Neo ring pulled inward, Caridina pushed outward so the
+// angular alignments at top (Red/Sulawesi) and bottom (Green/Amano) stay clear.
+// Validated: Neo moon-orbit gap 29px, Caridina 140px, inter-ring node gap 18px.
 const FAMILY_ORBIT_RADIUS: Record<string, number> = {
-  Red: 175, Orange: 168, Yellow: 175, Green: 188,
-  Blue: 175, Black: 198, Brown: 204, White: 198,
+  Red: 172, Orange: 165, Brown: 176, Yellow: 167,
+  Green: 174, Blue: 167, Black: 174, White: 168,
   Natural: 0,
-  Crystal: 235, "Taiwan Bee": 248, Tiger: 228,
-  Sulawesi: 258, Amano: 220, Bamboo: 216,
+  Sulawesi: 252, Tiger: 236, Bamboo: 246,
+  Amano: 238, Crystal: 248, "Taiwan Bee": 240,
 };
 
 const VB         = 640;
@@ -251,7 +257,27 @@ interface MoonArc {
   toMoon: MoonDatum;
   type: ArcType;
   label: string;
+  offspring: string;     // Short outcome label (for expert-mode arc labels)
   bundleIndex?: number;  // For arc bundling: 0 = center, ±1, ±2 = offset outward
+}
+
+/**
+ * Point on the moon arc at t=0.5 (its visual midpoint).
+ * Mirrors the control-point math in getMoonArcPath so labels sit on the curve.
+ */
+function getMoonArcMidpoint(x1: number, y1: number, x2: number, y2: number): { x: number; y: number } {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.sqrt(dx * dx + dy * dy) || 1;
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const nx = -dy / len;
+  const ny = dx / len;
+  const bow = Math.max(8, Math.min(40, len * 0.18));
+  const cx = mx + nx * bow;
+  const cy = my + ny * bow;
+  // Quadratic Bézier evaluated at t = 0.5
+  return { x: 0.25 * x1 + 0.5 * cx + 0.25 * x2, y: 0.25 * y1 + 0.5 * cy + 0.25 * y2 };
 }
 
 function buildMoonArcs(
@@ -283,6 +309,7 @@ function buildMoonArcs(
         toMoon: bestB,
         type,
         label: `${moonA.strain.name} × ${familyB}: ${cross.offspring}`,
+        offspring: cross.offspring,
       });
     }
   }
@@ -308,6 +335,7 @@ function buildMoonArcs(
           toMoon: moonB,
           type,
           label: `${moonB.strain.name} × ${familyA}: ${cross.offspring}`,
+          offspring: cross.offspring,
         });
       }
     }
@@ -321,7 +349,7 @@ interface Props {
   expertMode?: boolean;
 }
 
-export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
+export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Props) {
   // ---------------------------------------------------------------------------
   // Dual-slot state: moonA = first active family, moonB = second active family.
   // Planet highlight and moon rendering are driven exclusively by these two slots.
@@ -460,6 +488,20 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     if (!moonsA || !moonsB) return [];
     return buildMoonArcs(moonA, moonsA, moonB, moonsB);
   }, [moonA, moonB, moonsByFamily]);
+
+  // Expert-mode arc labels: show each distinct outcome once to avoid stacking
+  // identical text when many strains share the same cross result.
+  const labelledArcIndices = useMemo(() => {
+    const seen = new Set<string>();
+    const indices = new Set<number>();
+    moonArcs.forEach((arc, i) => {
+      if (!arc.offspring || arc.offspring === "—") return;
+      if (seen.has(arc.offspring)) return;
+      seen.add(arc.offspring);
+      indices.add(i);
+    });
+    return indices;
+  }, [moonArcs]);
 
   // Generate family-level arcs from strain data (data-driven, not hardcoded)
   const familyArcs = useMemo(() => generateFamilyArcs(visibleStrains), [visibleStrains]);
@@ -735,6 +777,32 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
                     transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
                     pointerEvents={isMobile ? "none" : "auto"}
                   />
+                  {/* Expert mode: permanent outcome label on the arc midpoint */}
+                  {expertMode && labelledArcIndices.has(i) && (() => {
+                    const mid = getMoonArcMidpoint(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my);
+                    return (
+                      <motion.text
+                        x={mid.x} y={mid.y}
+                        textAnchor="middle" dominantBaseline="central"
+                        fontSize="4.4" fontWeight="600"
+                        fontFamily="'IBM Plex Mono', monospace"
+                        fill={ARC_COLOR_ACTIVE[arc.type]}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 + i * 0.06, duration: 0.3 }}
+                        style={{
+                          pointerEvents: "none",
+                          userSelect: "none",
+                          paintOrder: "stroke",
+                          stroke: "#080c10",
+                          strokeWidth: 2.4,
+                          strokeLinejoin: "round",
+                        }}
+                      >
+                        {arc.offspring}
+                      </motion.text>
+                    );
+                  })()}
                   <title>{arc.label}</title>
                 </g>
               );
