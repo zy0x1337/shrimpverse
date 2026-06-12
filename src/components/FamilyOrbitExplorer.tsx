@@ -71,9 +71,9 @@ function generateFamilyArcs(strains: Strain[]): Array<{
   type: ArcType;
   label: string;
 }> {
-  const familyPairs = new Map<string, Map<string, Array<{ stability: string; offspring: string }>>>();
+  // Collect all cross-family crossing entries indexed by key
+  const familyPairs = new Map<string, Array<{ stability: string; offspring: string }>>();
 
-  // Collect all cross-family crossing entries
   for (const strain of strains) {
     for (const cross of strain.compatible ?? []) {
       const key = `${strain.family}→${cross.with}`;
