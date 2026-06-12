@@ -10,10 +10,12 @@ export interface WaterProfile {
   temp: string;  // e.g. "18–26 °C"
 }
 
-export type CrossStability = "stable" | "unstable" | "impossible";
+export type CrossStability = "stable" | "unstable" | "stabilizing" | "impossible";
+export type TaxonomyStatus = "accepted" | "disputed" | "synonym" | "uncertain";
 
 export interface CrossResult {
   with:       string;           // family name, e.g. "Taiwan Bee"
+  withId?:    string;           // strain id for precise arc targeting
   offspring:  string;           // e.g. "Panda / King Kong"
   stability:  CrossStability;
   note?:      string;
@@ -41,6 +43,10 @@ export interface Strain {
   compatible?:  CrossResult[];
   /** A single memorable fact, max ~15 words. Used for flip-card in StrainRail. */
   factoid?:     string;
+  /** Taxonomy validity per WoRMS / peer-reviewed sources */
+  taxonomyStatus?: TaxonomyStatus;
+  /** True for cultivar lines with confirmed hybrid origin (e.g. Taiwan Bee) */
+  hybridOrigin?:   boolean;
 }
 
 export interface FilterState {

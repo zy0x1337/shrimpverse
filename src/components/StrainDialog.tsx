@@ -44,9 +44,10 @@ const WATER_PROFILE_KEYS: { key: keyof NonNullable<Strain["waterProfile"]>; labe
 ];
 
 const STABILITY_LABEL: Record<string, string> = {
-  stable:     "Stable",
-  unstable:   "Unstable",
-  impossible: "Impossible",
+  stable:       "Stable",
+  unstable:     "Unstable",
+  stabilizing:  "Stabilizing",
+  impossible:   "Impossible",
 };
 
 /** Glossary tooltips for meta-grid keys that may be unfamiliar to newcomers */

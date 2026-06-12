@@ -56,33 +56,78 @@ function nodeRadius(count: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 3 — Breeding relationship arcs (family-level)
+// Phase 3/4 — Breeding relationship arcs (family-level, data-driven)
 // ---------------------------------------------------------------------------
-type ArcType = "crosses" | "hybrid" | "impossible";
+type ArcType = "crosses" | "hybrid" | "stabilizing" | "impossible";
 
-const FAMILY_ARCS: Array<{
+/**
+ * Generate family-level arcs from strain crossing data.
+ * Single source of truth: derives from strains.json compatible[] entries.
+ * Groups by (family A, family B) pairs, takes the most common stability.
+ */
+function generateFamilyArcs(strains: Strain[]): Array<{
   from: string;
   to: string;
   type: ArcType;
   label: string;
-}> = [
-  { from: "Crystal",    to: "Taiwan Bee", type: "crosses",    label: "Crystal × TB → Panda / King Kong" },
-  { from: "Crystal",    to: "Tiger",      type: "hybrid",     label: "Crystal × Tiger → Taitibee" },
-  { from: "Taiwan Bee", to: "Tiger",      type: "hybrid",     label: "TB × Tiger → mixed offspring" },
-  { from: "Sulawesi",   to: "Crystal",    type: "impossible", label: "No crossing possible" },
-  { from: "Sulawesi",   to: "Taiwan Bee", type: "impossible", label: "No crossing possible" },
-];
+}> {
+  const familyPairs = new Map<string, Map<string, Array<{ stability: string; offspring: string }>>>();
+
+  // Collect all cross-family crossing entries
+  for (const strain of strains) {
+    for (const cross of strain.compatible ?? []) {
+      const key = `${strain.family}→${cross.with}`;
+      if (!familyPairs.has(key)) {
+        familyPairs.set(key, []);
+      }
+      familyPairs.get(key)!.push({ stability: cross.stability, offspring: cross.offspring });
+    }
+  }
+
+  const arcs: Array<{ from: string; to: string; type: ArcType; label: string }> = [];
+  const seen = new Set<string>();
+
+  for (const [key, crosses] of familyPairs) {
+    const [from, to] = key.split("→");
+
+    // Avoid duplicates by checking both directions
+    const revKey = `${to}→${from}`;
+    if (seen.has(key) || seen.has(revKey)) continue;
+    seen.add(key);
+
+    // Determine type: prioritize impossible > stabilizing > hybrid > crosses
+    let type: ArcType = "crosses";
+    if (crosses.some((c) => c.stability === "impossible")) {
+      type = "impossible";
+    } else if (crosses.some((c) => c.stability === "stabilizing")) {
+      type = "stabilizing";
+    } else if (crosses.some((c) => c.stability === "unstable")) {
+      type = "hybrid";
+    } else if (crosses.some((c) => c.stability === "stable")) {
+      type = "crosses";
+    }
+
+    // Sample label from first offspring
+    const label = `${from} × ${to} → ${crosses[0]?.offspring || "offspring"}`;
+
+    arcs.push({ from, to, type, label });
+  }
+
+  return arcs;
+}
 
 const ARC_COLOR: Record<ArcType, string> = {
-  crosses:    "rgba(47,196,181,0.30)",
-  hybrid:     "rgba(255,196,80,0.25)",
-  impossible: "rgba(180,60,60,0.22)",
+  crosses:     "rgba(47,196,181,0.30)",    // teal — stable
+  hybrid:      "rgba(255,196,80,0.25)",   // amber — unstable
+  stabilizing: "rgba(160,100,240,0.22)",  // violet — stabilizing
+  impossible:  "rgba(180,60,60,0.22)",    // dark red — impossible
 };
 
 const ARC_COLOR_ACTIVE: Record<ArcType, string> = {
-  crosses:    "rgba(47,196,181,0.70)",
-  hybrid:     "rgba(255,196,80,0.65)",
-  impossible: "rgba(220,80,80,0.65)",
+  crosses:     "rgba(47,196,181,0.70)",   // teal — stable
+  hybrid:      "rgba(255,196,80,0.65)",   // amber — unstable
+  stabilizing: "rgba(180,130,255,0.65)",  // bright violet — stabilizing
+  impossible:  "rgba(220,80,80,0.65)",    // bright red — impossible
 };
 
 function getArcPath(
@@ -103,15 +148,35 @@ function getArcPath(
 }
 
 /**
- * Straight line arc between two absolute SVG points.
+ * Quadratic Bézier arc between two absolute SVG points.
+ * Control point perpendicular to the chord, scaled by chord length.
+ * Ensures consistent, readable curves regardless of planet positions.
  * Used for moon-to-moon cross-family connections.
+ *
+ * @param x1, y1 — start point
+ * @param x2, y2 — end point
+ * @param bundleOffset — optional perpendicular offset for arc bundling (default 0)
+ * @returns SVG path string (M ... Q ...)
  */
-function getMoonArcPath(x1: number, y1: number, x2: number, y2: number): string {
+function getMoonArcPath(x1: number, y1: number, x2: number, y2: number, bundleOffset = 0): string {
+  // Chord vector and midpoint
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const chordLen = Math.sqrt(dx * dx + dy * dy);
   const mx = (x1 + x2) / 2;
   const my = (y1 + y2) / 2;
-  // Push control point slightly outward from centre
-  const cx = mx * 1.12;
-  const cy = my * 1.12;
+
+  // Normal vector perpendicular to chord (rotated 90° CCW)
+  const nx = -dy / chordLen;
+  const ny = dx / chordLen;
+
+  // Bow depth: scale by chord length, clamp between 8 and 40px for readability
+  const bow = Math.max(8, Math.min(40, chordLen * 0.18));
+
+  // Control point: midpoint + normal × (bow + bundleOffset)
+  const cx = mx + nx * (bow + bundleOffset);
+  const cy = my + ny * (bow + bundleOffset);
+
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${cx.toFixed(2)} ${cy.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
@@ -186,6 +251,7 @@ interface MoonArc {
   toMoon: MoonDatum;
   type: ArcType;
   label: string;
+  bundleIndex?: number;  // For arc bundling: 0 = center, ±1, ±2 = offset outward
 }
 
 function buildMoonArcs(
@@ -208,8 +274,9 @@ function buildMoonArcs(
       );
       // Determine arc type from stability
       const type: ArcType =
-        cross.stability === "impossible" ? "impossible" :
-        cross.stability === "unstable"   ? "hybrid" :
+        cross.stability === "impossible"   ? "impossible" :
+        cross.stability === "stabilizing"  ? "stabilizing" :
+        cross.stability === "unstable"     ? "hybrid" :
         "crosses";
       arcs.push({
         fromMoon: moonA,
@@ -227,8 +294,9 @@ function buildMoonArcs(
         m.strain.popularity > best.strain.popularity ? m : best
       );
       const type: ArcType =
-        cross.stability === "impossible" ? "impossible" :
-        cross.stability === "unstable"   ? "hybrid" :
+        cross.stability === "impossible"   ? "impossible" :
+        cross.stability === "stabilizing"  ? "stabilizing" :
+        cross.stability === "unstable"     ? "hybrid" :
         "crosses";
       // Avoid duplicates (A→B arc might already cover this)
       const alreadyDrawn = arcs.some(
@@ -391,6 +459,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
     if (!moonsA || !moonsB) return [];
     return buildMoonArcs(moonA, moonsA, moonB, moonsB);
   }, [moonA, moonB, moonsByFamily]);
+
+  // Generate family-level arcs from strain data (data-driven, not hardcoded)
+  const familyArcs = useMemo(() => generateFamilyArcs(visibleStrains), [visibleStrains]);
 
   const neoCount      = visibleStrains.filter((s) => !CARIDINA_SET.has(s.family)).length;
   const caridineCount = visibleStrains.filter((s) =>  CARIDINA_SET.has(s.family)).length;
@@ -585,9 +656,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
             style={{ transformOrigin: "0px 0px" }}
           />
 
-          {/* Family-level breeding arcs */}
+          {/* Family-level breeding arcs (data-driven) */}
           <g aria-hidden="true">
-            {FAMILY_ARCS.map((arc) => {
+            {familyArcs.map((arc) => {
               const fromNode = families.find((n) => n.family === arc.from);
               const toNode   = families.find((n) => n.family === arc.to);
               if (!fromNode || !toNode) return null;
@@ -613,22 +684,41 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
           {/* Moon-to-moon cross-family arcs (only when 2 families active) — desktop + mobile */}
           <g aria-hidden="true">
-            {moonArcs.map((arc, i) => (
-              <g key={`moon-arc-${i}`}>
-                <motion.path
-                  d={getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my)}
-                  stroke={ARC_COLOR_ACTIVE[arc.type]}
-                  strokeWidth={1.2}
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={arc.type === "impossible" ? "3 3" : undefined}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 0.85 }}
-                  transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
-                />
-                <title>{arc.label}</title>
-              </g>
-            ))}
+            {moonArcs.map((arc, i) => {
+              const pathStr = getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my);
+              const isImpossible = arc.type === "impossible";
+              return (
+                <g key={`moon-arc-${i}`} role="button" aria-label={arc.label} tabIndex={0}
+                  style={{ cursor: isMobile ? "pointer" : "default" }}>
+                  {/* Invisible wider hitbox for mobile tap target (≥44px) */}
+                  {isMobile && (
+                    <motion.path
+                      d={pathStr}
+                      stroke="transparent"
+                      strokeWidth={12}
+                      fill="none"
+                      pointerEvents="auto"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0 }}
+                    />
+                  )}
+                  {/* Visible arc */}
+                  <motion.path
+                    d={pathStr}
+                    stroke={ARC_COLOR_ACTIVE[arc.type]}
+                    strokeWidth={1.2}
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={isImpossible ? "3 3" : undefined}
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 0.85 }}
+                    transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
+                    pointerEvents={isMobile ? "none" : "auto"}
+                  />
+                  <title>{arc.label}</title>
+                </g>
+              );
+            })}
           </g>
 
           {/* Spoke lines */}
@@ -990,6 +1080,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
               <line x1="0" y1="2" x2="14" y2="2" stroke="rgba(255,196,80,0.75)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
             hybrid
+          </span>
+          <span className="orbit-arc-legend-item orbit-arc-legend-item--stabilizing">
+            <svg width="14" height="4" viewBox="0 0 14 4">
+              <line x1="0" y1="2" x2="14" y2="2" stroke="rgba(180,130,255,0.75)" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            stabilizing
           </span>
           <span className="orbit-arc-legend-item orbit-arc-legend-item--impossible">
             <svg width="14" height="4" viewBox="0 0 14 4">
