@@ -684,22 +684,41 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
 
           {/* Moon-to-moon cross-family arcs (only when 2 families active) — desktop + mobile */}
           <g aria-hidden="true">
-            {moonArcs.map((arc, i) => (
-              <g key={`moon-arc-${i}`}>
-                <motion.path
-                  d={getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my)}
-                  stroke={ARC_COLOR_ACTIVE[arc.type]}
-                  strokeWidth={1.2}
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={arc.type === "impossible" ? "3 3" : undefined}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 0.85 }}
-                  transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
-                />
-                <title>{arc.label}</title>
-              </g>
-            ))}
+            {moonArcs.map((arc, i) => {
+              const pathStr = getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my);
+              const isImpossible = arc.type === "impossible";
+              return (
+                <g key={`moon-arc-${i}`} role="button" aria-label={arc.label} tabIndex={0}
+                  style={{ cursor: isMobile ? "pointer" : "default" }}>
+                  {/* Invisible wider hitbox for mobile tap target (≥44px) */}
+                  {isMobile && (
+                    <motion.path
+                      d={pathStr}
+                      stroke="transparent"
+                      strokeWidth={12}
+                      fill="none"
+                      pointerEvents="auto"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0 }}
+                    />
+                  )}
+                  {/* Visible arc */}
+                  <motion.path
+                    d={pathStr}
+                    stroke={ARC_COLOR_ACTIVE[arc.type]}
+                    strokeWidth={1.2}
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={isImpossible ? "3 3" : undefined}
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 0.85 }}
+                    transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
+                    pointerEvents={isMobile ? "none" : "auto"}
+                  />
+                  <title>{arc.label}</title>
+                </g>
+              );
+            })}
           </g>
 
           {/* Spoke lines */}
