@@ -111,10 +111,14 @@ input, select { font: inherit; color: inherit; }
 /* =====================
    APP SHELL
    ===================== */
-.app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+/* Fixed-height chain: the square orbit SVG must letterbox inside the viewport
+   instead of stretching the page (its intrinsic 1:1 ratio would otherwise make
+   the stage as tall as it is wide and clip the lower planets on wide screens). */
+.app-shell { display: flex; flex-direction: column; height: 100dvh; }
 .workspace {
   display: flex;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 0;
   position: relative;
 }
 
@@ -470,7 +474,7 @@ input, select { font: inherit; color: inherit; }
   flex-direction: column;
   overflow: hidden;
   background: var(--bg);
-  min-height: 100dvh;
+  min-height: 0;
 }
 .toolbar {
   display: flex;
@@ -504,6 +508,7 @@ input, select { font: inherit; color: inherit; }
 }
 .view-stage {
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
@@ -555,6 +560,10 @@ input, select { font: inherit; color: inherit; }
   overflow: hidden;
 }
 .orbit-svg { width: 100%; height: 100%; flex: 1; }
+/* The browser's rectangular focus box looks broken around circular planets.
+   Interactive SVG nodes draw their own shape-true focus ring on keyboard focus
+   (see FamilyOrbitExplorer), so the default outline is suppressed here only. */
+.orbit-svg [role="button"]:focus { outline: none; }
 .orbit-stats {
   display: flex;
   gap: var(--s6);
@@ -564,6 +573,14 @@ input, select { font: inherit; color: inherit; }
   transform: translateX(-50%);
   z-index: 2;
   pointer-events: none;
+  white-space: nowrap;
+  /* Pill backdrop — arcs pass right behind this text and read as strikethrough otherwise */
+  padding: 0.3rem 0.95rem;
+  background: rgba(8, 12, 16, 0.55);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .orbit-clear-btn {
   position: absolute;
@@ -615,7 +632,7 @@ input, select { font: inherit; color: inherit; }
 }
 .orbit-active-label {
   position: absolute;
-  top: calc(var(--s5) + 32px);
+  top: var(--s5);
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
@@ -644,6 +661,60 @@ input, select { font: inherit; color: inherit; }
   color: rgba(221, 216, 204, 0.65);
   font-family: var(--font-mono);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Comparison badge — single HUD line replacing stats/active-label while comparing */
+.orbit-compare-badge {
+  position: absolute;
+  top: var(--s5);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 0.35rem 0.95rem;
+  background: rgba(8, 12, 16, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Onboarding hint — HTML overlay (readable at any viewport, unlike SVG text) */
+.orbit-onboarding {
+  position: absolute;
+  bottom: calc(var(--s4) + 58px); /* above arc legend */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+  z-index: 2;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(221, 216, 204, 0.55);
+  text-align: center;
+  white-space: nowrap;
+  /* Pill so the hint stays readable when it overlays the lower planets */
+  padding: 0.3rem 0.85rem;
+  background: rgba(8, 12, 16, 0.55);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.orbit-onboarding-shapes {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: rgba(221, 216, 204, 0.45);
 }
 
 /* Orbit empty state */
@@ -1344,18 +1415,27 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
-  /* Arc legend: compact on mobile — single row, hidden shape legend saves ~30px */
+  /* Arc legend: compact on mobile — forced single row, hidden shape legend saves ~30px */
   .orbit-arc-legend {
+    /* Single row with the production font; wraps cleanly (never clips) if the
+       webfont is unavailable and the wider fallback mono overflows 360px. */
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--s2) var(--s3);
-    font-size: 0.6rem;
+    gap: 2px 5px;
+    font-size: 0.52rem;
+    letter-spacing: 0.01em;
     bottom: var(--s3);
-    padding: 0 var(--s4);
+    padding: 0 var(--s1);
     width: 100%;
   }
   .orbit-arc-legend-item {
-    gap: 4px;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  /* Onboarding overlay sits clear above the single-row legend on mobile */
+  .orbit-onboarding {
+    bottom: calc(var(--s3) + 50px);
+    font-size: 0.6rem;
   }
   /* Shape legend redundant on mobile — orbit shows circles vs hexagons visually */
   .orbit-legend {

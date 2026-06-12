@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { familyColors, familyGenus } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
@@ -401,6 +401,29 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
   const [mobileLabel, setMobileLabel]     = useState<string | null>(null);
   const isMobile = useIsMobile();
 
+  // Mobile gets a tighter viewBox so the orbit system renders ~7% larger;
+  // the cropped outer starfield zone carries no information on small screens.
+  const vbSize = isMobile ? 600 : VB;
+
+  // Shape-true keyboard focus rings. Chromium applies :focus-visible to SVG
+  // elements with tabindex even for pointer taps, so the default rectangular
+  // outline is suppressed in CSS and we draw a circular ring ourselves —
+  // but only when focus did NOT originate from a recent pointer interaction.
+  const [focusKey, setFocusKey] = useState<string | null>(null);
+  const lastPointerTs = useRef(0);
+  useEffect(() => {
+    const onPointer = () => { lastPointerTs.current = Date.now(); };
+    window.addEventListener("pointerdown", onPointer, true);
+    return () => window.removeEventListener("pointerdown", onPointer, true);
+  }, []);
+  const keyboardFocus = useCallback(
+    (key: string) => () => {
+      if (Date.now() - lastPointerTs.current > 300) setFocusKey(key);
+    },
+    [],
+  );
+  const clearFocusKey = useCallback(() => setFocusKey(null), []);
+
   // Derived helpers
   const activeFamilies = useMemo(() => {
     const s = new Set<string>();
@@ -444,6 +467,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
   const activeStrains = railFamily
     ? families.find((f) => f.family === railFamily)?.strains ?? []
     : [];
+
+  // Mobile peek button visibility — the arc legend hides while this is shown
+  // (both occupy the bottom edge and would otherwise overlap).
+  const peekVisible = Boolean(isMobile && railFamily && !railOpen && activeStrains.length > 0);
 
   // Stale-selection cleanup: if a selected family is filtered out of the visible
   // set, clear that slot so no ghost highlight / empty rail lingers.
@@ -586,17 +613,31 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
     <div className="orbit-layout">
       <div className="orbit-explorer" style={activeFamily && isMobile && railOpen ? { paddingBottom: "138px" } : undefined}>
 
-        <div className="orbit-stats" aria-label="Visible strain statistics">
-          <p className="orbit-stats-sentence">
-            <span className="orbit-stats-neo">{neoCount}</span>
-            {" Neocaridina · "}
-            <span className="orbit-stats-cari">{caridineCount}</span>
-            {" Caridina"}
-            {totalCount < neoCount + caridineCount && (
-              <span className="orbit-stats-filtered"> · {totalCount} filtered</span>
-            )}
-          </p>
-        </div>
+        {/* Single-line HUD: stats in overview, active-label/compare-badge while
+            selecting — they share the same top-centre slot instead of stacking. */}
+        <AnimatePresence>
+          {activeFamilies.size === 0 && (
+            <motion.div
+              key="orbit-stats"
+              className="orbit-stats"
+              aria-label="Visible strain statistics"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              <p className="orbit-stats-sentence">
+                <span className="orbit-stats-neo">{neoCount}</span>
+                {" Neocaridina · "}
+                <span className="orbit-stats-cari">{caridineCount}</span>
+                {" Caridina"}
+                {totalCount < neoCount + caridineCount && (
+                  <span className="orbit-stats-filtered"> · {totalCount} filtered</span>
+                )}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Visible clear-selection control — appears only when something is active */}
         <AnimatePresence>
@@ -629,9 +670,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             : ""}
         </div>
 
-        {/* Active family HUD — shows primary (rail) family */}
+        {/* Active family HUD — shows primary (rail) family; yields to the
+            compare badge when two families are active (one HUD line at a time) */}
         <AnimatePresence>
-          {activeFamily && (
+          {activeFamily && !(moonA && moonB) && (
             <motion.div
               key={activeFamily}
               className="orbit-active-label"
@@ -724,7 +766,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
 
         <svg
           className="orbit-svg"
-          viewBox={`${-VB / 2} ${-VB / 2} ${VB} ${VB}`}
+          viewBox={`${-vbSize / 2} ${-vbSize / 2} ${vbSize} ${vbSize}`}
           width="100%"
           height="100%"
           aria-label="Shrimpverse — freshwater shrimp species atlas"
@@ -786,7 +828,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
           </defs>
 
           {/* Soft central depth glow — sits behind everything for a floating feel */}
-          <circle cx="0" cy="0" r={VB / 2} fill="url(#scene-depth)" aria-hidden="true" />
+          <circle cx="0" cy="0" r={vbSize / 2} fill="url(#scene-depth)" aria-hidden="true" />
 
           <circle cx="0" cy="0" r="208" fill="url(#neo-water)"  aria-hidden="true" />
           <circle cx="0" cy="0" r="276" fill="url(#cari-water)" aria-hidden="true" />
@@ -841,7 +883,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                     strokeWidth={isHighlighted ? 1.6 : 0.9}
                     fill="none" strokeLinecap="round"
                     strokeDasharray={arc.type === "impossible" ? "4 4" : undefined}
-                    animate={{ opacity: isDimmed ? 0.12 : isHighlighted ? 1 : 0.7 }}
+                    animate={{ opacity: isDimmed ? 0.2 : isHighlighted ? 1 : 0.7 }}
                     transition={{ duration: 0.25 }}
                     whileHover={{ strokeWidth: 2.2, opacity: 1 }}
                   />
@@ -856,8 +898,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             {moonArcs.map((arc, i) => {
               const pathStr = getMoonArcPath(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my);
               const isImpossible = arc.type === "impossible";
+              // Not a button: arcs are informational (tooltip via <title>), they
+              // have no click action — focusable role="button" here was a trap.
               return (
-                <g key={`moon-arc-${i}`} role="button" aria-label={arc.label} tabIndex={0}
+                <g key={`moon-arc-${i}`}
                   style={{ cursor: isMobile ? "pointer" : "default" }}>
                   {/* Invisible wider hitbox for mobile tap target (≥44px) */}
                   {isMobile && (
@@ -974,13 +1018,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 key={item.family}
                 initial={{ opacity: 0, scale: 0.6 }}
                 animate={{
-                  opacity: isDimmed ? 0.18 : 1,
+                  opacity: isDimmed ? 0.32 : 1,
                   scale: isActive ? (isPrimary ? 1.15 : 1.08) : isHov ? 1.08 : 1,
                 }}
                 transition={{ delay: i * 0.05, type: "spring", stiffness: 380, damping: 26 }}
                 onClick={() => handleFamilyClick(item.family)}
                 onHoverStart={() => setHovered(item.family)}
                 onHoverEnd={() => setHovered(null)}
+                onFocus={keyboardFocus(`fam:${item.family}`)}
+                onBlur={clearFocusKey}
                 role="button"
                 aria-label={`${item.family}, ${item.strains.length} variet${item.strains.length === 1 ? "y" : "ies"}${isActive ? ", active" : ""}`}
                 aria-pressed={isActive}
@@ -992,13 +1038,24 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               >
                 {/* Transparent hit-area: WCAG 44px (22 SVG units radius ≈ 44px at typical scale) */}
                 <circle cx={nx} cy={ny} r={Math.max(nr, 22)} fill="transparent" aria-hidden="true" />
+                {/* Shape-true keyboard focus ring (replaces the suppressed rectangular outline) */}
+                {focusKey === `fam:${item.family}` && (
+                  <circle
+                    cx={nx} cy={ny} r={nr + 9}
+                    fill="none" stroke="#fff" strokeWidth="1.1" strokeDasharray="3 3"
+                    opacity={0.9} aria-hidden="true"
+                  />
+                )}
+                {/* Pulse animates scale, not the SVG r attribute — framer-motion
+                    emits r="undefined" frames when interpolating r directly. */}
                 {isPrimary && (
                   <motion.circle
                     cx={nx} cy={ny} r={nr + 6}
                     fill="none" stroke={item.color} strokeWidth="0.8"
-                    initial={{ r: nr + 4, opacity: 0.8 }}
-                    animate={{ r: nr + 22, opacity: 0 }}
+                    initial={{ scale: 0.95, opacity: 0.8 }}
+                    animate={{ scale: (nr + 22) / (nr + 6), opacity: 0 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                    style={{ transformOrigin: `${nx}px ${ny}px` }}
                   />
                 )}
                 {/* Secondary active planet gets a steady ring instead of a pulse */}
@@ -1034,12 +1091,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                   <>
                     <ellipse cx={nx} cy={ny} rx={nr * 2.2} ry={nr * 0.42}
                       fill="none" stroke={item.color} strokeWidth="1.8"
-                      opacity={isDimmed ? 0.06 : isActive ? 0.60 : 0.35}
+                      opacity={isDimmed ? 0.12 : isActive ? 0.60 : 0.35}
                       transform={`rotate(-18, ${nx}, ${ny})`}
                     />
                     <ellipse cx={nx} cy={ny} rx={nr * 2.85} ry={nr * 0.55}
                       fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.8"
-                      opacity={isDimmed ? 0.03 : isActive ? 0.35 : 0.15}
+                      opacity={isDimmed ? 0.06 : isActive ? 0.35 : 0.15}
                       transform={`rotate(-18, ${nx}, ${ny})`}
                     />
                   </>
@@ -1142,6 +1199,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                   <g
                     key={`moon-${moon.strain.id}`}
                     onClick={(e) => { e.stopPropagation(); onSelect(moon.strain.id); }}
+                    onFocus={keyboardFocus(`moon:${moon.strain.id}`)}
+                    onBlur={clearFocusKey}
                     role="button"
                     aria-label={`Open ${moon.strain.name}`}
                     tabIndex={0}
@@ -1150,6 +1209,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                     }}
                     style={{ cursor: "pointer" }}
                   >
+                    {/* Enlarged invisible hit-area — visible moons are only 2.5–5 units,
+                        far below a usable touch target on their own */}
+                    <circle cx={moon.mx} cy={moon.my} r={11} fill="transparent" aria-hidden="true" />
+                    {focusKey === `moon:${moon.strain.id}` && (
+                      <circle
+                        cx={moon.mx} cy={moon.my} r={moon.r + 3.5}
+                        fill="none" stroke="#fff" strokeWidth="0.8" strokeDasharray="2 2"
+                        opacity={0.9} aria-hidden="true"
+                      />
+                    )}
                     <motion.circle
                       cx={moon.mx} cy={moon.my} r={moon.r}
                       fill={moon.strain.colors[0]}
@@ -1177,7 +1246,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             );
           })}
 
-          {/* Onboarding hint */}
+          {/* Onboarding pulse around the first planet — hint text lives in an
+              HTML overlay (.orbit-onboarding) where it stays readable at any size */}
           <AnimatePresence>
             {!hasInteracted && firstFamily && (
               <motion.g
@@ -1193,26 +1263,12 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                   cx={firstFamily.nx} cy={firstFamily.ny} r={firstFamily.nodeR + 16}
                   fill="none" stroke="rgba(232,160,32,0.55)" strokeWidth="0.8" strokeDasharray="4 5"
                   animate={{
-                    r: [firstFamily.nodeR + 16, firstFamily.nodeR + 28, firstFamily.nodeR + 16],
+                    scale: [1, (firstFamily.nodeR + 28) / (firstFamily.nodeR + 16), 1],
                     opacity: [0.55, 0.0, 0.55],
                   }}
                   transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ transformOrigin: `${firstFamily.nx}px ${firstFamily.ny}px` }}
                 />
-                <text x="0" y="292" textAnchor="middle" fontSize="5.5"
-                  fontFamily="'IBM Plex Mono', monospace" letterSpacing="0.14em"
-                  fill="rgba(221,216,204,0.32)">
-                  {isMobile ? "TAP ANY PLANET TO EXPLORE" : "CLICK ANY PLANET TO EXPLORE"}
-                </text>
-                <circle cx="-38" cy="308" r="4"
-                  fill="rgba(47,196,181,0.35)" stroke="rgba(47,196,181,0.5)" strokeWidth="0.6" />
-                <text x="-30" y="312" fontSize="4.8" fontFamily="'IBM Plex Mono', monospace"
-                  letterSpacing="0.06em" fill="rgba(221,216,204,0.28)">Neocaridina</text>
-                <polygon
-                  points={hexPoints(32, 308, 4.5)}
-                  fill="rgba(100,150,255,0.32)" stroke="rgba(100,150,255,0.45)" strokeWidth="0.6"
-                />
-                <text x="40" y="312" fontSize="4.8" fontFamily="'IBM Plex Mono', monospace"
-                  letterSpacing="0.06em" fill="rgba(221,216,204,0.28)">Caridina</text>
               </motion.g>
             )}
           </AnimatePresence>
@@ -1228,6 +1284,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             }}
             onHoverStart={() => setSunHovered(true)}
             onHoverEnd={() => setSunHovered(false)}
+            onFocus={keyboardFocus("sun")}
+            onBlur={clearFocusKey}
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.97 }}
             style={{ cursor: "pointer" }}
@@ -1245,11 +1303,19 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             }}
           >
             <circle cx="0" cy="0" r="72" fill="url(#sun-grad)" />
+            {focusKey === "sun" && (
+              <circle
+                cx="0" cy="0" r="48"
+                fill="none" stroke="#fff" strokeWidth="1.1" strokeDasharray="3 3"
+                opacity={0.9} aria-hidden="true"
+              />
+            )}
             <motion.circle
               cx="0" cy="0" r="38"
               fill="none" stroke="rgba(255,210,70,0.22)" strokeWidth="1.2"
-              animate={{ r: [38, 52, 38], opacity: [0.4, 0.0, 0.4] }}
+              animate={{ scale: [1, 52 / 38, 1], opacity: [0.4, 0.0, 0.4] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+              style={{ transformOrigin: "0px 0px" }}
             />
             {Array.from({ length: 8 }, (_, k) => {
               const a  = (k / 8) * Math.PI * 2;
@@ -1298,9 +1364,39 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
           </motion.g>
         </svg>
 
+        {/* Onboarding hint — HTML overlay, readable at every viewport size */}
+        <AnimatePresence>
+          {!hasInteracted && firstFamily && (
+            <motion.div
+              key="orbit-onboarding"
+              className="orbit-onboarding"
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.4 } }}
+              transition={{ delay: 1.4, duration: 0.7 }}
+            >
+              <span>{isMobile ? "Tap any planet to explore" : "Click any planet to explore"}</span>
+              {/* Shape key — desktop already shows .orbit-legend, mobile hides it */}
+              {isMobile && (
+                <span className="orbit-onboarding-shapes">
+                  <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                    <circle cx="5" cy="5" r="4.5" fill="rgba(47,196,181,0.6)" />
+                  </svg>
+                  Neocaridina
+                  <svg width="11" height="10" viewBox="0 0 11 10" aria-hidden="true">
+                    <polygon points={hexPoints(5.5, 5, 4.5)} fill="rgba(100,150,255,0.6)" />
+                  </svg>
+                  Caridina
+                </span>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Mobile peek button — appears after planet tap, lets user open rail manually */}
         <AnimatePresence>
-          {isMobile && railFamily && !railOpen && activeStrains.length > 0 && (
+          {peekVisible && railFamily && (
             <motion.button
               key="rail-peek"
               type="button"
@@ -1321,7 +1417,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
           )}
         </AnimatePresence>
 
-        {/* Arc legend */}
+        {/* Arc legend — hidden while the mobile peek button occupies the bottom edge */}
+        {!peekVisible && (
         <div className="orbit-arc-legend" aria-hidden="true">
           <span className="orbit-arc-legend-item orbit-arc-legend-item--crosses">
             <svg width="14" height="4" viewBox="0 0 14 4">
@@ -1348,6 +1445,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             incompatible
           </span>
         </div>
+        )}
 
         {/* Shape legend */}
         <div className="orbit-legend" aria-hidden="true">
