@@ -1,18 +1,19 @@
-import { lazy, Suspense, useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { FilterPanel } from "./components/FilterPanel";
 import { FamilyOrbitExplorer } from "./components/FamilyOrbitExplorer";
 import { StrainDialog } from "./components/StrainDialog";
-import { ViewToggle } from "./components/ViewToggle";
 import { useStrainFilters } from "./hooks/useStrainFilters";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { strains, patterns, families } from "./lib/constants";
 import { validateCompatFamilies, validateCompatSymmetry } from "./lib/strains";
 import type { FilterState } from "./types/strain";
 
-// Lazy-load the heavy Three.js canvas — only fetched when user switches to 3D
-const StrainUniverse = lazy(() =>
-  import("./components/3d/StrainUniverse").then((m) => ({ default: m.StrainUniverse }))
-);
+// NOTE: The 3D solar-system view is intentionally shelved for now so the app can
+// focus entirely on the orbit atlas. The 3D code is kept in the repo
+// (src/components/3d/*, src/components/ViewToggle.tsx) and can be re-enabled by
+// restoring: the `lazy`/`Suspense` import, a lazy `StrainUniverse` import, a
+// `viewMode` state, the <ViewToggle> in the toolbar, and the <Suspense> branch
+// in the view stage.
 
 // Tags that map directly to a care-level filter value
 const LEVEL_TAGS = new Set(["beginner-friendly", "intermediate", "collector", "expert"]);
@@ -48,7 +49,6 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
   const [expertMode, setExpertMode] = useState(() => {
     // Initialize from localStorage
     if (typeof window !== "undefined") {
@@ -193,7 +193,7 @@ export default function App() {
             <div className="toolbar">
               <div>
                 <p className="eyebrow">Species Atlas</p>
-                <h2>{viewMode === "3d" ? "3D Solar System" : (isMobile ? "Species Atlas" : "Genera, species & documented varieties")}</h2>
+                <h2>{isMobile ? "Species Atlas" : "Genera, species & documented varieties"}</h2>
               </div>
               <div className="toolbar-actions">
                 {!isMobile && (
@@ -219,7 +219,6 @@ export default function App() {
                     )}
                   </button>
                 )}
-                <ViewToggle mode={viewMode} onChange={setViewMode} />
                 <button
                   className="icon-button"
                   type="button"
@@ -270,27 +269,11 @@ export default function App() {
             </div>
 
             <div className="view-stage">
-              {viewMode === "2d" ? (
-                <FamilyOrbitExplorer
-                  visibleStrains={visibleStrains}
-                  onSelect={setSelectedId}
-                  expertMode={expertMode}
-                />
-              ) : (
-                <Suspense
-                  fallback={
-                    <div className="universe-loading">
-                      <div className="universe-loading-ring" />
-                      <span>Loading Universe…</span>
-                    </div>
-                  }
-                >
-                  <StrainUniverse
-                    visibleStrains={visibleStrains}
-                    onSelect={setSelectedId}
-                  />
-                </Suspense>
-              )}
+              <FamilyOrbitExplorer
+                visibleStrains={visibleStrains}
+                onSelect={setSelectedId}
+                expertMode={expertMode}
+              />
             </div>
           </section>
 
