@@ -47,6 +47,10 @@ export interface Strain {
   taxonomyStatus?: TaxonomyStatus;
   /** True for cultivar lines with confirmed hybrid origin (e.g. Taiwan Bee) */
   hybridOrigin?:   boolean;
+  /** Conservation status label, e.g. "Critically Endangered (IUCN)" or "Endemic — Sulawesi lakes" */
+  conservationStatus?: string;
+  /** Explanatory note shown alongside the conservation status (expert mode) */
+  conservationNote?:   string;
 }
 
 export interface FilterState {

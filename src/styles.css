@@ -522,6 +522,34 @@ input, select { font: inherit; color: inherit; }
   z-index: 2;
   pointer-events: none;
 }
+.orbit-clear-btn {
+  position: absolute;
+  top: var(--s5);
+  right: var(--s5);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(8, 12, 16, 0.55);
+  border: 1px solid var(--border-hover);
+  border-radius: 999px;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.orbit-clear-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(8, 12, 16, 0.75);
+}
 .orbit-stat {
   display: flex;
   flex-direction: column;

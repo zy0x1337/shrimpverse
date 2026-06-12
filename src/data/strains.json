@@ -64,6 +64,12 @@
         "offspring": "Orange / mixed Neo",
         "stability": "unstable",
         "note": "Color lines blend; culling needed to restore red."
+      },
+      {
+        "with": "Orange",
+        "offspring": "Orange-red Neo",
+        "stability": "unstable",
+        "note": "Color lines blend toward orange; separate for purity."
       }
     ],
     "factoid": "The world's most-kept dwarf shrimp — sold in virtually every aquarium shop.",
@@ -1041,6 +1047,12 @@
         "offspring": "Wild-tone / olive Neo",
         "stability": "unstable",
         "note": "Chocolate and wild form are genetically close; offspring revert easily."
+      },
+      {
+        "with": "Green",
+        "offspring": "Olive / wild-tone Neo",
+        "stability": "unstable",
+        "note": "Green reverts toward wild-type olive easily."
       }
     ],
     "factoid": "Good Chocolate lines have a rich, even tone — not the mottled look of wild-type davidi.",
@@ -1083,6 +1095,12 @@
         "offspring": "White / pale Neo",
         "stability": "unstable",
         "note": "Orange eye trait from OE Blue Dream may not breed true; offspring color variable."
+      },
+      {
+        "with": "Blue",
+        "offspring": "Blue Dream × Snowball / mixed Neo",
+        "stability": "unstable",
+        "note": "Orange-eye/blue traits may not breed true; variable offspring."
       }
     ],
     "factoid": "Named for its egg sacs — females carry a dense white cluster that looks like a snowball.",
@@ -1970,6 +1988,8 @@
       }
     ],
     "factoid": "Cardinal Shrimp are endemic to Lake Matano — one of the world's oldest and deepest lakes.",
+    "conservationStatus": "Critically Endangered (IUCN)",
+    "conservationNote": "Possibly extinct in the wild (last confirmed record ~2013). All traded specimens are captive-bred — source responsibly to support conservation efforts.",
     "summary": "Vivid scarlet body with brilliant white spots. Endemic to Lake Matano, Sulawesi. One of the most visually striking freshwater shrimp in the hobby.",
     "breeding": "Requires very specific warm, alkaline water (pH 7.8–8.5, 28–30 °C) — opposite of other soft-water Caridina. Cannot be kept with Crystal or Taiwan Bee.",
     "tags": [
@@ -2019,6 +2039,8 @@
       }
     ],
     "factoid": "The white legs are genetically stable but fade visibly under poor water quality — a reliable health indicator.",
+    "conservationStatus": "Endemic — Sulawesi lakes",
+    "conservationNote": "Endemic to ancient lakes in Sulawesi, Indonesia. Sensitive to water chemistry changes — support local breeding programs.",
     "summary": "Dark brown to black body with striking white legs — giving the appearance of wearing gloves. Endemic to Sulawesi lakes.",
     "breeding": "Same Sulawesi parameters as Cardinal shrimp. The white leg coloration is genetically stable but can fade under poor water quality.",
     "tags": [
@@ -2067,6 +2089,8 @@
       }
     ],
     "factoid": "White Orchid is one of the most elegant Sulawesi species — creamy and delicate rather than vivid.",
+    "conservationStatus": "Endemic — Sulawesi lakes",
+    "conservationNote": "Endemic to ancient lakes in Sulawesi, Indonesia. Sensitive to water chemistry changes — support local breeding programs.",
     "summary": "Creamy white to pale tan with a soft mottled pattern. Less vivid than Cardinal but highly elegant.",
     "breeding": "Sulawesi parameters required. Sensitive to fluctuations — a stable setup matters more than exact values at the extremes.",
     "tags": [
@@ -2115,6 +2139,8 @@
       }
     ],
     "factoid": "Blue Leg Poso comes from Lake Poso — a different lake than Cardinal's Lake Matano, so keep them separate.",
+    "conservationStatus": "Endemic — Lake Poso",
+    "conservationNote": "Endemic to Lake Poso, Sulawesi. Smaller range than Cardinal — sensitive to water chemistry changes; support local breeding programs.",
     "summary": "Dark translucent body with vivid blue legs. Endemic to Lake Poso, Sulawesi. Smaller and rarer than Cardinal.",
     "breeding": "Lake Poso water is warmer and slightly different from Matano — replicate accordingly. Not easily mixed with Cardinal in the same tank.",
     "tags": [

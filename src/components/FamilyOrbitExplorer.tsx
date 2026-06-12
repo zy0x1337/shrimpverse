@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { familyColors, familyGenus } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
@@ -176,8 +176,11 @@ function getMoonArcPath(x1: number, y1: number, x2: number, y2: number, bundleOf
   const nx = -dy / chordLen;
   const ny = dx / chordLen;
 
-  // Bow depth: scale by chord length, clamp between 8 and 40px for readability
-  const bow = Math.max(8, Math.min(40, chordLen * 0.18));
+  // Bow depth: more conservative scaling
+  // Short arcs get more prominent curves (12-20px), long arcs stay subtle (8-15px)
+  const bow = chordLen < 100
+    ? Math.max(12, Math.min(20, chordLen * 0.15))
+    : Math.max(8, Math.min(15, chordLen * 0.08));
 
   // Control point: midpoint + normal × (bow + bundleOffset)
   const cx = mx + nx * (bow + bundleOffset);
@@ -273,7 +276,10 @@ function getMoonArcMidpoint(x1: number, y1: number, x2: number, y2: number): { x
   const my = (y1 + y2) / 2;
   const nx = -dy / len;
   const ny = dx / len;
-  const bow = Math.max(8, Math.min(40, len * 0.18));
+  // Match getMoonArcPath bow calculation
+  const bow = len < 100
+    ? Math.max(12, Math.min(20, len * 0.15))
+    : Math.max(8, Math.min(15, len * 0.08));
   const cx = mx + nx * bow;
   const cy = my + ny * bow;
   // Quadratic Bézier evaluated at t = 0.5
@@ -430,6 +436,27 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
     ? families.find((f) => f.family === railFamily)?.strains ?? []
     : [];
 
+  // Stale-selection cleanup: if a selected family is filtered out of the visible
+  // set, clear that slot so no ghost highlight / empty rail lingers.
+  useEffect(() => {
+    const valid = new Set(families.map((f) => f.family));
+    if (moonA && !valid.has(moonA)) setMoonA(null);
+    if (moonB && !valid.has(moonB)) setMoonB(null);
+    if (railFamily && !valid.has(railFamily)) {
+      setRailFamily(null);
+      setRailOpen(false);
+    }
+  }, [families, moonA, moonB, railFamily]);
+
+  // Clear every active selection in one action (visible Clear button + reset).
+  const clearSelection = useCallback(() => {
+    setMoonA(null);
+    setMoonB(null);
+    setRailFamily(null);
+    setRailOpen(false);
+    setMobileLabel(null);
+  }, []);
+
   // ---------------------------------------------------------------------------
   // handleFamilyClick — slot-based dual-active logic (no Shift required)
   //
@@ -563,6 +590,28 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
           </p>
         </div>
 
+        {/* Visible clear-selection control — appears only when something is active */}
+        <AnimatePresence>
+          {activeFamilies.size > 0 && (
+            <motion.button
+              key="clear-selection"
+              type="button"
+              className="orbit-clear-btn"
+              onClick={clearSelection}
+              aria-label="Clear selection"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+            >
+              <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M3 3l10 10M13 3L3 13" />
+              </svg>
+              Clear
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         <div aria-live="polite" aria-atomic="true" className="sr-only">
           {activeFamilies.size > 0
             ? [...activeFamilies].map((f) => {
@@ -595,17 +644,27 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
         {/* Comparison badge when two families are active — visible on all devices */}
         <AnimatePresence>
           {moonA && moonB && (() => {
-            // Distinguish viable connections from impossible ones, so the
-            // badge communicates the actual relationship rather than a raw count.
-            const viable     = moonArcs.filter((a) => a.type !== "impossible").length;
-            const impossible = moonArcs.filter((a) => a.type === "impossible").length;
+            // Break the comparison down by cross type so the badge shows the
+            // actual breeding quality at a glance, not just a raw viable count.
+            const counts = {
+              crosses:     moonArcs.filter((a) => a.type === "crosses").length,
+              hybrid:      moonArcs.filter((a) => a.type === "hybrid").length,
+              stabilizing: moonArcs.filter((a) => a.type === "stabilizing").length,
+              impossible:  moonArcs.filter((a) => a.type === "impossible").length,
+            };
+            const viable = counts.crosses + counts.hybrid + counts.stabilizing;
+            // Build per-type segments (only present types), coloured to match arcs.
+            const segments: { text: string; color: string }[] = [];
+            if (counts.crosses)     segments.push({ text: `${counts.crosses} stable`,      color: "rgba(47,196,181,0.9)" });
+            if (counts.hybrid)      segments.push({ text: `${counts.hybrid} hybrid`,       color: "rgba(255,196,80,0.9)" });
+            if (counts.stabilizing) segments.push({ text: `${counts.stabilizing} stabilizing`, color: "rgba(180,130,255,0.9)" });
             let summary: { text: string; color: string };
             if (viable > 0) {
               summary = {
-                text: `${viable} viable${impossible > 0 ? " · rest incompatible" : ""}`,
-                color: "rgba(47,196,181,0.85)",
+                text: counts.impossible > 0 ? " · rest incompatible" : "",
+                color: "rgba(221,216,204,0.5)",
               };
-            } else if (impossible > 0) {
+            } else if (counts.impossible > 0) {
               summary = { text: "cannot crossbreed", color: "rgba(220,80,80,0.85)" };
             } else {
               summary = { text: "no direct crosses", color: "rgba(221,216,204,0.4)" };
@@ -622,8 +681,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 <span style={{ color: familyColors[moonA] }}>{moonA}</span>
                 <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
                 <span style={{ color: familyColors[moonB] }}>{moonB}</span>
-                <span style={{ color: summary.color, marginLeft: 8, fontSize: "0.8em" }}>
-                  {summary.text}
+                <span style={{ marginLeft: 8, fontSize: "0.8em" }}>
+                  {segments.map((seg, idx) => (
+                    <span key={seg.text} style={{ color: seg.color }}>
+                      {idx > 0 ? " · " : ""}{seg.text}
+                    </span>
+                  ))}
+                  {summary.text && (
+                    <span style={{ color: summary.color }}>{summary.text}</span>
+                  )}
                 </span>
               </motion.div>
             );
