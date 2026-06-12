@@ -1489,6 +1489,11 @@ input, select { font: inherit; color: inherit; }
   border: 1px solid oklch(from var(--accent) l c h / 0.3);
   color: var(--accent);
 }
+.compat-badge--stabilizing {
+  background: rgba(160, 100, 240, 0.12);
+  border: 1px solid rgba(160, 100, 240, 0.3);
+  color: #b87ef0;
+}
 .compat-badge--impossible {
   background: var(--color-danger-dim);
   border: 1px solid oklch(from var(--color-danger) l c h / 0.3);
