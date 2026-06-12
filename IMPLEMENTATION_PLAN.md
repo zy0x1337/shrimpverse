@@ -162,3 +162,140 @@ Nach Abschluss jeder Phase `CLAUDE.md` aktualisieren:
 - **Phase 2 ✅:** `ButtonGroup`-Komponente, `GUIDED_PATHS`-Konstante, `hasInteracted`-State, `orbit-stats-sentence`
 - **Phase 3 ✅:** `FAMILY_ARCS`-Konstante, `getArcPath`-Hilfsfunktion, `buildMoons`, `buildMoonArcs`, `moonA`/`moonB` Dual-State
 - **Phase 4 🔜:** Flip-Card-Pattern in StrainCard, Swatch-Chips, CSS-Token-System
+
+***
+***
+
+# Session 8 — Knowledge Integration & Arc Polish
+
+> **Grundlage:** Peer-reviewed Recherche-Report (`docs/SHRIMP_KNOWLEDGE.md`, ehemals `a1f08922.md`)
+> — Taxonomie mit Dispute-Flags, Wasserchemie pro Art, Farbgenetik, Cross-Matrizen,
+> Breeding-Biologie, 40+ Glossar-Begriffe.
+>
+> **Ziel der Session:** Die wissenschaftliche Tiefe des Reports ins Produkt bringen,
+> **ohne** die aufgeräumte Oberfläche zu opfern. Fokus zunächst **2D-Ansicht**.
+
+## Leitprinzip — Intuitiv trotz Tiefe (gilt für ALLE Phasen)
+
+Tiefe Informationsdichte darf nie zu Überforderung werden. Diese UX-Garantien sind
+bindend, nicht optional:
+
+1. **Progressive Disclosure als Grundregel.**
+   Default-Ansicht bleibt exakt so ruhig wie heute. Expert Mode ist *opt-in* —
+   wer nichts einschaltet, sieht keine neuen Badges, keine dichteren Labels.
+2. **Eine Information pro Interaktion.**
+   Arc antippen → *eine* Offspring-Info, kein Datenblatt. Planet → Monde.
+   Mond → Dialog. Jede Ebene fügt genau eine Schicht hinzu.
+3. **Farbe + Form tragen Bedeutung, nicht Text.**
+   Arc-Typen werden über Farbe/Strichart kommuniziert; die bestehende Legende
+   erklärt es einmal. Kein Label-Wust im Graph.
+4. **Tooltips on-demand**, verschwinden von selbst. Nichts klebt fest.
+5. **Fachbegriffe via vorhandenes `GlossaryTip`-Pattern** (`?`-Button im Dialog).
+   Niemand muss Vokabular mitbringen.
+6. **Expert Mode erweitert, ersetzt nie.** Gleiche Layout-Struktur, nur tiefere
+   Sektionen darunter — der Nutzer verliert nie die Orientierung.
+
+## Architektur-Entscheidungen (getroffen)
+
+| Frage | Entscheidung | Begründung |
+|-------|--------------|------------|
+| Expert Mode Platzierung | **Globaler Toggle** in der Toolbar (State in `App.tsx`, `localStorage`-persistiert) | Trifft das mentale Modell „Modus" (normal vs. „show me all the shrimp info"). Speist zunächst StrainDialog + Arc-Labels, später erweiterbar. |
+| Datenmodell-Tiefe | **Schlank** | Nur was Arcs + Expert-Dialog jetzt brauchen. Volle `{min,max,optimal}`-Migration von 49 Einträgen bringt keinen proportionalen Sofortnutzen, isoliert nachrüstbar. |
+| Neocaridina-Cross-Netz | **Repräsentativ** | Didaktisch wichtigste Neo-Paare (z.B. Red×Blue → Wildtype-Reversion) statt voller 28er-Mesh. Hält die Ansicht lesbar. |
+
+## Befunde aus der Code- & Datenanalyse (Ausgangslage)
+
+- **49 Strains, alle mit `compatible[]`.** Stability-Werte in den Daten: nur
+  `impossible` (25×) und `unstable` (52×) — **kein einziges `stable`**.
+  Der Report sagt aber klar: Crystal × Taiwan Bee (Mischling) ist **stable**.
+  → Die hardcodierte `FAMILY_ARCS` zeigt Crystal×TaiwanBee als teal „crosses",
+  aber die Moon-Arcs leiten ihren Typ aus den Daten ab → werden nie teal.
+  **Inkonsistenz, die Phase C behebt.**
+- Report definiert 4. Level `stabilizing` (Pinto/Taitibee), das im Type fehlt.
+- `getMoonArcPath` setzt den Kontrollpunkt auf `Mittelpunkt × 1.12` — schiebt vom
+  SVG-Ursprung (0,0) weg, **nicht** senkrecht zur Verbindung. Bei gegenüberliegenden
+  Planeten liegt der Mittelpunkt nahe 0,0 → Kurve wird fast gerade quer durchs
+  Zentrum. Auf Mobile besonders unsauber. **Phase D behebt das.**
+- Moon-Arcs verbinden zum *populärsten* Strain der Zielfamilie (Proxy), nicht zum
+  echten kompatiblen Strain — `withId` fehlt.
+
+## Phasen
+
+| Phase | Titel | Dateien | Risiko | Status |
+|-------|-------|---------|--------|--------|
+| A | Knowledge Base ins Repo | `docs/SHRIMP_KNOWLEDGE.md` | minimal | 🔜 |
+| B | Type-Erweiterungen | `strain.ts` | gering | 🔜 |
+| C | Daten-Korrektur & -Vervollständigung | `strains.json` | gering | 🔜 |
+| D | Arc-Rendering (Kern, mobile-first) | `FamilyOrbitExplorer.tsx` | mittel | 🔜 |
+| E | Expert Mode | `App.tsx`, `FilterPanel.tsx`, `StrainDialog.tsx` | mittel | 🔜 |
+
+### Phase A — Knowledge Base ins Repo
+`a1f08922.md` → `docs/SHRIMP_KNOWLEDGE.md` (sprechender Name, canonical reference,
+im Repo versioniert).
+
+### Phase B — Type-Erweiterungen (`strain.ts`)
+
+```ts
+export type CrossStability = "stable" | "unstable" | "stabilizing" | "impossible";
+export type TaxonomyStatus = "accepted" | "disputed" | "synonym" | "uncertain";
+
+export interface CrossResult {
+  with:       string;
+  withId?:    string;        // NEU: strain-genaues Arc-Targeting
+  offspring:  string;
+  stability:  CrossStability;
+  note?:      string;
+}
+
+export interface Strain {
+  // … bestehend
+  taxonomyStatus?: TaxonomyStatus;   // NEU — z.B. "disputed" für N. davidi-Komplex
+  hybridOrigin?:   boolean;          // NEU — z.B. Taiwan Bee
+}
+```
+
+### Phase C — Daten-Korrektur & -Vervollständigung (`strains.json`)
+Abgeglichen gegen Report Kap. 4.1 (Cross-Compatibility-Matrix):
+
+- **Crystal × Taiwan Bee → `stable`** (Mischling-Methode) — behebt Teal/Amber-Inkonsistenz
+- **Pinto / Taitibee → `stabilizing`**
+- Repräsentative Neo×Neo-Arcs als `unstable` (z.B. Red×Blue → Wildtype-Reversion)
+- `withId` setzen, wo strain-genaues Targeting sinnvoll ist
+- Taxonomie: `taxonomyStatus: "disputed"` für Neocaridina-Komplex,
+  `hybridOrigin: true` für Taiwan Bee
+- Symmetrie via vorhandene `validateCompatSymmetry` absichern (läuft im DEV-Startup)
+
+### Phase D — Arc-Rendering (Kern, mobile-first) (`FamilyOrbitExplorer.tsx`)
+
+1. **`getMoonArcPath` neu** — echter senkrechter Bogen statt Origin-Push:
+   ```
+   chord  = (x2-x1, y2-y1);  mid = ((x1+x2)/2, (y1+y2)/2)
+   normal = (-chordY, chordX) / |chord|        // senkrecht zur Sehne
+   bow    = clamp(|chord| * 0.18, 8, 40)       // skaliert, gedeckelt
+   ctrl   = mid + normal * bow                  // konsistent gewölbt
+   ```
+2. **Arc-Bundling** — mehrere Arcs zwischen gleichem Paar fächern (bow-Offset inkrementell)
+3. **4. Farbe** für `stabilizing` (violett/teal-blend) + Legende ergänzen
+4. **`FAMILY_ARCS` aus den Daten generieren** statt hardcoded → Single Source of Truth
+5. **`withId`-Targeting** ersetzt die „populärster Strain"-Proxy-Logik
+6. **Mobile:** antippbare Arcs (unsichtbare breite Hitbox-Pfade) → zeigen Offspring-Label;
+   sichtbare Arc-Anzahl deckeln (wichtigste gebündelt, Rest via Mond-Klick);
+   Clipping-Schutz im 640er viewBox
+
+### Phase E — Expert Mode (`App.tsx`, `FilterPanel.tsx`, `StrainDialog.tsx`)
+
+- Globaler `expertMode`-Toggle (Toolbar, `localStorage`-persistiert)
+- StrainDialog Expert-Sektionen (nur sichtbar wenn aktiv):
+  Taxonomie-Status-Badge, erweiterte Genetik/Breeding-Biologie aus dem Report,
+  dezenter Conservation-Hinweis (z.B. *C. dennerli* IUCN Critically Endangered)
+- Arc-Labels nur im Expert Mode dauerhaft sichtbar (sonst on-tap/hover)
+
+## Umsetzungs-Reihenfolge & Qualitätssicherung
+
+**Reihenfolge:** A → B → C → D → E. Jede Phase einzeln committet & `npx tsc --noEmit`-geprüft.
+
+**Sanity-Check pro sichtbarer Phase (D, E):**
+Test auf 380px-Breite (mobile-first laut CLAUDE.md), bevor committet wird —
+Arcs dürfen Planeten/Labels nicht überlappen, Tap-Targets ≥ 44px.
+
+**Kern der Session:** Phase D (visuelle Arcs + Mobile) & Phase C (Datenvollständigkeit).
