@@ -548,24 +548,22 @@ input, select { font: inherit; color: inherit; }
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 300;
   letter-spacing: 0.05em;
-  opacity: 0.96;
+  opacity: 0.72;
   pointer-events: none;
-  z-index: 2;
-  white-space: normal;
+  z-index: 1;
+  white-space: nowrap;
   text-align: center;
-  max-width: min(90vw, 440px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(8, 12, 16, 0.65);
-  padding: 0.75rem 1.25rem;
-  border-radius: 1.5rem;
-  backdrop-filter: blur(6px);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  gap: 0.35rem;
+  background: transparent;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.8rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 .orbit-active-genus {
   font-size: 0.62rem;
@@ -1237,7 +1235,6 @@ input, select { font: inherit; color: inherit; }
   .sidebar-collapse-btn { display: none; }
   .strain-card { width: 130px; }
   .orbit-stats { gap: var(--s4); top: var(--s3); }
-  .orbit-active-label { font-size: var(--text-lg); padding: 0.6rem 1rem; }
 
   .dialog-backdrop {
     align-items: flex-end;

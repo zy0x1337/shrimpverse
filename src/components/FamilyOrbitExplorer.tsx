@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
-import { familyColors, familyGenus, familyDescriptions } from "../lib/constants";
+import { familyColors, familyGenus } from "../lib/constants";
 import type { Strain } from "../types/strain";
 import { StrainRail } from "./StrainRail";
 import { ShrimpLogoMark } from "./ShrimpLogoMark";
@@ -587,28 +587,6 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               {activeFamily}
               {familyGenus[activeFamily] && (
                 <span className="orbit-active-genus">{familyGenus[activeFamily]}</span>
-              )}
-              {familyDescriptions[activeFamily] && (
-                <motion.span
-                  className="orbit-active-desc"
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.12, duration: 0.22 }}
-                >
-                  {familyDescriptions[activeFamily]}
-                </motion.span>
-              )}
-              {/* Comparison hint when exactly one planet is active */}
-              {activeFamilies.size === 1 && (
-                <motion.span
-                  className="orbit-active-desc"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  style={{ opacity: 0.45, fontSize: "0.68em", letterSpacing: "0.08em" }}
-                >
-                  {isMobile ? "TAP another planet to compare" : "CLICK another planet to compare"}
-                </motion.span>
               )}
             </motion.div>
           )}
