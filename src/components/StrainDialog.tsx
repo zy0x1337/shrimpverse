@@ -486,24 +486,21 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
                 </div>
               )}
 
-              {expertMode && strain.family === "Sulawesi" && (
+              {expertMode && strain.conservationStatus && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Conservation Status</div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>
-                    {strain.name === "Cardinal Shrimp" && (
-                      <p>
-                        <strong style={{ color: "#e07070" }}>⚠ IUCN Critically Endangered</strong>
-                        <br />
-                        Possibly extinct in the wild (last confirmed record ~2013). All traded specimens are captive-bred.
-                        Source responsibly to support conservation efforts.
-                      </p>
-                    )}
-                    {!strain.name.includes("Cardinal") && strain.family === "Sulawesi" && (
-                      <p>
-                        Endemic to ancient lakes in Sulawesi, Indonesia. Sensitive to water chemistry changes.
-                        Support local breeding programs.
-                      </p>
-                    )}
+                    <p>
+                      <strong style={{ color: strain.conservationStatus.includes("Endangered") ? "#e07070" : "#2fc4b5" }}>
+                        {strain.conservationStatus.includes("Endangered") ? "⚠ " : ""}{strain.conservationStatus}
+                      </strong>
+                      {strain.conservationNote && (
+                        <>
+                          <br />
+                          {strain.conservationNote}
+                        </>
+                      )}
+                    </p>
                   </div>
                 </div>
               )}
