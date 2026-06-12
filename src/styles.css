@@ -554,8 +554,11 @@ input, select { font: inherit; color: inherit; }
   opacity: 0.92;
   pointer-events: none;
   z-index: 2;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  max-width: min(90vw, 440px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
 }
@@ -1228,6 +1231,7 @@ input, select { font: inherit; color: inherit; }
   .sidebar-collapse-btn { display: none; }
   .strain-card { width: 130px; }
   .orbit-stats { gap: var(--s4); top: var(--s3); }
+  .orbit-active-label { font-size: var(--text-lg); }
 
   .dialog-backdrop {
     align-items: flex-end;

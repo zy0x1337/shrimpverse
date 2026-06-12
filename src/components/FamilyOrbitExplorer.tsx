@@ -123,10 +123,10 @@ function generateFamilyArcs(strains: Strain[]): Array<{
 }
 
 const ARC_COLOR: Record<ArcType, string> = {
-  crosses:     "rgba(47,196,181,0.30)",    // teal — stable
-  hybrid:      "rgba(255,196,80,0.25)",   // amber — unstable
-  stabilizing: "rgba(160,100,240,0.22)",  // violet — stabilizing
-  impossible:  "rgba(180,60,60,0.22)",    // dark red — impossible
+  crosses:     "rgba(47,196,181,0.42)",    // teal — stable
+  hybrid:      "rgba(255,196,80,0.35)",   // amber — unstable
+  stabilizing: "rgba(160,100,240,0.32)",  // violet — stabilizing
+  impossible:  "rgba(180,60,60,0.32)",    // dark red — impossible
 };
 
 const ARC_COLOR_ACTIVE: Record<ArcType, string> = {
@@ -286,58 +286,76 @@ function buildMoonArcs(
   familyB: string,
   moonsB: MoonDatum[],
 ): MoonArc[] {
-  const arcs: MoonArc[] = [];
+  // Group arcs by (type, offspring) to reduce to representatives
+  interface ArcGroup {
+    type: ArcType;
+    offspring: string;
+    strainA?: MoonDatum; // highest popularity A strain in this group
+    strainB?: MoonDatum; // highest popularity B strain in this group
+  }
+  const groupMap = new Map<string, ArcGroup>();
+
+  // Collect all crosses A → B
   for (const moonA of moonsA) {
     for (const cross of (moonA.strain.compatible ?? [])) {
-      // Normalise: compatible[].with is a family name (e.g. "Blue", "Taiwan Bee")
-      // Check if it matches familyB
       if (cross.with !== familyB) continue;
-      // Find the best-matching moon in B (highest popularity strain whose family matches)
-      // For a strain-level match we'd need compatible[].withId — for now connect to the
-      // most popular strain of the matching family as a visual proxy.
-      const bestB = moonsB.reduce((best, m) =>
-        m.strain.popularity > best.strain.popularity ? m : best
-      );
-      // Determine arc type from stability
       const type: ArcType =
         cross.stability === "impossible"   ? "impossible" :
         cross.stability === "stabilizing"  ? "stabilizing" :
         cross.stability === "unstable"     ? "hybrid" :
         "crosses";
-      arcs.push({
-        fromMoon: moonA,
-        toMoon: bestB,
-        type,
-        label: `${moonA.strain.name} × ${familyB}: ${cross.offspring}`,
-        offspring: cross.offspring,
-      });
+      const key = `${type}|${cross.offspring}`;
+      if (!groupMap.has(key)) {
+        const bestB = moonsB.reduce((best, m) =>
+          m.strain.popularity > best.strain.popularity ? m : best
+        );
+        groupMap.set(key, { type, offspring: cross.offspring, strainA: moonA, strainB: bestB });
+      } else {
+        const group = groupMap.get(key)!;
+        // Keep the most popular A strain in this group
+        if (!group.strainA || moonA.strain.popularity > group.strainA.strain.popularity) {
+          group.strainA = moonA;
+        }
+      }
     }
   }
-  // Also check B → A direction
+
+  // Collect all crosses B → A
   for (const moonB of moonsB) {
     for (const cross of (moonB.strain.compatible ?? [])) {
       if (cross.with !== familyA) continue;
-      const bestA = moonsA.reduce((best, m) =>
-        m.strain.popularity > best.strain.popularity ? m : best
-      );
       const type: ArcType =
         cross.stability === "impossible"   ? "impossible" :
         cross.stability === "stabilizing"  ? "stabilizing" :
         cross.stability === "unstable"     ? "hybrid" :
         "crosses";
-      // Avoid duplicates (A→B arc might already cover this)
-      const alreadyDrawn = arcs.some(
-        (a) => a.fromMoon.strain.id === bestA.strain.id && a.toMoon.strain.id === moonB.strain.id,
-      );
-      if (!alreadyDrawn) {
-        arcs.push({
-          fromMoon: bestA,
-          toMoon: moonB,
-          type,
-          label: `${moonB.strain.name} × ${familyA}: ${cross.offspring}`,
-          offspring: cross.offspring,
-        });
+      const key = `${type}|${cross.offspring}`;
+      if (!groupMap.has(key)) {
+        const bestA = moonsA.reduce((best, m) =>
+          m.strain.popularity > best.strain.popularity ? m : best
+        );
+        groupMap.set(key, { type, offspring: cross.offspring, strainA: bestA, strainB: moonB });
+      } else {
+        const group = groupMap.get(key)!;
+        // Keep the most popular B strain in this group
+        if (!group.strainB || moonB.strain.popularity > group.strainB.strain.popularity) {
+          group.strainB = moonB;
+        }
       }
+    }
+  }
+
+  // Convert groups to arcs
+  const arcs: MoonArc[] = [];
+  for (const group of groupMap.values()) {
+    if (group.strainA && group.strainB) {
+      arcs.push({
+        fromMoon: group.strainA,
+        toMoon: group.strainB,
+        type: group.type,
+        label: `${group.strainA.strain.name} × ${familyB}: ${group.offspring}`,
+        offspring: group.offspring,
+      });
     }
   }
   return arcs;
@@ -599,14 +617,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
         {/* Comparison badge when two families are active — visible on all devices */}
         <AnimatePresence>
           {moonA && moonB && (() => {
-            // Distinguish crossable connections from impossible ones, so the
+            // Distinguish viable connections from impossible ones, so the
             // badge communicates the actual relationship rather than a raw count.
-            const crossable  = moonArcs.filter((a) => a.type !== "impossible").length;
+            const viable     = moonArcs.filter((a) => a.type !== "impossible").length;
             const impossible = moonArcs.filter((a) => a.type === "impossible").length;
             let summary: { text: string; color: string };
-            if (crossable > 0) {
+            if (viable > 0) {
               summary = {
-                text: `${crossable} crossable${impossible > 0 ? " · rest incompatible" : ""}`,
+                text: `${viable} viable${impossible > 0 ? " · rest incompatible" : ""}`,
                 color: "rgba(47,196,181,0.85)",
               };
             } else if (impossible > 0) {
@@ -784,7 +802,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                       <motion.text
                         x={mid.x} y={mid.y}
                         textAnchor="middle" dominantBaseline="central"
-                        fontSize="4.4" fontWeight="600"
+                        fontSize="5.5" fontWeight="600"
                         fontFamily="'IBM Plex Mono', monospace"
                         fill={ARC_COLOR_ACTIVE[arc.type]}
                         initial={{ opacity: 0 }}
