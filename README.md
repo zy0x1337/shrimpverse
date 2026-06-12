@@ -1,55 +1,118 @@
-# Shrimpverse
+<div align="center">
 
-An interactive 3D/2D atlas of freshwater aquarium shrimp — visualized as a living solar system. Browse 49 documented varieties across 15 families, filter by water chemistry, care level, and color, and explore each strain's taxonomy, coloration, and husbandry at a glance.
+# 🦐 Shrimpverse
+
+**An interactive orbit atlas of all freshwater shrimp species — built for hobbyists, breeders, and collectors.**
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-shrimpverse.vercel.app-6ee7b7?style=flat-square&logo=vercel&logoColor=white)](https://shrimpverse.vercel.app)
+[![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![License](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
+
+</div>
+
+---
+
+Shrimpverse maps the entire freshwater shrimp world as a living solar system. **49 varieties across 15 families** are arranged in a dual-ring orbit — Neocaridina on the inner ring, Caridina and exotics on the outer. Explore species, compare crossbreeding compatibility, and discover the full taxonomy behind every strain — all in a single interactive view.
 
 ---
 
 ## Features
 
-**3D Solar System**  
-Each shrimp family orbits as a distinct planet with unique material profiles (rocky, icy, metallic, gas giant, Saturn-ringed for Sulawesi). Individual strains revolve as moons. A pulsing golden sun sits at the center with bloom and vignette post-processing.
+### 🪐 Dual-Ring Orbit Atlas
 
-**2D SVG Orbit Map**  
-A dual-ring layout: Neocaridina families on the inner ring, Caridina and exotics on the outer. Neocaridina appear as circles, Caridina as hexagons. The central golden sun resets the overview on click. Sulawesi nodes carry Saturn-style ellipse rings.
+A golden pulsing sun anchors the center. The two rings encode water chemistry at a glance:
 
-**Filters**  
-Search by name, filter by color family, pattern (Solid, Rili, Mosura…), care level (Beginner → Collector), and water type (hard / soft / neutral). Filters apply live across both views.
+- **Inner ring** — Neocaridina families (hard water), rendered as circles
+- **Outer ring** — Caridina and exotic families (soft water), rendered as hexagons
 
-**Strain Detail Dialog**  
-Opens on strain selection: shows genus + species in italic, a water type badge with color coding, a 3-segment color swatch, and a 6-cell meta grid covering level, pattern, popularity, stability, water type, and origin.
+Planets follow a curated **colour-wheel ordering** so related hues cluster together: reds and oranges sit adjacent, greens and blues sit adjacent. All 49 strain moons orbit their family planet with spherical shading — a specular highlight and depth gradient give each moon a distinct, tactile appearance.
 
-**Responsive Layout**  
-On desktop, clicking a family opens a right-side panel with the strain list. On mobile it slides up as a bottom sheet. The filter sidebar is collapsible on desktop via a toolbar toggle.
+### 🔀 Crossbreeding Compatibility
+
+Select any two family planets to see arc-encoded compatibility between their strains. A comparison badge shows a per-type breakdown directly in the HUD.
+
+| Arc colour | Meaning |
+|-----------|---------|
+| Teal — solid | Stable, colour-true offspring |
+| Amber — solid | Hybrid / wildtype-reversal risk |
+| Violet — solid | Stabilizing (Pinto/Taitibee lines) |
+| Red — dashed | Crossbreeding impossible |
+
+Family-level arcs are data-driven: they are generated automatically from `strains.json` and update whenever filters change. When two planets are active, family-level arcs hide in favour of the more precise moon-to-moon arcs.
+
+### 🔬 Expert Mode
+
+An opt-in **Expert Mode** toggle unlocks extended sections inside the strain dialog:
+
+- **Taxonomy Status** — dispute flags with WoRMS context (e.g. *N. davidi* complex)
+- **Genetics & Breeding** — hybrid-origin flag, arc outcome labels on every curve
+- **Conservation Status** — IUCN data for Sulawesi endemics (Cardinal Sulawesi = Critically Endangered)
+
+In the orbit view, expert mode overlays deduped offspring labels directly onto moon-to-moon arcs, so you can read crossing results without opening a dialog.
+
+### 🔭 Strain Detail Dialog
+
+Click any moon to open a rich detail panel:
+
+- Full **taxonomy** line (genus + species, italic serif)
+- **Water type badge** (hard / soft / neutral) with matching colour icon
+- 6-cell **meta grid**: care level, temperature, pH, TDS, size, water type
+- Focus-trapped, keyboard-navigable modal (WCAG AA)
+
+### 🔍 Filtering
+
+Filter by family, water type (`hard` / `soft` / `neutral`), pattern, care level, popularity, and colour stability. The **Quick Start** panel offers preset paths like *Show me beginner shrimp* or *Soft water only*. An amber dot on the mobile filter button signals whenever any filter is active.
+
+### 📱 Responsive Layout
+
+| Viewport | Layout |
+|---------|--------|
+| Desktop (≥640px) | Collapsible sidebar + right-side strain rail |
+| Tablet (640–768px) | Desktop layout (sidebar + right rail) |
+| Mobile (<640px) | Off-canvas filter drawer + horizontal bottom sheet |
+
+44px WCAG touch targets on every planet. Orbit renders larger on mobile via a tighter viewBox (600 vs 640). Arc legend collapses to a compact single row on small screens.
 
 ---
 
 ## Tech Stack
 
-| Layer | Library |
-|---|---|
-| UI | React 19 + TypeScript |
-| 3D | Three.js via @react-three/fiber + @react-three/drei |
-| Animation | Framer Motion (motion/react) |
-| 3D Springs | @react-spring/three |
-| Post-FX | postprocessing (Bloom, Vignette) |
-| Build | Vite |
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript 5.8 |
+| Build | Vite 7 |
+| Animations | motion 12 (motion/react) |
+| Rendering | SVG (2D orbit) |
+| Deploy | Vercel |
 
 ---
 
-## Getting Started
+## Data Model
 
-```bash
-npm install
-npm run dev       # localhost:5173
-npm run build     # production build
-npm run preview   # preview build locally
+All 49 varieties ship with complete taxonomy and crossbreeding data:
+
+```ts
+interface Strain {
+  id: string;                   // kebab-case, e.g. "red-cherry"
+  name: string;
+  family: string;               // "Red", "Taiwan Bee", "Sulawesi", …
+  genus: string;                // "Neocaridina" | "Caridina" | "Atyopsis" | "Atya"
+  species: string;              // e.g. "davidi", "cantonensis"
+  waterType: "hard" | "soft" | "neutral";
+  level: "Beginner" | "Intermediate" | "Collector";
+  colors: [string, string, string]; // [primary, secondary, dark]
+  compatible?: CrossResult[];   // crossbreeding data, auto-generates arcs
+  tags?: string[];
+  taxonomyStatus?: "accepted" | "disputed" | "synonym" | "uncertain";
+  hybridOrigin?: boolean;
+  conservationStatus?: string;  // e.g. "Critically Endangered"
+  conservationNote?: string;
+}
 ```
 
-Type check:
-
-```bash
-npx tsc --noEmit
-```
+New strains added to `src/data/strains.json` automatically appear in the orbit and strain rail — no component changes needed.
 
 ---
 
@@ -57,60 +120,89 @@ npx tsc --noEmit
 
 ```
 src/
-├── types/strain.ts              # Strain interface + waterType, genus, species
+├── types/strain.ts              # Core interfaces (Strain, CrossResult, FilterState)
 ├── data/strains.json            # 49 shrimp varieties across 15 families
 ├── lib/
-│   ├── constants.ts             # Family colors, genus mapping
-│   ├── strainUtils.ts           # Filter logic
-│   └── orbitalDistance.ts       # 3D spatial positioning
+│   ├── constants.ts             # Family colours, genus mapping
+│   ├── strainUtils.ts           # Filter + compatibility logic
+│   └── orbitalDistance.ts       # 2D spatial positioning
 ├── hooks/
 │   ├── useStrainFilters.ts      # Filter state management
-│   └── useIsMobile.ts           # Viewport/pointer detection
-├── components/
-│   ├── App.tsx                  # Main layout, view toggle, sidebar collapse
-│   ├── FilterPanel.tsx          # Sidebar with all filter controls
-│   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view
-│   ├── StrainRail.tsx           # Strain card list (horizontal / vertical)
-│   ├── StrainDialog.tsx         # Strain detail modal
-│   └── 3d/
-│       ├── StrainUniverse.tsx   # 3D canvas + orbital layout
-│       ├── Sun3D.tsx            # Pulsing golden star
-│       ├── FamilyNode3D.tsx     # Planet mesh with material profiles
-│       ├── StrainOrbit.tsx      # Moon orbits
-│       ├── StrainPlanet.tsx     # Individual moon mesh
-│       ├── StrainRail3D.tsx     # HTML panel anchored in 3D space
-│       ├── OrbitRing.tsx        # Orbital path visualization
-│       ├── EffectPipeline.tsx   # Bloom + Vignette
-│       └── UniverseBackground.tsx
+│   └── useIsMobile.ts           # Viewport + pointer detection
+└── components/
+    ├── App.tsx                  # Root layout, sidebar + expert mode state
+    ├── FilterPanel.tsx          # Filters + Quick Start presets
+    ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit (main view)
+    ├── StrainRail.tsx           # Strain card list (h/v orientations)
+    └── StrainDialog.tsx         # Strain detail modal + expert sections
+docs/
+└── SHRIMP_KNOWLEDGE.md         # 72KB freshwater shrimp knowledge base (taxonomy,
+                                 # water chemistry, crossing matrix, 40+ glossary terms)
 ```
 
 ---
 
-## Data Model
+## Getting Started
 
-Each entry in `strains.json` follows this shape:
+**Prerequisites:** Node.js ≥ 18, pnpm (recommended) or npm
 
-```ts
-interface Strain {
-  id: string;          // kebab-case, e.g. "crystal-red"
-  name: string;
-  family: string;      // "Red" | "Crystal" | "Sulawesi" | …
-  genus?: string;      // "Neocaridina" | "Caridina" | "Atyopsis" | "Atya"
-  species?: string;    // e.g. "davidi", "cantonensis"
-  waterType: "hard" | "soft" | "neutral";
-  level: "Beginner" | "Intermediate" | "Collector";
-  pattern: string;
-  colors: [string, string, string]; // [primary, secondary, dark] hex
-  popularity: number;  // 1–5
-  stable: boolean;
-}
+```bash
+# Clone
+git clone https://github.com/zy0x1337/shrimpverse.git
+cd shrimpverse
+
+# Install
+pnpm install
+
+# Dev server → http://localhost:5173
+pnpm dev
 ```
 
-The dual-ring layout is derived from `waterType` and `level`: Neocaridina (`hard`) occupy the inner ring, Caridina and exotics (`soft` / `neutral`) the outer.
+```bash
+pnpm build       # Production build
+pnpm preview     # Preview production build locally
+npx tsc --noEmit # Type check
+```
 
+---
+
+## Accessibility
+
+Shrimpverse targets **WCAG 2.1 Level AA**:
+
+- Focus-trap in StrainDialog — Tab cycles within modal, focus restores on close
+- Shape-true circular focus rings for keyboard navigation (pointer-initiated focus suppressed)
+- `aria-live="polite"` regions announce family/strain count changes
+- Colour contrast: `--text-faint` 4.6:1, `--text-muted` 5.1:1
+- 44px minimum touch targets on all interactive planets (WCAG 2.5.5)
+- `aria-pressed` on Expert Mode toggle; semantic `<ul>/<li>` for strain lists
+
+---
+
+## Contributing
+
+Contributions are welcome — especially strain data corrections, new varieties, and accessibility improvements.
+
+1. Fork the repo and create a feature branch: `git checkout -b feat/your-feature`
+2. Run type checks before committing: `npx tsc --noEmit`
+3. Open a pull request against `main`
+
+**Adding a strain:** edit `src/data/strains.json`. A valid entry needs `id`, `family`, `genus`, `species`, `waterType`, and `level`. It will appear automatically in the orbit and rail.
+
+**Adding crossbreeding data:** add a `compatible` array to the strain entry. Family-level arcs are derived automatically from this data — no hardcoding needed.
+
+---
+
+## Roadmap
+
+- [ ] Swipe-to-dismiss gesture on mobile dialog (`motion drag: "y"`)
+- [ ] Breeding notes, rare variant documentation, morphology notes per strain
+- [ ] Interactive onboarding: guided hints and empty-state guidance
+- [ ] WCAG 2.1 Level AAA audit
+- [ ] Data symmetry validation: automated checks for all crossbreeding pairs
 
 ---
 
 ## License
 
-MIT
+MIT © [zy0x1337](https://github.com/zy0x1337)
