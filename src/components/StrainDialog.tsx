@@ -9,6 +9,8 @@ interface Props {
   onClose: () => void;
   /** Optional: called when user clicks a tag — propagates the tag up for filtering */
   onTagFilter?: (tag: string) => void;
+  /** Show extended expert-mode sections */
+  expertMode?: boolean;
 }
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -432,6 +434,75 @@ export function StrainDialog({ strain, onClose, onTagFilter }: Props) {
                       ) : (
                         <span key={tag} className="dialog-tag">{tag}</span>
                       )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Expert Mode Sections ── */}
+              {expertMode && strain.taxonomyStatus && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Taxonomy Status</div>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                    <span
+                      className="dialog-expert-badge"
+                      style={{
+                        background: strain.taxonomyStatus === "disputed"
+                          ? "rgba(255,196,80,0.15)"
+                          : "rgba(47,196,181,0.15)",
+                        color: strain.taxonomyStatus === "disputed" ? "#ffc450" : "#2fc4b5",
+                        padding: "4px 8px",
+                        borderRadius: "4px",
+                        fontSize: "var(--text-xs)",
+                        fontWeight: 500,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {strain.taxonomyStatus}
+                    </span>
+                    {strain.taxonomyStatus === "disputed" && (
+                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                        Scientific classification actively debated in peer-reviewed literature
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {expertMode && strain.hybridOrigin && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Genetics & Breeding</div>
+                  <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                    <p>
+                      <strong>Hybrid Origin:</strong> This cultivar line has documented hybrid ancestry involving multiple species.
+                    </p>
+                    {strain.compatible && strain.compatible.length > 0 && (
+                      <p>
+                        <strong>Cross Compatibility:</strong> Can be crossed with other families to produce hybrids.
+                        See "Breeding compatibility" section above for details.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {expertMode && strain.family === "Sulawesi" && (
+                <div className="dialog-section">
+                  <div className="dialog-section-label">Conservation Status</div>
+                  <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                    {strain.name === "Cardinal Shrimp" && (
+                      <p>
+                        <strong style={{ color: "#e07070" }}>⚠ IUCN Critically Endangered</strong>
+                        <br />
+                        Possibly extinct in the wild (last confirmed record ~2013). All traded specimens are captive-bred.
+                        Source responsibly to support conservation efforts.
+                      </p>
+                    )}
+                    {!strain.name.includes("Cardinal") && strain.family === "Sulawesi" && (
+                      <p>
+                        Endemic to ancient lakes in Sulawesi, Indonesia. Sensitive to water chemistry changes.
+                        Support local breeding programs.
+                      </p>
                     )}
                   </div>
                 </div>

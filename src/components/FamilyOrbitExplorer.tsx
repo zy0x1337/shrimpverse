@@ -318,6 +318,7 @@ function buildMoonArcs(
 interface Props {
   visibleStrains: Strain[];
   onSelect: (id: string) => void;
+  expertMode?: boolean;
 }
 
 export function FamilyOrbitExplorer({ visibleStrains, onSelect }: Props) {
