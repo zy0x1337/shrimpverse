@@ -176,8 +176,11 @@ function getMoonArcPath(x1: number, y1: number, x2: number, y2: number, bundleOf
   const nx = -dy / chordLen;
   const ny = dx / chordLen;
 
-  // Bow depth: scale by chord length, clamp between 8 and 40px for readability
-  const bow = Math.max(8, Math.min(40, chordLen * 0.18));
+  // Bow depth: more conservative scaling
+  // Short arcs get more prominent curves (12-20px), long arcs stay subtle (8-15px)
+  const bow = chordLen < 100
+    ? Math.max(12, Math.min(20, chordLen * 0.15))
+    : Math.max(8, Math.min(15, chordLen * 0.08));
 
   // Control point: midpoint + normal × (bow + bundleOffset)
   const cx = mx + nx * (bow + bundleOffset);
@@ -273,7 +276,10 @@ function getMoonArcMidpoint(x1: number, y1: number, x2: number, y2: number): { x
   const my = (y1 + y2) / 2;
   const nx = -dy / len;
   const ny = dx / len;
-  const bow = Math.max(8, Math.min(40, len * 0.18));
+  // Match getMoonArcPath bow calculation
+  const bow = len < 100
+    ? Math.max(12, Math.min(20, len * 0.15))
+    : Math.max(8, Math.min(15, len * 0.08));
   const cx = mx + nx * bow;
   const cy = my + ny * bow;
   // Quadratic Bézier evaluated at t = 0.5
