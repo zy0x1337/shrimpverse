@@ -136,20 +136,29 @@ const ARC_COLOR_ACTIVE: Record<ArcType, string> = {
   impossible:  "rgba(220,80,80,0.65)",    // bright red — impossible
 };
 
-function getArcPath(
+/**
+ * Arc between two nodes that sit at *different* orbit radii (e.g. a Neocaridina
+ * node at r≈170 and a Caridina node at r≈245). A single fixed-radius arc would
+ * dangle in empty space because neither endpoint lands on a node centre. This
+ * anchors each endpoint to its own node and bows the control point outward along
+ * the angular bisector, so the curve always connects cleanly planet-to-planet.
+ */
+function getNodeArcPath(
   fromAngle: number,
+  fromR: number,
   toAngle: number,
-  radius: number,
-  curvature = 0.38,
+  toR: number,
+  curvature = 0.30,
 ): string {
-  const x1 = radius * Math.cos(fromAngle);
-  const y1 = radius * Math.sin(fromAngle);
-  const x2 = radius * Math.cos(toAngle);
-  const y2 = radius * Math.sin(toAngle);
+  const x1 = fromR * Math.cos(fromAngle);
+  const y1 = fromR * Math.sin(fromAngle);
+  const x2 = toR * Math.cos(toAngle);
+  const y2 = toR * Math.sin(toAngle);
   const delta = ((toAngle - fromAngle + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
   const effectiveMid = fromAngle + delta / 2;
-  const mx = radius * (1 + curvature) * Math.cos(effectiveMid);
-  const my = radius * (1 + curvature) * Math.sin(effectiveMid);
+  const midR = ((fromR + toR) / 2) * (1 + curvature);
+  const mx = midR * Math.cos(effectiveMid);
+  const my = midR * Math.sin(effectiveMid);
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} Q ${mx.toFixed(2)} ${my.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
@@ -573,8 +582,6 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
     ? { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 20 } }
     : { initial: { width: 0, opacity: 0 }, animate: { width: 260, opacity: 1 }, exit: { width: 0, opacity: 0 } };
 
-  const ARC_RADIUS = 213;
-
   return (
     <div className="orbit-layout">
       <div className="orbit-explorer" style={activeFamily && isMobile && railOpen ? { paddingBottom: "138px" } : undefined}>
@@ -794,7 +801,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               return (
                 <g key={`arc-${arc.from}-${arc.to}`}>
                   <motion.path
-                    d={getArcPath(fromNode.angle, toNode.angle, ARC_RADIUS)}
+                    d={getNodeArcPath(fromNode.angle, fromNode.orbitR, toNode.angle, toNode.orbitR)}
                     stroke={isHighlighted ? ARC_COLOR_ACTIVE[arc.type] : ARC_COLOR[arc.type]}
                     strokeWidth={isHighlighted ? 1.6 : 0.9}
                     fill="none" strokeLinecap="round"
