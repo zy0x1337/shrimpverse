@@ -731,9 +731,35 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
         >
           <defs>
             <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stopColor="rgba(255,220,60,0.30)" />
-              <stop offset="60%"  stopColor="rgba(255,170,20,0.10)" />
+              <stop offset="0%"   stopColor="rgba(255,245,200,0.42)" />
+              <stop offset="30%"  stopColor="rgba(255,210,70,0.26)" />
+              <stop offset="62%"  stopColor="rgba(255,160,20,0.10)" />
               <stop offset="100%" stopColor="rgba(255,140,0,0)" />
+            </radialGradient>
+            {/* Sun core — white-hot centre fading through gold to orange */}
+            <radialGradient id="sun-core" cx="38%" cy="34%" r="68%">
+              <stop offset="0%"   stopColor="#fffaf0" />
+              <stop offset="42%"  stopColor="#ffe87a" />
+              <stop offset="100%" stopColor="#f7b733" />
+            </radialGradient>
+            {/* Colour-independent planet shading — reused by every family node.
+                #planet-shade adds a top-left specular highlight; #planet-depth
+                darkens the lower-right edge for a spherical, lit-from-above look. */}
+            <radialGradient id="planet-shade" cx="32%" cy="28%" r="62%">
+              <stop offset="0%"   stopColor="rgba(255,255,255,0.42)" />
+              <stop offset="45%"  stopColor="rgba(255,255,255,0.10)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            </radialGradient>
+            <radialGradient id="planet-depth" cx="40%" cy="36%" r="72%">
+              <stop offset="0%"   stopColor="rgba(0,0,0,0)" />
+              <stop offset="58%"  stopColor="rgba(0,0,0,0)" />
+              <stop offset="100%" stopColor="rgba(0,0,0,0.38)" />
+            </radialGradient>
+            {/* Faint scene vignette/glow so the planets read as floating in depth */}
+            <radialGradient id="scene-depth" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="rgba(40,60,90,0.18)" />
+              <stop offset="55%"  stopColor="rgba(20,30,48,0.07)" />
+              <stop offset="100%" stopColor="rgba(8,12,16,0)" />
             </radialGradient>
             <radialGradient id="neo-water" cx="0" cy="0" r="208" gradientUnits="userSpaceOnUse">
               <stop offset="30%" stopColor="transparent" />
@@ -758,6 +784,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
+
+          {/* Soft central depth glow — sits behind everything for a floating feel */}
+          <circle cx="0" cy="0" r={VB / 2} fill="url(#scene-depth)" aria-hidden="true" />
 
           <circle cx="0" cy="0" r="208" fill="url(#neo-water)"  aria-hidden="true" />
           <circle cx="0" cy="0" r="276" fill="url(#cari-water)" aria-hidden="true" />
@@ -1016,21 +1045,35 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                   </>
                 )}
                 {isCaridina ? (
-                  <polygon
-                    points={hexPoints(nx, ny, nr)}
-                    fill={item.color}
-                    stroke={isActive ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
-                    strokeWidth={isActive ? 1.2 : 0.6}
-                    filter={isActive || isHov ? "url(#node-glow)" : undefined}
-                  />
+                  <>
+                    <polygon
+                      points={hexPoints(nx, ny, nr)}
+                      fill={item.color}
+                      stroke={isActive ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)"}
+                      strokeWidth={isActive ? 1.2 : 0.6}
+                      filter={isActive || isHov ? "url(#node-glow)" : undefined}
+                    />
+                    {/* Spherical shading overlays (depth + specular) — pure decoration */}
+                    <polygon points={hexPoints(nx, ny, nr)} fill="url(#planet-depth)"
+                      style={{ pointerEvents: "none" }} aria-hidden="true" />
+                    <polygon points={hexPoints(nx, ny, nr)} fill="url(#planet-shade)"
+                      style={{ pointerEvents: "none" }} aria-hidden="true" />
+                  </>
                 ) : (
-                  <circle
-                    cx={nx} cy={ny} r={nr}
-                    fill={item.color}
-                    stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
-                    strokeWidth={isActive ? 1.2 : 0.5}
-                    filter={isActive || isHov ? "url(#node-glow)" : undefined}
-                  />
+                  <>
+                    <circle
+                      cx={nx} cy={ny} r={nr}
+                      fill={item.color}
+                      stroke={isActive ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"}
+                      strokeWidth={isActive ? 1.2 : 0.5}
+                      filter={isActive || isHov ? "url(#node-glow)" : undefined}
+                    />
+                    {/* Spherical shading overlays (depth + specular) — pure decoration */}
+                    <circle cx={nx} cy={ny} r={nr} fill="url(#planet-depth)"
+                      style={{ pointerEvents: "none" }} aria-hidden="true" />
+                    <circle cx={nx} cy={ny} r={nr} fill="url(#planet-shade)"
+                      style={{ pointerEvents: "none" }} aria-hidden="true" />
+                  </>
                 )}
                 {isPrimary && swatchColors.length >= 3 && (
                   <>
@@ -1118,6 +1161,14 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                       transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.05 }}
                       whileHover={{ scale: 1.7 }}
                       style={{ transformOrigin: `${moon.mx}px ${moon.my}px` }}
+                    />
+                    {/* Tiny specular highlight gives each moon a lit, rounded look */}
+                    <circle
+                      cx={moon.mx - moon.r * 0.32} cy={moon.my - moon.r * 0.32}
+                      r={Math.max(0.6, moon.r * 0.38)}
+                      fill="rgba(255,255,255,0.5)"
+                      style={{ pointerEvents: "none" }}
+                      aria-hidden="true"
                     />
                     <title>{moon.strain.name}</title>
                   </g>
@@ -1211,9 +1262,11 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 />
               );
             })}
-            <circle cx="0" cy="0" r="30" fill="rgba(255,190,30,0.18)" filter="url(#sun-glow)" />
-            <circle cx="0" cy="0" r="24" fill="#ffe060" filter="url(#sun-glow)" />
-            <circle cx="0" cy="0" r="20" fill="#fff27a" />
+            <circle cx="0" cy="0" r="30" fill="rgba(255,190,30,0.20)" filter="url(#sun-glow)" />
+            <circle cx="0" cy="0" r="24" fill="url(#sun-core)" filter="url(#sun-glow)" />
+            <circle cx="0" cy="0" r="20" fill="url(#sun-core)" />
+            {/* Soft specular kiss on the sun's upper-left */}
+            <circle cx="-6" cy="-7" r="7" fill="rgba(255,255,255,0.45)" />
             <text
               x="0" y="-2"
               textAnchor="middle" dominantBaseline="central"
