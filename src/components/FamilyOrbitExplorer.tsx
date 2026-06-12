@@ -787,16 +787,22 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               const fromNode = families.find((n) => n.family === arc.from);
               const toNode   = families.find((n) => n.family === arc.to);
               if (!fromNode || !toNode) return null;
+
+              // When exactly 2 families are active, hide family-level arcs between them.
+              // Moon-to-moon arcs already show the detailed relationships.
+              if (activeFamilies.size === 2 &&
+                  activeFamilies.has(arc.from) &&
+                  activeFamilies.has(arc.to)) {
+                return null;
+              }
+
               // Count how many of this arc's endpoints are currently active
               const endpointsActive =
                 (activeFamilies.has(arc.from) ? 1 : 0) +
                 (activeFamilies.has(arc.to)   ? 1 : 0);
-              // With two planets active, only the arc connecting BOTH counts
-              // (its direct relationship). With one active, any arc touching it counts.
-              const isHighlighted =
-                activeFamilies.size >= 2
-                  ? endpointsActive === 2
-                  : endpointsActive >= 1;
+              // With one active, show any arc touching it. With 2+ active, show arcs
+              // not between the two active ones (those are covered by moon-to-moon arcs).
+              const isHighlighted = endpointsActive >= 1;
               const isDimmed = activeFamilies.size > 0 && !isHighlighted;
               return (
                 <g key={`arc-${arc.from}-${arc.to}`}>
