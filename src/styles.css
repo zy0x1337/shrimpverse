@@ -1211,7 +1211,7 @@ input, select { font: inherit; color: inherit; }
 /* =====================
    RESPONSIVE — MOBILE
    ===================== */
-@media (max-width: 768px) {
+@media (max-width: 639px) {
   .filter-container {
     position: fixed;
     top: 0; left: 0; bottom: 0;
@@ -1301,18 +1301,22 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
-  /* Arc legend: compact on mobile — 2 columns, smaller gap, SVG icons stay visible */
+  /* Arc legend: compact on mobile — single row, hidden shape legend saves ~30px */
   .orbit-arc-legend {
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--s2) var(--s3);
     font-size: 0.6rem;
-    bottom: calc(var(--s3) + 22px);
+    bottom: var(--s3);
     padding: 0 var(--s4);
     width: 100%;
   }
   .orbit-arc-legend-item {
     gap: 4px;
+  }
+  /* Shape legend redundant on mobile — orbit shows circles vs hexagons visually */
+  .orbit-legend {
+    display: none;
   }
 
   /* Water profile: 3+2 layout on mobile */
@@ -1327,7 +1331,7 @@ input, select { font: inherit; color: inherit; }
 
 /* iPhone notch / home indicator safe areas */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  @media (max-width: 768px) {
+  @media (max-width: 639px) {
     .dialog-body {
       padding-bottom: max(var(--s8), env(safe-area-inset-bottom));
     }

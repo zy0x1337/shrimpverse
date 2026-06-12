@@ -506,8 +506,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
       // Update rail to the newly activated family
       setRailFamily(family);
       if (isMobile) {
+        // Don't auto-open rail — show transient label then let user swipe up manually
         setMobileLabel(family);
-        setTimeout(() => { setRailOpen(true); setMobileLabel(null); }, 700);
+        setTimeout(() => setMobileLabel(null), 800);
       } else {
         setRailOpen(false);
       }
@@ -653,6 +654,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
               impossible:  moonArcs.filter((a) => a.type === "impossible").length,
             };
             const viable = counts.crosses + counts.hybrid + counts.stabilizing;
+            // Genus mismatch: one Neo, one Caridina — biologically impossible to cross
+            const crossGenus = CARIDINA_SET.has(moonA) !== CARIDINA_SET.has(moonB);
             // Build per-type segments (only present types), coloured to match arcs.
             const segments: { text: string; color: string }[] = [];
             if (counts.crosses)     segments.push({ text: `${counts.crosses} stable`,      color: "rgba(47,196,181,0.9)" });
@@ -664,7 +667,7 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 text: counts.impossible > 0 ? " · rest incompatible" : "",
                 color: "rgba(221,216,204,0.5)",
               };
-            } else if (counts.impossible > 0) {
+            } else if (counts.impossible > 0 || crossGenus) {
               summary = { text: "cannot crossbreed", color: "rgba(220,80,80,0.85)" };
             } else {
               summary = { text: "no direct crosses", color: "rgba(221,216,204,0.4)" };
@@ -826,7 +829,9 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                       animate={{ opacity: 0 }}
                     />
                   )}
-                  {/* Visible arc */}
+                  {/* Visible arc — impossible arcs use opacity-only animation because
+                      framer-motion's pathLength animation internally sets stroke-dasharray,
+                      which would override the explicit dashed style we need. */}
                   <motion.path
                     d={pathStr}
                     stroke={ARC_COLOR_ACTIVE[arc.type]}
@@ -834,8 +839,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                     fill="none"
                     strokeLinecap="round"
                     strokeDasharray={isImpossible ? "3 3" : undefined}
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 0.85 }}
+                    initial={isImpossible ? { opacity: 0 } : { pathLength: 0, opacity: 0 }}
+                    animate={isImpossible ? { opacity: 0.85 } : { pathLength: 1, opacity: 0.85 }}
                     transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
                     pointerEvents={isMobile ? "none" : "auto"}
                   />
@@ -895,8 +900,16 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             );
           })}
 
-          {/* Family planet nodes */}
-          {families.map((item, i) => {
+          {/* Family planet nodes — sorted so active planets paint last (SVG z-order).
+              Original index preserved for animation delay staggering. */}
+          {[...families]
+            .sort((a, b) => {
+              const aActive = (a.family === moonA || a.family === moonB) ? 1 : 0;
+              const bActive = (b.family === moonA || b.family === moonB) ? 1 : 0;
+              return aActive - bActive;
+            })
+            .map((item) => {
+            const i = families.indexOf(item);
             const { nx, ny, nodeR: nr, isCaridina } = item;
             // Highlight driven purely by moonA/moonB slots — no separate activeFamily state
             const isActive  = item.family === moonA || item.family === moonB;
@@ -935,6 +948,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 }}
                 style={{ cursor: "pointer", transformOrigin: `${nx}px ${ny}px` }}
               >
+                {/* Transparent hit-area: WCAG 44px (22 SVG units radius ≈ 44px at typical scale) */}
+                <circle cx={nx} cy={ny} r={Math.max(nr, 22)} fill="transparent" aria-hidden="true" />
                 {isPrimary && (
                   <motion.circle
                     cx={nx} cy={ny} r={nr + 6}
@@ -1216,6 +1231,29 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
             </AnimatePresence>
           </motion.g>
         </svg>
+
+        {/* Mobile peek button — appears after planet tap, lets user open rail manually */}
+        <AnimatePresence>
+          {isMobile && railFamily && !railOpen && activeStrains.length > 0 && (
+            <motion.button
+              key="rail-peek"
+              type="button"
+              className="orbit-rail-peek"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => setRailOpen(true)}
+              aria-label={`Show ${railFamily} strains`}
+            >
+              <span
+                className="orbit-rail-peek-dot"
+                style={{ background: familyColors[railFamily] ?? "var(--accent)" }}
+              />
+              {railFamily} · {activeStrains.length} strain{activeStrains.length !== 1 ? "s" : ""} ↑
+            </motion.button>
+          )}
+        </AnimatePresence>
 
         {/* Arc legend */}
         <div className="orbit-arc-legend" aria-hidden="true">

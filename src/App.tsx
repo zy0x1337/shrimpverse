@@ -193,7 +193,7 @@ export default function App() {
             <div className="toolbar">
               <div>
                 <p className="eyebrow">Species Atlas</p>
-                <h2>{viewMode === "3d" ? "3D Solar System" : "Genera, species & documented varieties"}</h2>
+                <h2>{viewMode === "3d" ? "3D Solar System" : (isMobile ? "Species Atlas" : "Genera, species & documented varieties")}</h2>
               </div>
               <div className="toolbar-actions">
                 {!isMobile && (
@@ -235,6 +235,15 @@ export default function App() {
                   <svg viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 2a1 1 0 0 0-.894.553L8.382 6H5a3 3 0 0 0 0 6h.028a2 2 0 0 0 .2 4h9.544a2 2 0 0 0 .2-4H15a3 3 0 0 0 0-6h-3.382L10.894 2.553A1 1 0 0 0 10 2Z" opacity={expertMode ? 1 : 0.4} />
                   </svg>
+                  {isMobile && expertMode && (
+                    <span style={{
+                      fontSize: "0.52rem",
+                      letterSpacing: "0.08em",
+                      fontFamily: "var(--font-mono)",
+                      lineHeight: 1,
+                      opacity: 0.85,
+                    }}>EXPERT</span>
+                  )}
                 </button>
                 <button
                   className="icon-button mobile-filter-toggle"

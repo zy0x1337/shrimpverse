@@ -82,6 +82,9 @@ function StrainCard({
   const isTouch = useIsTouch();
 
   function handleClick() {
+    // On touch devices skip the flip-card — go straight to the dialog.
+    // The factoid is shown inside StrainDialog, so no info is lost.
+    if (isTouch) { onSelect(); return; }
     if (hasFactoid && !flipped) {
       setFlipped(true);
     } else if (flipped) {
