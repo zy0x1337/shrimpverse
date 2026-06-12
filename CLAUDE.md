@@ -214,7 +214,7 @@ npm run build && npm run preview
 
 ## Current Status
 
-**7 sessions complete** — Shrimpverse is a fully polished, production-grade 3D/2D interactive shrimp atlas:
+**9 sessions complete** — Shrimpverse is a production-grade, thoroughly tested 3D/2D interactive shrimp atlas:
 - 49 shrimp varieties across 15 families (all with genus, species, waterType)
 - Dual-ring system: Neocaridina (8 inner), Caridina + exotics (6 outer)
 - 3D solar system with pulsing sun, material-mapped planets, orbiting moons + strain browser overlay
@@ -224,12 +224,33 @@ npm run build && npm run preview
 - Collapsible sidebar (desktop), right-side strain panel (desktop), bottom sheet (mobile)
 - Mobile 3D: readable labels, correct orbit spacing, tap-to-reveal moon names
 - Graphify code analysis: interactive knowledge graph, zero import cycles
+- **Session 8/9 polish**: 10-bug fix cycle, arc rendering fixes, WCAG touch targets, quick-start styling
 
-**Next directions** (Session 8):
-- Swipe-to-dismiss gesture on mobile dialog (currently false affordance removed; could be implemented with Framer Motion `drag: "y"`)
-- Additional strain data: breeding notes, more detailed summaries
-- Onboarding / empty-state copy refinement
-- Mobile 3D geometry budget review for lower-end devices
+### ✅ Session 8: Full Testing + 10-Bug Fix Cycle
+Comprehensive 2D view testing (desktop + mobile) identified **10 major bugs**. All fixed in single PR:
+- **Bug 1**: SVG Z-order — active planets render last so Red Cherry moon clickable
+- **Bug 2**: Impossible arcs use opacity animation (framer-motion fix), now properly dashed
+- **Bug 3**: Neo×Caridina badge detects genus mismatch without data bloat
+- **Bug 4**: Toolbar title shortened on mobile (<640px)
+- **Bug 5**: Mobile rail uses manual peek button instead of auto-open (prevents second-tap block)
+- **Bug 6**: Tablet breakpoint lowered from ≤768px to <640px (iPad gets desktop layout)
+- **Bug 7**: 44px touch targets (WCAG) on all planets via transparent hit circles
+- **Bug 8**: Legends optimized (shape legend hidden on mobile, arc legend repositioned)
+- **Bug 9**: Strain cards skip flip animation on touch, open dialog directly
+- **Bug 10**: Expert mode shows visible "EXPERT" label on mobile (no tooltip fallback)
+
+### ✅ Session 9: Arc Rendering + UX Polish
+- **Arc connection fix**: Family-level arcs now anchor to actual node positions (no dangling endpoints)
+- **Quick Start filter styling**: Added complete CSS for guided-path preset buttons
+- **Redundant arc elimination**: Family-level arcs hidden when comparing two active planets (moon-to-moon arcs sufficient)
+
+## Next Directions
+- Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
+- Additional strain data enrichment: breeding notes, rare variants, morphology notes
+- Onboarding refinement: interactive hints, empty-state guidance
+- 3D performance budget: geometry optimization for lower-end devices
+- Accessibility audit: WCAG 2.1 Level AAA coverage
+- Data validation: symmetry checks for all cross-breeding pairs
 
 ## Graphify: Code Knowledge Graph
 
