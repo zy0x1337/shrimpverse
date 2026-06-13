@@ -1,14 +1,14 @@
 # Shrimpverse
 
-An interactive 3D planet system showcasing all freshwater shrimp species: Neocaridina, Caridina, Sulawesi, Amano, and filter-feeders.
+An interactive 2D orbital atlas of freshwater shrimp varieties.
 
 ## Vision
 
-Transform the Neocaridina strain map into a living solar system where:
-- Each shrimp family orbits as a distinct planet with unique visual character
-- Species varieties revolve as moons around their family planet
-- The sun pulses at the center, symbolizing the aquatic ecosystem
-- Two orbit rings separate beginner-friendly Neocaridina (inner) from soft-water species (outer)
+Interactive 2D orbital atlas of freshwater shrimp varieties:
+- Each family orbits as a distinct node with unique color
+- Species (moons) revolve around their family
+- Click to explore, compare families, and browse detailed profiles
+- (3D solar system view shelved in Session 11 — code preserved for later re-enabling)
 
 ## Project Structure
 
