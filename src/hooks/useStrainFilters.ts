@@ -12,7 +12,9 @@ const initialState: FilterState = {
   stableOnly: false,
   waterType: "all",
   showBreedingArcs: false,
-  showExpertDetails: false,
+  showTaxonomyStatus: false,
+  showHybridOrigin: false,
+  showConservationStatus: false,
 };
 
 export function useStrainFilters() {
@@ -41,6 +43,8 @@ export function useStrainFilters() {
     setStableOnly: (stableOnly: boolean) => setState((c) => ({ ...c, stableOnly })),
     setWaterType: (waterType: string) => setState((c) => ({ ...c, waterType })),
     setShowBreedingArcs: (showBreedingArcs: boolean) => setState((c) => ({ ...c, showBreedingArcs })),
-    setShowExpertDetails: (showExpertDetails: boolean) => setState((c) => ({ ...c, showExpertDetails })),
+    setShowTaxonomyStatus: (showTaxonomyStatus: boolean) => setState((c) => ({ ...c, showTaxonomyStatus })),
+    setShowHybridOrigin: (showHybridOrigin: boolean) => setState((c) => ({ ...c, showHybridOrigin })),
+    setShowConservationStatus: (showConservationStatus: boolean) => setState((c) => ({ ...c, showConservationStatus })),
   };
 }
