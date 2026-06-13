@@ -4,11 +4,11 @@ An interactive 3D planet system showcasing all freshwater shrimp species: Neocar
 
 ## Vision
 
-Transform the Neocaridina strain map into a living solar system where:
-- Each shrimp family orbits as a distinct planet with unique visual character
-- Species varieties revolve as moons around their family planet
-- The sun pulses at the center, symbolizing the aquatic ecosystem
-- Two orbit rings separate beginner-friendly Neocaridina (inner) from soft-water species (outer)
+Interactive 2D orbital atlas of freshwater shrimp varieties:
+- Each family orbits as a distinct node with unique color
+- Species (moons) revolve around their family
+- Click to explore, compare families, and browse detailed profiles
+- (3D solar system view shelved in Session 11 — code preserved for later re-enabling)
 
 ## Project Structure
 
@@ -24,12 +24,14 @@ src/
 │   ├── useStrainFilters.ts      # State: family, waterType, pattern, etc.
 │   └── useIsMobile.ts           # Viewport + pointer detection
 ├── components/
-│   ├── App.tsx                  # Main layout, view toggle, sidebar collapse state
+│   ├── App.tsx                  # Main layout, sidebar collapse state (3D toggle removed)
 │   ├── FilterPanel.tsx          # waterType filter + desktop collapse button
-│   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view (orbit-layout flex row)
+│   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view (orbit-layout flex row) — PRIMARY VIEW
 │   ├── StrainRail.tsx           # Strain card list (horizontal/vertical orientation)
 │   ├── StrainDialog.tsx         # Strain detail modal
-│   ├── 3d/
+│   ├── ShrimpLogoMark.tsx       # Sidebar logo mark (color-reactive)
+│   ├── ShrimpVisual.tsx         # Strain detail illustration (anatomy-based)
+│   ├── 3d/                      # SHELVED (Session 11) — code preserved, not imported
 │   │   ├── StrainUniverse.tsx   # 3D canvas + layout (two rings + Sun)
 │   │   ├── Sun3D.tsx            # Pulsing golden star
 │   │   ├── FamilyNode3D.tsx     # Planet with 6 material types + mobile label sizing
@@ -214,17 +216,15 @@ npm run build && npm run preview
 
 ## Current Status
 
-**9 sessions complete** — Shrimpverse is a production-grade, thoroughly tested 3D/2D interactive shrimp atlas:
-- 49 shrimp varieties across 15 families (all with genus, species, waterType)
-- Dual-ring system: Neocaridina (8 inner), Caridina + exotics (6 outer)
-- 3D solar system with pulsing sun, material-mapped planets, orbiting moons + strain browser overlay
-- 2D SVG counterpart with golden sun, hexagonal Caridina nodes, Saturn rings, encoding legend
-- Enriched strain dialog with taxonomy, water type, 6-cell meta grid, focus-trap, WCAG AA contrast
-- waterType filter + searchable genus/species; mobile filter indicator dot
-- Collapsible sidebar (desktop), right-side strain panel (desktop), bottom sheet (mobile)
-- Mobile 3D: readable labels, correct orbit spacing, tap-to-reveal moon names
-- Graphify code analysis: interactive knowledge graph, zero import cycles
-- **Session 8/9 polish**: 10-bug fix cycle, arc rendering fixes, WCAG touch targets, quick-start styling
+**11 sessions complete** — Shrimpverse is a polished 2D interactive shrimp atlas (3D shelved):
+- **49 shrimp varieties** across 15 families (all with genus, species, waterType)
+- **2D orbit explorer** (primary view): dual-ring system, golden sun, hexagonal Caridina nodes, live compatibility arcs
+- **Visual polish**: refined shrimp art (3 scales), SVG icon nav, pinch-zoom dialog fix, compare-badge clarity
+- **Mobile-first**: collapsible sidebar (desktop), right-side panel (desktop), bottom sheet (mobile)
+- **Enriched dialog**: taxonomy, water type badges, 6-cell meta grid, focus-trap, WCAG AA contrast
+- **Filters**: waterType (hard/soft/neutral), searchable genus/species, guided quick-start presets
+- **Code quality**: zero import cycles, comprehensive type safety, semantic accessibility
+- **3D code shelved**: StrainUniverse & friends preserved in src/components/3d/ for later re-enabling if needed
 
 ### ✅ Session 8: Full Testing + 10-Bug Fix Cycle
 Comprehensive 2D view testing (desktop + mobile) identified **10 major bugs**. All fixed in single PR:
@@ -256,8 +256,10 @@ Comprehensive 2D view refinement identified and fixed 11 UX/layout issues:
 - **HUD consolidation**: Stats + Active-Label + Compare-Badge share single line via AnimatePresence crossfade
 - **Dimming softened**: Inactive-planet opacity 0.18 → 0.32 for better context
 
-### ✅ Session 11: Pinch-Zoom Fix + Shrimp Refactor + Icon Swap
-Four orthogonal visual refinements:
+### ✅ Session 11: Shelve 3D, Pinch-Zoom Fix, Shrimp Refactor, Icon Swap
+Strategic pivot to 2D focus + five visual refinements:
+
+0. **Navigation decision: 3D view shelved**: Removed `ViewToggle` from toolbar; app focuses on 2D orbit explorer. All `StrainUniverse` / 3D code files preserved in `src/components/3d/` + Three.js deps intact for future re-enabling if needed. Comment in `App.tsx` documents restoration steps.
 
 1. **Mobile pinch-zoom dialog fix**: New `useVisualViewportRect` hook pins dialog backdrop to visual viewport (counter-scaled) when page zoomed, so tapping a moon while pinch-zoomed no longer drops the modal off-screen. Added body scroll-lock while dialog open.
 
@@ -276,9 +278,9 @@ Four orthogonal visual refinements:
 - Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
 - Additional strain data enrichment: breeding notes, rare variants, morphology notes
 - Onboarding refinement: interactive hints, empty-state guidance
-- 3D performance budget: geometry optimization for lower-end devices
-- Accessibility audit: WCAG 2.1 Level AAA coverage
+- Accessibility audit: WCAG 2.1 Level AAA coverage (currently AA)
 - Data validation: symmetry checks for all cross-breeding pairs
+- *Optional future*: Re-enable 3D view if user demand / performance allows (code preserved)
 
 ## Graphify: Code Knowledge Graph
 
@@ -322,10 +324,11 @@ graphify query "what components use Strain?"
 
 1. **Memory system**: See `.claude/projects/.../memory/project_shrimpverse.md` for session continuity
 2. **Always tsc check** before committing (`npx tsc --noEmit`)
-3. **Mobile-first**: Test on 380px+ width, optimize touch interactions
-4. **Performance**: Lazy-load 3D canvas, keep shader complexity low on mobile
+3. **Mobile-first**: Test on 390px+ width, optimize touch interactions (pinch-zoom dialog fix: useVisualViewportRect)
+4. **Performance**: SVG is primary render; Three.js imports in 3d/ are shelved (not imported from App.tsx)
 5. **Naming**: Strains use lowercase kebab-case IDs; families use Title Case
-6. **Data**: New strains added to `src/data/strains.json` auto-appear in both 2D & 3D views
+6. **Data**: New strains added to `src/data/strains.json` auto-appear in 2D orbit explorer + dialog
 7. **Sidebar**: Desktop collapse via `sidebarCollapsed` state in App.tsx; mobile uses off-canvas drawer
 8. **Strain rail**: `orientation="vertical"` for desktop right panel, `"horizontal"` for mobile bottom sheet
 9. **Graphify**: After major refactors, run `graphify . --backend claude-cli` to update knowledge graph
+10. **3D re-enable**: If needed, uncomment lazy import in App.tsx (line ~11) + ViewToggle component to restore
