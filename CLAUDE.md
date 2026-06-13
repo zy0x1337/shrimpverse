@@ -1,6 +1,6 @@
 # Shrimpverse
 
-An interactive 3D planet system showcasing all freshwater shrimp species: Neocaridina, Caridina, Sulawesi, Amano, and filter-feeders.
+An interactive 2D orbital atlas of freshwater shrimp varieties.
 
 ## Vision
 
@@ -256,10 +256,8 @@ Comprehensive 2D view refinement identified and fixed 11 UX/layout issues:
 - **HUD consolidation**: Stats + Active-Label + Compare-Badge share single line via AnimatePresence crossfade
 - **Dimming softened**: Inactive-planet opacity 0.18 → 0.32 for better context
 
-### ✅ Session 11: Shelve 3D, Pinch-Zoom Fix, Shrimp Refactor, Icon Swap
-Strategic pivot to 2D focus + five visual refinements:
-
-0. **Navigation decision: 3D view shelved**: Removed `ViewToggle` from toolbar; app focuses on 2D orbit explorer. All `StrainUniverse` / 3D code files preserved in `src/components/3d/` + Three.js deps intact for future re-enabling if needed. Comment in `App.tsx` documents restoration steps.
+### ✅ Session 11: Pinch-Zoom Fix + Shrimp Refactor + Icon Swap
+Four orthogonal visual refinements:
 
 1. **Mobile pinch-zoom dialog fix**: New `useVisualViewportRect` hook pins dialog backdrop to visual viewport (counter-scaled) when page zoomed, so tapping a moon while pinch-zoomed no longer drops the modal off-screen. Added body scroll-lock while dialog open.
 

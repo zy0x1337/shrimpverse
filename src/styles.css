@@ -1484,6 +1484,23 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
+  /* Arc legend: compact on mobile — repositioned to top HUD area */
+  .orbit-arc-legend {
+    bottom: auto;
+    top: calc(var(--s5) + 56px); /* below the compare-badge */
+    max-width: calc(100vw - var(--s4) * 2);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 5px;
+    font-size: 0.48rem;
+    letter-spacing: 0.01em;
+    padding: 0 var(--s1);
+    width: 100%;
+  }
+  .orbit-arc-legend-item {
+    gap: 3px;
+    flex-shrink: 0;
+  }
   /* Onboarding overlay sits clear above the single-row legend on mobile */
   .orbit-onboarding {
     bottom: calc(var(--s3) + 50px);
