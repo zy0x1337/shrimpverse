@@ -11,9 +11,16 @@ interface Props {
 }
 
 /**
- * MiniShrimp — a tiny 12×6 px shrimp silhouette used as a popularity pip.
+ * MiniShrimp — a tiny 12×7 px shrimp silhouette used as a popularity pip.
+ *
+ * Canonical pose (shared by ShrimpLogoMark & ShrimpVisual): side profile facing
+ * LEFT — arched back over the head, abdomen curling down-and-right into a fan
+ * tail, antennae sweeping up-left, eye near the front. At pip size only the
+ * confident comma body + notched tail fan need to read.
  */
 function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
+  const body = filled ? color : "rgba(255,255,255,0.12)";
+  const line = filled ? color : "rgba(255,255,255,0.1)";
   return (
     <svg
       width="12"
@@ -23,23 +30,27 @@ function MiniShrimp({ filled, color }: { filled: boolean; color: string }) {
       aria-hidden="true"
       style={{ display: "block", flexShrink: 0 }}
     >
+      {/* Antennae sweeping up-left from the head */}
+      <path d="M2.4 3 Q1 2 0.4 0.6" stroke={line} strokeWidth="0.55" strokeLinecap="round" />
+      <path d="M2.6 3.5 Q1.4 2.9 0.7 1.9" stroke={line} strokeWidth="0.5" strokeLinecap="round" />
+      {/* Body: rounded head left, arched back, curling to a thin tail base */}
       <path
-        d="M1.5 4.5 Q2 2 5 1.5 Q8 1 9 2.8 Q9.5 4 8 4.8 Q6 5.5 4 5 Q2 4.6 1.5 4.5Z"
-        fill={filled ? color : "rgba(255,255,255,0.12)"}
+        d="M2 4.6 C1.6 2.7 3.4 1.7 5.3 1.6 C7.4 1.5 9.1 2.2 9.7 3.8 C9.85 4.1 9.8 4.3 9.5 4.5 C8.2 5.05 4.6 5.3 3 5 C2.4 4.9 2.1 4.85 2 4.6 Z"
+        fill={body}
       />
+      {/* Fan tail at the right tip */}
       <path
-        d="M8 4.6 Q10 4 11.5 5"
-        stroke={filled ? color : "rgba(255,255,255,0.1)"}
-        strokeWidth="1.1"
-        strokeLinecap="round"
+        d="M9.4 3.8 Q11.1 3.1 11.5 3.5 Q10.9 4 11.4 4.7 Q11.1 5 9.7 4.5 Z"
+        fill={body}
       />
-      <path
-        d="M2.5 2.5 Q1 1 0.5 0"
-        stroke={filled ? color : "rgba(255,255,255,0.1)"}
-        strokeWidth="0.7"
-        strokeLinecap="round"
-      />
-      <circle cx="2.8" cy="3.4" r="0.7" fill={filled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)"} />
+      {/* Abdomen segment hints — only on the filled (lit) pip */}
+      {filled && (
+        <>
+          <path d="M6 2.1 Q6.1 3 5.8 4.6" stroke="rgba(0,0,0,0.18)" strokeWidth="0.4" strokeLinecap="round" />
+          <path d="M7.4 2.4 Q7.5 3.1 7.2 4.4" stroke="rgba(0,0,0,0.18)" strokeWidth="0.4" strokeLinecap="round" />
+        </>
+      )}
+      <circle cx="3" cy="3.4" r="0.7" fill={filled ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)"} />
     </svg>
   );
 }

@@ -359,6 +359,9 @@ input, select { font: inherit; color: inherit; }
 }
 
 .guided-path-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
   padding: var(--s3) var(--s4);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -370,6 +373,11 @@ input, select { font: inherit; color: inherit; }
   text-align: left;
   cursor: pointer;
   transition: all 180ms ease;
+}
+
+.guided-path-btn svg {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .guided-path-btn:hover {
