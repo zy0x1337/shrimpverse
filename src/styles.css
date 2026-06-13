@@ -691,6 +691,9 @@ input, select { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: var(--s3);
+  max-width: calc(100vw - var(--s4) * 2);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .orbit-compare-clear {
@@ -1451,6 +1454,7 @@ input, select { font: inherit; color: inherit; }
   .orbit-arc-legend {
     bottom: auto;
     top: calc(var(--s5) + 56px); /* below the compare-badge */
+    max-width: calc(100vw - var(--s4) * 2);
     flex-wrap: wrap;
     justify-content: center;
     gap: 2px 5px;
