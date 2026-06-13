@@ -10,8 +10,12 @@ interface Props {
   onClose: () => void;
   /** Optional: called when user clicks a tag — propagates the tag up for filtering */
   onTagFilter?: (tag: string) => void;
-  /** Show extended expert sections (taxonomy, genetics, conservation) */
-  showExpertDetails?: boolean;
+  /** Show taxonomy validity badge in the strain profile */
+  showTaxonomyStatus?: boolean;
+  /** Show genetics & hybrid-origin note in the strain profile */
+  showHybridOrigin?: boolean;
+  /** Show IUCN / endemic conservation note in the strain profile */
+  showConservationStatus?: boolean;
 }
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -152,7 +156,7 @@ function SwatchSeg({ color, role }: { color: string; role: string }) {
   );
 }
 
-export function StrainDialog({ strain, onClose, onTagFilter, showExpertDetails }: Props) {
+export function StrainDialog({ strain, onClose, onTagFilter, showTaxonomyStatus, showHybridOrigin, showConservationStatus }: Props) {
   useEffect(() => {
     if (!strain) return;
 
@@ -469,8 +473,8 @@ export function StrainDialog({ strain, onClose, onTagFilter, showExpertDetails }
                 </div>
               )}
 
-              {/* ── Expert Detail Sections ── */}
-              {showExpertDetails && strain.taxonomyStatus && (
+              {/* ── Advanced Detail Sections ── */}
+              {showTaxonomyStatus && strain.taxonomyStatus && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Taxonomy Status</div>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
@@ -499,7 +503,7 @@ export function StrainDialog({ strain, onClose, onTagFilter, showExpertDetails }
                 </div>
               )}
 
-              {showExpertDetails && strain.hybridOrigin && (
+              {showHybridOrigin && strain.hybridOrigin && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Genetics & Breeding</div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>
@@ -516,7 +520,7 @@ export function StrainDialog({ strain, onClose, onTagFilter, showExpertDetails }
                 </div>
               )}
 
-              {showExpertDetails && strain.conservationStatus && (
+              {showConservationStatus && strain.conservationStatus && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Conservation Status</div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>

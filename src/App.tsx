@@ -45,7 +45,9 @@ export default function App() {
     setStableOnly,
     setWaterType,
     setShowBreedingArcs,
-    setShowExpertDetails,
+    setShowTaxonomyStatus,
+    setShowHybridOrigin,
+    setShowConservationStatus,
   } = useStrainFilters();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -174,7 +176,9 @@ export default function App() {
               onStableOnlyChange={setStableOnly}
               onWaterTypeChange={setWaterType}
               onShowBreedingArcsChange={setShowBreedingArcs}
-              onShowExpertDetailsChange={setShowExpertDetails}
+              onShowTaxonomyStatusChange={setShowTaxonomyStatus}
+              onShowHybridOriginChange={setShowHybridOrigin}
+              onShowConservationStatusChange={setShowConservationStatus}
               onApplyPreset={handleApplyPreset}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
             />
@@ -250,7 +254,9 @@ export default function App() {
         strain={selectedStrain}
         onClose={() => setSelectedId(null)}
         onTagFilter={handleTagFilter}
-        showExpertDetails={state.showExpertDetails}
+        showTaxonomyStatus={state.showTaxonomyStatus}
+        showHybridOrigin={state.showHybridOrigin}
+        showConservationStatus={state.showConservationStatus}
       />
     </>
   );

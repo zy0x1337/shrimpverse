@@ -20,7 +20,9 @@ interface Props {
   onStableOnlyChange: (v: boolean) => void;
   onWaterTypeChange: (v: string) => void;
   onShowBreedingArcsChange: (v: boolean) => void;
-  onShowExpertDetailsChange: (v: boolean) => void;
+  onShowTaxonomyStatusChange: (v: boolean) => void;
+  onShowHybridOriginChange: (v: boolean) => void;
+  onShowConservationStatusChange: (v: boolean) => void;
   onApplyPreset: (preset: Partial<FilterState>) => void;
   onClose?: () => void;
 }
@@ -152,9 +154,10 @@ export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
-  onWaterTypeChange, onShowBreedingArcsChange, onShowExpertDetailsChange,
-  onApplyPreset,
-  onClose,
+  onWaterTypeChange,
+  onShowBreedingArcsChange, onShowTaxonomyStatusChange,
+  onShowHybridOriginChange, onShowConservationStatusChange,
+  onApplyPreset, onClose,
 }: Props) {
   const activeFamilyColor =
     state.family !== "All" ? familyColors[state.family] : null;
@@ -333,31 +336,55 @@ export function FilterPanel({
           </label>
         </div>
 
-        {/* Expert view — display toggles (do not affect the strain count) */}
+        {/* Advanced — display toggles (do not affect the strain count) */}
         <div className="filter-section">
-          <div className="filter-label">Expert view</div>
+          <div className="filter-label">Advanced</div>
           <label
             className="filter-checkbox"
-            title="Show cross-breeding outcome labels on the orbit map"
+            title="Show cross-breeding outcome labels on the orbit arcs when two families are selected"
           >
             <input
               type="checkbox"
               checked={state.showBreedingArcs}
               onChange={(e) => onShowBreedingArcsChange(e.target.checked)}
             />
-            Breeding outcomes
+            Breeding outcome labels
           </label>
           <label
             className="filter-checkbox"
             style={{ marginTop: "var(--s2)" }}
-            title="Show taxonomy, genetics & conservation details in the strain profile"
+            title="Show the scientific classification status (accepted, disputed, synonym, uncertain) in the strain profile"
           >
             <input
               type="checkbox"
-              checked={state.showExpertDetails}
-              onChange={(e) => onShowExpertDetailsChange(e.target.checked)}
+              checked={state.showTaxonomyStatus}
+              onChange={(e) => onShowTaxonomyStatusChange(e.target.checked)}
             />
-            Expert details
+            Taxonomy status
+          </label>
+          <label
+            className="filter-checkbox"
+            style={{ marginTop: "var(--s2)" }}
+            title="Show genetics & breeding notes for cultivar lines with documented hybrid ancestry"
+          >
+            <input
+              type="checkbox"
+              checked={state.showHybridOrigin}
+              onChange={(e) => onShowHybridOriginChange(e.target.checked)}
+            />
+            Hybrid origin
+          </label>
+          <label
+            className="filter-checkbox"
+            style={{ marginTop: "var(--s2)" }}
+            title="Show IUCN or endemic conservation notes in the strain profile"
+          >
+            <input
+              type="checkbox"
+              checked={state.showConservationStatus}
+              onChange={(e) => onShowConservationStatusChange(e.target.checked)}
+            />
+            Conservation status
           </label>
         </div>
       </div>

@@ -61,8 +61,12 @@ export interface FilterState {
   popularOnly: boolean;
   stableOnly:  boolean;
   waterType:   string;
-  /** Show cross-breeding outcome labels on the orbit map */
-  showBreedingArcs:  boolean;
-  /** Show extended expert sections (taxonomy, genetics, conservation) in the strain profile */
-  showExpertDetails: boolean;
+  /** Show cross-breeding outcome labels on the orbit arcs */
+  showBreedingArcs:     boolean;
+  /** Show taxonomy validity badge (accepted / disputed / synonym / uncertain) in the strain profile */
+  showTaxonomyStatus:   boolean;
+  /** Show genetics & hybrid-origin note in the strain profile */
+  showHybridOrigin:     boolean;
+  /** Show IUCN / endemic conservation note in the strain profile */
+  showConservationStatus: boolean;
 }
