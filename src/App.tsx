@@ -37,6 +37,8 @@ export default function App() {
     state,
     visibleStrains,
     stats,
+    activeFilterCount,
+    clearAllFilters,
     setFamily,
     setPattern,
     setLevel,
@@ -95,10 +97,7 @@ export default function App() {
     [selectedId],
   );
 
-  const hasActiveFilters =
-    state.family !== "All" || state.waterType !== "all" ||
-    state.pattern !== "all" || state.level !== "all" ||
-    state.popularOnly || state.stableOnly || !!state.query;
+  const hasActiveFilters = activeFilterCount > 0;
 
   /**
    * Called when user clicks a tag inside StrainDialog.
@@ -180,6 +179,8 @@ export default function App() {
               onShowHybridOriginChange={setShowHybridOrigin}
               onShowConservationStatusChange={setShowConservationStatus}
               onApplyPreset={handleApplyPreset}
+              activeFilterCount={activeFilterCount}
+              onClearAll={clearAllFilters}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
             />
           </div>
