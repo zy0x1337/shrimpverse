@@ -244,6 +244,34 @@ Comprehensive 2D view testing (desktop + mobile) identified **10 major bugs**. A
 - **Quick Start filter styling**: Added complete CSS for guided-path preset buttons
 - **Redundant arc elimination**: Family-level arcs hidden when comparing two active planets (moon-to-moon arcs sufficient)
 
+### ✅ Session 10: Layout Fixes + Visual Walkthrough
+Comprehensive 2D view refinement identified and fixed 11 UX/layout issues:
+- **Viewport clipping**: Fixed height chain (`.app-shell: height 100dvh`, `.workspace/content-panel: min-height 0`) so SVG letterboxes correctly at wide screens
+- **Console errors**: Replaced framer-motion r-attribute animations with scale transforms
+- **Focus rings**: Suppressed rectangular outlines on SVG buttons, added custom keyboard-aware focus rings (dashed circles)
+- **Stats overlay**: Added pill backdrop to prevent arcs from visually striking through text
+- **Mobile layout**: Tighter viewBox (600 vs 640), readable onboarding HTML overlay, compact arc legend
+- **Moon tap targets**: Added 11-unit invisible hit circles for WCAG 44px touch targets
+- **Card flip removal**: Eliminated confusing flip animation — cards open dialog on first click
+- **HUD consolidation**: Stats + Active-Label + Compare-Badge share single line via AnimatePresence crossfade
+- **Dimming softened**: Inactive-planet opacity 0.18 → 0.32 for better context
+
+### ✅ Session 11: Pinch-Zoom Fix + Shrimp Refactor + Icon Swap
+Four orthogonal visual refinements:
+
+1. **Mobile pinch-zoom dialog fix**: New `useVisualViewportRect` hook pins dialog backdrop to visual viewport (counter-scaled) when page zoomed, so tapping a moon while pinch-zoomed no longer drops the modal off-screen. Added body scroll-lock while dialog open.
+
+2. **Shrimp SVG refactor** (one canonical pose across three scales):
+   - **MiniShrimp** (12×7 pips): Recognizable comma-shaped body + fan tail, visible at pip size
+   - **ShrimpLogoMark** (36/52px logo): Clear cephalothorax, rostrum spike, segmented abdomen, uropod fan; keeps orbit rings & accentColor reactivity
+   - **ShrimpVisual** (420×190 dialog): Proper anatomy (carapace, 6 overlapping segments, tail fan, legs, pleopods, stalked eye) extracted to data; Rili window now traces real segment (fixed existing bug)
+
+3. **Favicon unification**: Static teal version of refined logo mark; legible 96/48/32px.
+
+4. **Quick-start emojis → SVG icons**: 🌱🔬🌊 replaced with inline stroke icons (sprout, flask, waves) in existing codebase style.
+
+5. **Compare badge overlap fix**: Embedded clear button inside badge pill as inline dismiss ×, suppressed standalone corner button in compare mode — badge text and dismiss share one centered row, no overlap.
+
 ## Next Directions
 - Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
 - Additional strain data enrichment: breeding notes, rare variants, morphology notes
