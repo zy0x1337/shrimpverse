@@ -731,18 +731,20 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                 exit={{ opacity: 0, y: -6, scale: 0.92 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               >
-                <span style={{ color: familyColors[moonA] }}>{moonA}</span>
-                <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
-                <span style={{ color: familyColors[moonB] }}>{moonB}</span>
-                <span style={{ marginLeft: 8, fontSize: "0.8em" }}>
-                  {segments.map((seg, idx) => (
-                    <span key={seg.text} style={{ color: seg.color }}>
-                      {idx > 0 ? " · " : ""}{seg.text}
-                    </span>
-                  ))}
-                  {summary.text && (
-                    <span style={{ color: summary.color }}>{summary.text}</span>
-                  )}
+                <span className="orbit-compare-text">
+                  <span style={{ color: familyColors[moonA] }}>{moonA}</span>
+                  <span style={{ opacity: 0.4, margin: "0 6px" }}>×</span>
+                  <span style={{ color: familyColors[moonB] }}>{moonB}</span>
+                  <span style={{ marginLeft: 8, fontSize: "0.8em" }}>
+                    {segments.map((seg, idx) => (
+                      <span key={seg.text} style={{ color: seg.color }}>
+                        {idx > 0 ? " · " : ""}{seg.text}
+                      </span>
+                    ))}
+                    {summary.text && (
+                      <span style={{ color: summary.color }}>{summary.text}</span>
+                    )}
+                  </span>
                 </span>
                 <button
                   className="orbit-compare-clear"
