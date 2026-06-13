@@ -379,10 +379,11 @@ function buildMoonArcs(
 interface Props {
   visibleStrains: Strain[];
   onSelect: (id: string) => void;
-  expertMode?: boolean;
+  /** Show cross-breeding outcome labels on the orbit arcs */
+  showBreedingArcs?: boolean;
 }
 
-export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Props) {
+export function FamilyOrbitExplorer({ visibleStrains, onSelect, showBreedingArcs }: Props) {
   // ---------------------------------------------------------------------------
   // Dual-slot state: moonA = first active family, moonB = second active family.
   // Planet highlight and moon rendering are driven exclusively by these two slots.
@@ -942,8 +943,8 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                     transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
                     pointerEvents={isMobile ? "none" : "auto"}
                   />
-                  {/* Expert mode: permanent outcome label on the arc midpoint */}
-                  {expertMode && labelledArcIndices.has(i) && (() => {
+                  {/* Breeding outcomes: permanent outcome label on the arc midpoint */}
+                  {showBreedingArcs && labelledArcIndices.has(i) && (() => {
                     const mid = getMoonArcMidpoint(arc.fromMoon.mx, arc.fromMoon.my, arc.toMoon.mx, arc.toMoon.my);
                     return (
                       <motion.text
