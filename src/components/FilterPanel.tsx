@@ -19,6 +19,8 @@ interface Props {
   onPopularOnlyChange: (v: boolean) => void;
   onStableOnlyChange: (v: boolean) => void;
   onWaterTypeChange: (v: string) => void;
+  onShowBreedingArcsChange: (v: boolean) => void;
+  onShowExpertDetailsChange: (v: boolean) => void;
   onApplyPreset: (preset: Partial<FilterState>) => void;
   onClose?: () => void;
 }
@@ -150,7 +152,8 @@ export function FilterPanel({
   state, stats,
   onFamilyChange, onPatternChange, onLevelChange,
   onQueryChange, onPopularOnlyChange, onStableOnlyChange,
-  onWaterTypeChange, onApplyPreset,
+  onWaterTypeChange, onShowBreedingArcsChange, onShowExpertDetailsChange,
+  onApplyPreset,
   onClose,
 }: Props) {
   const activeFamilyColor =
@@ -327,6 +330,34 @@ export function FilterPanel({
               onChange={(e) => onStableOnlyChange(e.target.checked)}
             />
             Color-stable only
+          </label>
+        </div>
+
+        {/* Expert view — display toggles (do not affect the strain count) */}
+        <div className="filter-section">
+          <div className="filter-label">Expert view</div>
+          <label
+            className="filter-checkbox"
+            title="Show cross-breeding outcome labels on the orbit map"
+          >
+            <input
+              type="checkbox"
+              checked={state.showBreedingArcs}
+              onChange={(e) => onShowBreedingArcsChange(e.target.checked)}
+            />
+            Breeding outcomes
+          </label>
+          <label
+            className="filter-checkbox"
+            style={{ marginTop: "var(--s2)" }}
+            title="Show taxonomy, genetics & conservation details in the strain profile"
+          >
+            <input
+              type="checkbox"
+              checked={state.showExpertDetails}
+              onChange={(e) => onShowExpertDetailsChange(e.target.checked)}
+            />
+            Expert details
           </label>
         </div>
       </div>

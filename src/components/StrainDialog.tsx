@@ -10,8 +10,8 @@ interface Props {
   onClose: () => void;
   /** Optional: called when user clicks a tag — propagates the tag up for filtering */
   onTagFilter?: (tag: string) => void;
-  /** Show extended expert-mode sections */
-  expertMode?: boolean;
+  /** Show extended expert sections (taxonomy, genetics, conservation) */
+  showExpertDetails?: boolean;
 }
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -152,7 +152,7 @@ function SwatchSeg({ color, role }: { color: string; role: string }) {
   );
 }
 
-export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props) {
+export function StrainDialog({ strain, onClose, onTagFilter, showExpertDetails }: Props) {
   useEffect(() => {
     if (!strain) return;
 
@@ -469,8 +469,8 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
                 </div>
               )}
 
-              {/* ── Expert Mode Sections ── */}
-              {expertMode && strain.taxonomyStatus && (
+              {/* ── Expert Detail Sections ── */}
+              {showExpertDetails && strain.taxonomyStatus && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Taxonomy Status</div>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
@@ -499,7 +499,7 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
                 </div>
               )}
 
-              {expertMode && strain.hybridOrigin && (
+              {showExpertDetails && strain.hybridOrigin && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Genetics & Breeding</div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>
@@ -516,7 +516,7 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
                 </div>
               )}
 
-              {expertMode && strain.conservationStatus && (
+              {showExpertDetails && strain.conservationStatus && (
                 <div className="dialog-section">
                   <div className="dialog-section-label">Conservation Status</div>
                   <div style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", lineHeight: 1.6 }}>

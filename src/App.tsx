@@ -44,19 +44,13 @@ export default function App() {
     setPopularOnly,
     setStableOnly,
     setWaterType,
+    setShowBreedingArcs,
+    setShowExpertDetails,
   } = useStrainFilters();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [expertMode, setExpertMode] = useState(() => {
-    // Initialize from localStorage
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("shrimpverse_expert_mode");
-      return stored === "true";
-    }
-    return false;
-  });
   const isMobile = useIsMobile();
 
   // Run data-integrity validators once on mount (DEV only)
@@ -66,11 +60,6 @@ export default function App() {
       validateCompatSymmetry(strains);
     }
   }, []);
-
-  // Persist expert mode to localStorage
-  useEffect(() => {
-    localStorage.setItem("shrimpverse_expert_mode", expertMode ? "true" : "false");
-  }, [expertMode]);
 
   // Close sidebar overlay when clicking outside on mobile
   useEffect(() => {
@@ -184,6 +173,8 @@ export default function App() {
               onPopularOnlyChange={setPopularOnly}
               onStableOnlyChange={setStableOnly}
               onWaterTypeChange={setWaterType}
+              onShowBreedingArcsChange={setShowBreedingArcs}
+              onShowExpertDetailsChange={setShowExpertDetails}
               onApplyPreset={handleApplyPreset}
               onClose={isMobile ? () => setFiltersOpen(false) : undefined}
             />
@@ -220,31 +211,6 @@ export default function App() {
                   </button>
                 )}
                 <button
-                  className="icon-button"
-                  type="button"
-                  aria-label={expertMode ? "Disable expert mode" : "Enable expert mode"}
-                  aria-pressed={expertMode}
-                  onClick={() => setExpertMode((v) => !v)}
-                  title={expertMode ? "Expert mode: ON" : "Expert mode: OFF"}
-                  style={{
-                    opacity: expertMode ? 1 : 0.5,
-                    transition: "opacity 200ms ease",
-                  }}
-                >
-                  <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 2a1 1 0 0 0-.894.553L8.382 6H5a3 3 0 0 0 0 6h.028a2 2 0 0 0 .2 4h9.544a2 2 0 0 0 .2-4H15a3 3 0 0 0 0-6h-3.382L10.894 2.553A1 1 0 0 0 10 2Z" opacity={expertMode ? 1 : 0.4} />
-                  </svg>
-                  {isMobile && expertMode && (
-                    <span style={{
-                      fontSize: "0.52rem",
-                      letterSpacing: "0.08em",
-                      fontFamily: "var(--font-mono)",
-                      lineHeight: 1,
-                      opacity: 0.85,
-                    }}>EXPERT</span>
-                  )}
-                </button>
-                <button
                   className="icon-button mobile-filter-toggle"
                   type="button"
                   aria-label={filtersOpen ? "Close filters" : `Open filters${hasActiveFilters ? " (active)" : ""}`}
@@ -272,7 +238,7 @@ export default function App() {
               <FamilyOrbitExplorer
                 visibleStrains={visibleStrains}
                 onSelect={setSelectedId}
-                expertMode={expertMode}
+                showBreedingArcs={state.showBreedingArcs}
               />
             </div>
           </section>
@@ -284,7 +250,7 @@ export default function App() {
         strain={selectedStrain}
         onClose={() => setSelectedId(null)}
         onTagFilter={handleTagFilter}
-        expertMode={expertMode}
+        showExpertDetails={state.showExpertDetails}
       />
     </>
   );

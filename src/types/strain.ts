@@ -61,4 +61,8 @@ export interface FilterState {
   popularOnly: boolean;
   stableOnly:  boolean;
   waterType:   string;
+  /** Show cross-breeding outcome labels on the orbit map */
+  showBreedingArcs:  boolean;
+  /** Show extended expert sections (taxonomy, genetics, conservation) in the strain profile */
+  showExpertDetails: boolean;
 }
