@@ -639,9 +639,10 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
           )}
         </AnimatePresence>
 
-        {/* Visible clear-selection control — appears only when something is active */}
+        {/* Standalone clear button — single-family mode only.
+            In compare mode the clear button lives inside the compare badge. */}
         <AnimatePresence>
-          {activeFamilies.size > 0 && (
+          {activeFamilies.size > 0 && !(moonA && moonB) && (
             <motion.button
               key="clear-selection"
               type="button"
@@ -743,6 +744,15 @@ export function FamilyOrbitExplorer({ visibleStrains, onSelect, expertMode }: Pr
                     <span style={{ color: summary.color }}>{summary.text}</span>
                   )}
                 </span>
+                <button
+                  className="orbit-compare-clear"
+                  onClick={clearSelection}
+                  aria-label="Clear selection"
+                >
+                  <svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <path d="M3 3l10 10M13 3L3 13" />
+                  </svg>
+                </button>
               </motion.div>
             );
           })()}
