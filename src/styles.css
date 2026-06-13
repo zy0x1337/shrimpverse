@@ -691,6 +691,9 @@ input, select { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: var(--s3);
+  max-width: calc(100vw - var(--s4) * 2);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .orbit-compare-clear {
@@ -1395,16 +1398,50 @@ input, select { font: inherit; color: inherit; }
     bottom: 0;
     left: 0;
     right: 0;
-    width: auto;
+    width: 100%;
     flex-shrink: unset;
     border-left: none;
     background: transparent;
     padding: 0 var(--s2) var(--s3);
     overflow: visible;
     z-index: 10;
+    box-sizing: border-box;
   }
   .strain-rail {
     border-radius: var(--r-xl) var(--r-xl) var(--r-lg) var(--r-lg);
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: var(--s3);
+    padding-right: var(--s3);
+  }
+  .strain-rail-header {
+    min-width: 0;
+    overflow: hidden;
+  }
+  .strain-rail-family {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    gap: var(--s1);
+  }
+  .strain-rail-name {
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+  .strain-rail-count {
+    font-size: 0.65rem;
+  }
+  .rail-close {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+  }
+  .rail-close svg {
+    width: 11px;
+    height: 11px;
   }
   .sidebar-collapse-btn { display: none; }
   .strain-card { width: 130px; }
@@ -1447,23 +1484,6 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
-  /* Arc legend: compact on mobile — forced single row, hidden shape legend saves ~30px */
-  .orbit-arc-legend {
-    /* Single row with the production font; wraps cleanly (never clips) if the
-       webfont is unavailable and the wider fallback mono overflows 360px. */
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2px 5px;
-    font-size: 0.52rem;
-    letter-spacing: 0.01em;
-    bottom: var(--s3);
-    padding: 0 var(--s1);
-    width: 100%;
-  }
-  .orbit-arc-legend-item {
-    gap: 3px;
-    flex-shrink: 0;
-  }
   /* Onboarding overlay sits clear above the single-row legend on mobile */
   .orbit-onboarding {
     bottom: calc(var(--s3) + 50px);
@@ -1540,6 +1560,32 @@ input, select { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Mobile override for arc legend positioning */
+@media (max-width: 639px) {
+  .orbit-arc-legend {
+    position: fixed !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    top: calc(60px + var(--s5) + 36px) !important;
+    right: var(--s3) !important;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 0.48rem;
+    letter-spacing: 0.01em;
+    padding: 0;
+    width: auto;
+    z-index: 3;
+    white-space: normal;
+  }
+  .orbit-arc-legend-item {
+    gap: 3px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
 }
 
 /* =====================
