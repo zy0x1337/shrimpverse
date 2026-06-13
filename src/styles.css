@@ -641,8 +641,13 @@ input, select { font: inherit; color: inherit; }
 .orbit-active-label {
   position: absolute;
   top: var(--s5);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centred via auto margins (not translateX) — Framer animates `y` here and
+     would otherwise overwrite the centring transform. */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: calc(100% - var(--s4) * 2);
   font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: 300;
@@ -675,11 +680,17 @@ input, select { font: inherit; color: inherit; }
 .orbit-compare-badge {
   position: absolute;
   top: var(--s5);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centre via auto margins, NOT translateX(-50%): Framer Motion animates
+     scale/y on this node and writes its own inline `transform`, which would
+     clobber a CSS translate and push the badge off the right edge. left/right:0
+     + margin-inline:auto centres without any transform, so the box stays capped
+     by max-width and never overflows the viewport. */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
   z-index: 2;
   pointer-events: auto;
-  white-space: nowrap;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   padding: 0.35rem 0.5rem 0.35rem 0.95rem;
@@ -691,9 +702,17 @@ input, select { font: inherit; color: inherit; }
   display: flex;
   align-items: center;
   gap: var(--s3);
-  max-width: calc(100vw - var(--s4) * 2);
+  max-width: calc(100% - var(--s4) * 2);
+  overflow: hidden;
+}
+/* Text portion shrinks and truncates so the clear button (a flex sibling with
+   flex-shrink:0) is always reachable, even when both family names are long. */
+.orbit-compare-text {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .orbit-compare-clear {
@@ -782,8 +801,13 @@ input, select { font: inherit; color: inherit; }
 .orbit-rail-peek {
   position: absolute;
   bottom: var(--s5);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centre via auto margins (not translateX): this is a motion.button animating
+     `y`, and Framer's inline transform would otherwise clobber the centring. */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: calc(100% - var(--s4) * 2);
   z-index: 10;
   display: flex;
   align-items: center;
@@ -1595,9 +1619,12 @@ input, select { font: inherit; color: inherit; }
    ===================== */
 .orbit-mobile-tap-label {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  /* Centre in both axes via auto margins (not translate): this is a motion.div
+     animating scale/y, whose inline transform would clobber a CSS translate. */
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
   font-family: var(--font-display);
   font-size: var(--text-xl);
   font-weight: 400;
