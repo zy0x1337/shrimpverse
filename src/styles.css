@@ -678,16 +678,40 @@ input, select { font: inherit; color: inherit; }
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  pointer-events: none;
+  pointer-events: auto;
   white-space: nowrap;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  padding: 0.35rem 0.95rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.95rem;
   background: rgba(8, 12, 16, 0.6);
   border: 1px solid var(--border);
   border-radius: 999px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.orbit-compare-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-hover);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.orbit-compare-clear:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.06);
 }
 
 /* Onboarding hint — HTML overlay (readable at any viewport, unlike SVG text) */
