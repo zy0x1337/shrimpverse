@@ -21,11 +21,11 @@ src/
 │   ├── strainUtils.ts           # Filter logic (waterType included)
 │   └── orbitalDistance.ts       # 3D spatial positioning (radiusScale param for mobile)
 ├── hooks/
-│   ├── useStrainFilters.ts      # State: family, waterType, pattern, etc.
+│   ├── useStrainFilters.ts      # State + activeFilterCount + clearAllFilters (preserves Lens toggles)
 │   └── useIsMobile.ts           # Viewport + pointer detection
 ├── components/
 │   ├── App.tsx                  # Main layout, sidebar collapse state (3D toggle removed)
-│   ├── FilterPanel.tsx          # waterType filter + desktop collapse button
+│   ├── FilterPanel.tsx          # Editorial "atlas index" filter bar: index markers, ledger Clear-all, Lens group, mobile HUD bar
 │   ├── FamilyOrbitExplorer.tsx  # 2D SVG orbit view (orbit-layout flex row) — PRIMARY VIEW
 │   ├── StrainRail.tsx           # Strain card list (horizontal/vertical orientation)
 │   ├── StrainDialog.tsx         # Strain detail modal
@@ -166,8 +166,16 @@ public/
   popularOnly: boolean;
   stableOnly: boolean;
   query: string;       // Free-text search
+  // Lens / display toggles — show/hide info, do NOT narrow the result set:
+  showBreedingArcs: boolean;        // cross-outcome labels on orbit arcs
+  showTaxonomyStatus: boolean;      // taxonomy badge in strain profile
+  showHybridOrigin: boolean;        // genetics & hybrid-origin note in profile
+  showConservationStatus: boolean;  // IUCN / endemic note in profile
 }
 ```
+> `clearAllFilters` resets the filter fields above but **preserves** the four `show*` Lens
+> toggles. `activeFilterCount` counts only the true filters (family/pattern/level/waterType/
+> query/popularOnly/stableOnly).
 
 ## Material Mapping
 
@@ -216,13 +224,14 @@ npm run build && npm run preview
 
 ## Current Status
 
-**12 sessions complete** — Shrimpverse is a polished 2D interactive shrimp atlas (3D shelved):
+**13 sessions complete** — Shrimpverse is a polished 2D interactive shrimp atlas (3D shelved):
 - **49 shrimp varieties** across 15 families (all with genus, species, waterType)
 - **2D orbit explorer** (primary view): dual-ring system, golden sun, hexagonal Caridina nodes, live compatibility arcs
 - **Visual polish**: refined shrimp art (3 scales), SVG icon nav, pinch-zoom dialog fix, compare-badge clarity
 - **Mobile-first**: collapsible sidebar (desktop), right-side panel (desktop), bottom sheet (mobile), no viewport overflow
 - **Enriched dialog**: taxonomy, water type badges, 6-cell meta grid, focus-trap, WCAG AA contrast
-- **Filters**: waterType (hard/soft/neutral), searchable genus/species, guided quick-start presets
+- **Editorial filter bar**: atlas-index markers, ledger Clear-all + active-filter count, teal "Lens" display group, mobile sticky HUD bar
+- **Filters**: waterType (hard/soft/neutral), searchable genus/species, guided level presets + 4 granular Lens (display) toggles
 - **Code quality**: zero import cycles, comprehensive type safety, semantic accessibility
 - **3D code shelved**: StrainUniverse & friends preserved in src/components/3d/ for later re-enabling if needed
 
@@ -284,6 +293,32 @@ Eliminated right-edge overflow of HUD elements across all family-name combinatio
 - **Arc-legend repositioned**: Top-right corner with vertical stacking on mobile (from `position: fixed`, no longer bottom-center)
 - **Strain rail mobile**: Proper width constraints, reduced padding/font sizes to fit tighter viewports
 - **Verified at 360px**: All family-name combinations fit, clear button always reachable; desktop delta 0px
+
+### ✅ Session 13: Expert-Toggle Teardown + Filter Bar Refactor
+Dissolved the single toolbar "expert mode" toggle and rebuilt the filter sidebar into an
+authored, editorial **orbital-atlas index page** (not a generic settings panel).
+
+**Expert toggle → granular filter controls:**
+- Removed the toolbar expert-mode button + its `localStorage` persistence
+- Split the one `expertMode` flag into **4 independent display toggles** in `FilterState`:
+  `showBreedingArcs` (map arc labels), `showTaxonomyStatus`, `showHybridOrigin`,
+  `showConservationStatus` (strain-profile sections) — each its own checkbox with a tooltip
+- Component props renamed for clarity (`FamilyOrbitExplorer.showBreedingArcs`,
+  `StrainDialog.showTaxonomyStatus`/`showHybridOrigin`/`showConservationStatus`)
+
+**Filter bar refactor (flat layout, original design language):**
+- **Catalog index markers** (`01 · SEARCH`, `02 · FAMILY` …) + subtle trailing hairline rules
+- **Active-filter ledger line** in the header: serif count numeral + mono caption + quiet
+  `Clear all` (faint→teal). Clear resets filters **only**, preserving the Lens/display toggles
+- **"Lens" group** (teal ink) replaces the generic "Advanced" section: instrument-reticle glyph,
+  *"doesn't change results"* hint, and *On the map* / *In the strain profile* sub-labels
+- **Quick start neutralized**: Beginner/Intermediate/Collector with concentric **orbital-ring
+  glyphs** (replacing sprout/flask/waves)
+- **Mobile sticky HUD action bar**: live `Show N results` (dismiss) + `Clear all`, safe-area padded
+- **Code hygiene**: family pills moved from a fragile inline-style conditional to a CSS custom
+  prop (`--pill`) + `data-active`/`data-dark-text`; removed hardcoded inline checkbox margins
+- **State**: `useStrainFilters` gains `activeFilterCount` + `clearAllFilters` (preserves display
+  toggles via a `FILTER_DEFAULTS` subset); App drives the mobile active-dot from the count
 
 ## Next Directions
 - Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
