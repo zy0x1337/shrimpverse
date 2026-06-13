@@ -197,6 +197,56 @@ input, select { font: inherit; color: inherit; }
   margin-top: var(--s1);
 }
 
+/* Active-filter ledger line: serif numeral · mono caption · faint Clear all */
+.sidebar-filter-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--divider);
+}
+.filter-summary-count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.filter-summary-num {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+}
+.clear-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: var(--s1) var(--s2);
+  margin: calc(var(--s1) * -1) calc(var(--s2) * -1);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color 180ms ease;
+}
+.clear-all-btn svg { width: 11px; height: 11px; }
+.clear-all-btn:hover { color: var(--teal); }
+
 /* Mobile close button inside sidebar header */
 .sidebar-close-btn {
   display: none;
@@ -232,12 +282,29 @@ input, select { font: inherit; color: inherit; }
 .filter-panel { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); flex: 1; }
 .filter-section { display: flex; flex-direction: column; gap: var(--s2); }
 .filter-label {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
   padding-bottom: var(--s1);
+}
+/* Almanac catalog index marker (e.g. "02") before a section name */
+.filter-label-index {
+  color: var(--accent);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+/* Trailing hairline rule — the "index page" feel */
+.filter-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
 }
 .filter-search { position: relative; }
 .filter-search-icon {
@@ -289,7 +356,22 @@ input, select { font: inherit; color: inherit; }
   color: var(--text);
   background: var(--surface-3);
 }
-.family-pill.active { color: #fff; }
+/* Inactive pill with a family colour gets a faint colour-matched border */
+.family-pill:not([data-active="true"])[style*="--pill"] {
+  border-color: color-mix(in srgb, var(--pill) 30%, transparent);
+}
+/* Active pill: filled with its family colour (or accent for "All") */
+.family-pill[data-active="true"] {
+  background: var(--pill, var(--accent));
+  border-color: var(--pill, var(--accent));
+  color: #fff;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pill, var(--accent)) 33%, transparent);
+}
+/* Light family colours (and the amber "All") need dark text for contrast */
+.family-pill[data-active="true"][data-dark-text="true"],
+.family-pill[data-active="true"]:not([style*="--pill"]) {
+  color: #1a1a1a;
+}
 .family-pill-dot {
   display: inline-block;
   width: 6px;
@@ -297,6 +379,7 @@ input, select { font: inherit; color: inherit; }
   border-radius: 50%;
   flex-shrink: 0;
   opacity: 0.85;
+  background: var(--pill);
 }
 
 /* =====================
@@ -442,6 +525,57 @@ input, select { font: inherit; color: inherit; }
   flex-shrink: 0;
 }
 .filter-checkbox:hover { color: var(--text); }
+
+/* =====================
+   LENS — reading / display options (teal ink, set apart from filters)
+   ===================== */
+.filter-lens-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--divider);
+}
+.filter-lens-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s1);
+}
+.filter-lens-icon { color: var(--teal); flex-shrink: 0; }
+.filter-lens-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.filter-lens-hint {
+  flex-basis: 100%;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--text-faint);
+  letter-spacing: 0.01em;
+}
+.filter-lens-sublabel {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: var(--s2);
+}
+/* Lens checkboxes read in teal to reinforce the two-ink semantics */
+.filter-lens-group .filter-checkbox input[type="checkbox"] {
+  accent-color: var(--teal);
+}
+
+/* =====================
+   MOBILE STICKY ACTION BAR (HUD pill) — shown only inside the drawer on phones
+   ===================== */
+.filter-sticky-bar { display: none; }
+
 .sidebar-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1413,6 +1547,55 @@ input, select { font: inherit; color: inherit; }
 
   .sidebar-close-btn { display: flex; }
   .mobile-filter-toggle { display: flex; }
+
+  /* Sticky HUD action bar pinned to the drawer bottom */
+  .filter-sticky-bar {
+    display: flex;
+    gap: var(--s2);
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    padding: var(--s3) var(--s4);
+    padding-bottom: max(var(--s3), env(safe-area-inset-bottom));
+    background: oklch(from var(--surface) l c h / 0.85);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border-hover);
+  }
+  .filter-sticky-show {
+    flex: 1;
+    min-height: 44px;
+    border-radius: var(--r-full);
+    border: 1px solid oklch(from var(--accent) l c h / 0.5);
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .filter-sticky-show.is-empty {
+    border-color: var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+  .filter-sticky-clear {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0 var(--s4);
+    border-radius: var(--r-full);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .filter-sticky-clear:active { background: var(--surface-3); }
+
   .toolbar { padding: var(--s3) var(--s4); }
   .toolbar h2 { font-size: var(--text-lg); }
   .eyebrow { display: none; }

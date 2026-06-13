@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { FilterState } from "../types/strain";
 import { families, patterns } from "../lib/constants";
 import { familyColors } from "../lib/constants";
@@ -24,6 +25,10 @@ interface Props {
   onShowHybridOriginChange: (v: boolean) => void;
   onShowConservationStatusChange: (v: boolean) => void;
   onApplyPreset: (preset: Partial<FilterState>) => void;
+  /** Number of active *filters* (display/Lens toggles excluded) */
+  activeFilterCount: number;
+  /** Reset every filter, preserving the Lens (display) toggles */
+  onClearAll: () => void;
   onClose?: () => void;
 }
 
@@ -59,34 +64,29 @@ const ICON_BASE = {
   "aria-hidden": true,
 };
 
-/** Seedling — beginner / "just starting out". */
-function SproutIcon({ className }: IconProps) {
+/**
+ * Orbital-ring progression glyph — a central node with N rings around it.
+ * Used to grade the guided-path presets (1 = Beginner … 3 = Collector) in the
+ * same orbit language as the atlas itself, instead of stock signal bars.
+ */
+function OrbitRingsIcon({ rings, className }: IconProps & { rings: 1 | 2 | 3 }) {
   return (
     <svg className={className} {...ICON_BASE}>
-      <path d="M8 14V7.5" />
-      <path d="M8 8.5C8 6.3 6.2 4.7 3.6 4.7 3.6 6.9 5.4 8.5 8 8.5Z" />
-      <path d="M8 7.5C8 5.6 9.5 4.2 11.7 4 11.7 5.9 10.2 7.3 8 7.5Z" />
+      <circle cx="8" cy="8" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="8" r="3.2" />
+      {rings >= 2 && <circle cx="8" cy="8" r="5" opacity="0.7" />}
+      {rings >= 3 && <circle cx="8" cy="8" r="6.8" opacity="0.45" />}
     </svg>
   );
 }
 
-/** Erlenmeyer flask — intermediate / "ready for more". */
-function FlaskIcon({ className }: IconProps) {
+/** Instrument reticle / lens — marks the "Lens" (reading-options) zone. */
+function LensIcon({ className }: IconProps) {
   return (
     <svg className={className} {...ICON_BASE}>
-      <path d="M6.3 2v3.6L3 11.6A1.3 1.3 0 0 0 4.1 13.6h7.8A1.3 1.3 0 0 0 13 11.6L9.7 5.6V2" />
-      <path d="M5.5 2h5" />
-      <path d="M4.7 9.5h6.6" />
-    </svg>
-  );
-}
-
-/** Waves — collector / "deep water". */
-function WavesIcon({ className }: IconProps) {
-  return (
-    <svg className={className} {...ICON_BASE}>
-      <path d="M2 6c1.6-1.4 3.2-1.4 4.8 0s3.2 1.4 4.8 0 3.2-1.4 2.4-0.8" />
-      <path d="M2 10.5c1.6-1.4 3.2-1.4 4.8 0s3.2 1.4 4.8 0 3.2-1.4 2.4-0.8" />
+      <circle cx="8" cy="8" r="5.4" />
+      <circle cx="8" cy="8" r="1.4" />
+      <path d="M8 0.9v2.1M8 13v2.1M0.9 8h2.1M13 8h2.1" />
     </svg>
   );
 }
@@ -94,22 +94,22 @@ function WavesIcon({ className }: IconProps) {
 const GUIDED_PATHS = [
   {
     id: "beginner",
-    Icon: SproutIcon,
-    label: "Just starting out",
+    rings: 1 as const,
+    label: "Beginner",
     title: "Easy Neocaridina varieties — hard water, beginner-friendly",
     preset: { level: "Beginner", waterType: "hard", family: "All", pattern: "all", query: "" },
   },
   {
     id: "intermediate",
-    Icon: FlaskIcon,
-    label: "Ready for more",
+    rings: 2 as const,
+    label: "Intermediate",
     title: "Caridina & soft-water varieties for experienced keepers",
     preset: { level: "Intermediate", waterType: "soft", family: "All", pattern: "all", query: "" },
   },
   {
     id: "collector",
-    Icon: WavesIcon,
-    label: "Deep water",
+    rings: 3 as const,
+    label: "Collector",
     title: "Collector-level rarities — Sulawesi, Taiwan Bee, extreme grades",
     preset: { level: "Collector", waterType: "soft", family: "All", pattern: "all", query: "" },
   },
@@ -121,6 +121,16 @@ function isPresetActive(state: FilterState, preset: Partial<FilterState>): boole
     state.waterType === preset.waterType &&
     state.family === preset.family &&
     state.pattern === preset.pattern
+  );
+}
+
+/** Almanac-style section label with an optional catalog index marker. */
+function SectionLabel({ index, children }: { index?: string; children: ReactNode }) {
+  return (
+    <div className="filter-label">
+      {index && <span className="filter-label-index" aria-hidden="true">{index}</span>}
+      <span>{children}</span>
+    </div>
   );
 }
 
@@ -157,7 +167,7 @@ export function FilterPanel({
   onWaterTypeChange,
   onShowBreedingArcsChange, onShowTaxonomyStatusChange,
   onShowHybridOriginChange, onShowConservationStatusChange,
-  onApplyPreset, onClose,
+  onApplyPreset, activeFilterCount, onClearAll, onClose,
 }: Props) {
   const activeFamilyColor =
     state.family !== "All" ? familyColors[state.family] : null;
@@ -188,6 +198,27 @@ export function FilterPanel({
             </button>
           )}
         </div>
+
+        {/* Active-filter ledger line — only when something is filtering */}
+        {activeFilterCount > 0 && (
+          <div className="sidebar-filter-summary">
+            <span className="filter-summary-count">
+              <span className="filter-summary-num">{activeFilterCount}</span>
+              {activeFilterCount === 1 ? "filter active" : "filters active"}
+            </span>
+            <button
+              type="button"
+              className="clear-all-btn"
+              onClick={onClearAll}
+              aria-label="Clear all filters"
+            >
+              Clear all
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                <path d="M4 4l8 8M12 4l-8 8" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -195,11 +226,10 @@ export function FilterPanel({
 
         {/* Guided Paths */}
         <div className="filter-section">
-          <div className="filter-label">Quick start</div>
+          <SectionLabel>Browse by level</SectionLabel>
           <div className="guided-paths" role="group" aria-label="Guided filter presets">
             {GUIDED_PATHS.map((path) => {
               const active = isPresetActive(state, path.preset);
-              const { Icon } = path;
               return (
                 <button
                   key={path.id}
@@ -208,7 +238,7 @@ export function FilterPanel({
                   aria-pressed={active}
                   title={path.title}
                 >
-                  <Icon />
+                  <OrbitRingsIcon rings={path.rings} />
                   <span>{path.label}</span>
                 </button>
               );
@@ -218,7 +248,7 @@ export function FilterPanel({
 
         {/* Search */}
         <div className="filter-section">
-          <div className="filter-label">Search</div>
+          <SectionLabel index="01">Search</SectionLabel>
           <div className="filter-search">
             <svg className="filter-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <circle cx="7" cy="7" r="4.5" />
@@ -236,7 +266,7 @@ export function FilterPanel({
 
         {/* Color family pills */}
         <div className="filter-section">
-          <div className="filter-label">Family</div>
+          <SectionLabel index="02">Family</SectionLabel>
           <div className="family-pills">
             {families.map((fam) => {
               const isActive = state.family === fam;
@@ -244,36 +274,15 @@ export function FilterPanel({
               return (
                 <button
                   key={fam}
-                  className={`family-pill${isActive ? " active" : ""}`}
+                  className="family-pill"
                   onClick={() => onFamilyChange(fam)}
-                  style={
-                    isActive && col
-                      ? {
-                          background: col,
-                          borderColor: col,
-                          color: ["Yellow", "White"].includes(fam)
-                            ? "#1a1a1a"
-                            : "#ffffff",
-                          boxShadow: `0 0 10px ${col}55`,
-                        }
-                      : isActive
-                      ? {
-                          background: "rgba(232,160,32,0.8)",
-                          borderColor: "var(--accent)",
-                          color: "#1a1a1a",
-                        }
-                      : col
-                      ? { borderColor: `${col}30` }
-                      : {}
-                  }
+                  style={col ? ({ ["--pill" as string]: col }) : undefined}
+                  data-active={isActive}
+                  data-dark-text={["Yellow", "White"].includes(fam)}
                   aria-pressed={isActive}
                 >
                   {fam !== "All" && col && (
-                    <span
-                      className="family-pill-dot"
-                      style={{ background: col }}
-                      aria-hidden="true"
-                    />
+                    <span className="family-pill-dot" aria-hidden="true" />
                   )}
                   {fam}
                 </button>
@@ -284,7 +293,7 @@ export function FilterPanel({
 
         {/* Pattern */}
         <div className="filter-section">
-          <div className="filter-label">Pattern</div>
+          <SectionLabel index="03">Pattern</SectionLabel>
           <ButtonGroup
             options={PATTERN_OPTIONS}
             value={state.pattern}
@@ -294,7 +303,7 @@ export function FilterPanel({
 
         {/* Level */}
         <div className="filter-section">
-          <div className="filter-label">Care level</div>
+          <SectionLabel index="04">Care level</SectionLabel>
           <ButtonGroup
             options={LEVEL_OPTIONS}
             value={state.level}
@@ -304,7 +313,7 @@ export function FilterPanel({
 
         {/* Water type */}
         <div className="filter-section">
-          <div className="filter-label">Water type</div>
+          <SectionLabel index="05">Water type</SectionLabel>
           <ButtonGroup
             options={WATER_OPTIONS}
             value={state.waterType}
@@ -312,8 +321,9 @@ export function FilterPanel({
           />
         </div>
 
-        {/* Toggles */}
+        {/* Refine */}
         <div className="filter-section">
+          <SectionLabel index="06">Refine</SectionLabel>
           <label className="filter-checkbox">
             <input
               type="checkbox"
@@ -324,7 +334,6 @@ export function FilterPanel({
           </label>
           <label
             className="filter-checkbox"
-            style={{ marginTop: "var(--s2)" }}
             title="Hides project lines where offspring color varies widely"
           >
             <input
@@ -336,9 +345,15 @@ export function FilterPanel({
           </label>
         </div>
 
-        {/* Advanced — display toggles (do not affect the strain count) */}
-        <div className="filter-section">
-          <div className="filter-label">Advanced</div>
+        {/* Lens — reading/display options (do NOT change the result count) */}
+        <div className="filter-lens-group">
+          <div className="filter-lens-head">
+            <LensIcon className="filter-lens-icon" />
+            <span className="filter-lens-title">Lens</span>
+            <span className="filter-lens-hint">Reading options — doesn&rsquo;t change results</span>
+          </div>
+
+          <div className="filter-lens-sublabel">On the map</div>
           <label
             className="filter-checkbox"
             title="Show cross-breeding outcome labels on the orbit arcs when two families are selected"
@@ -350,9 +365,10 @@ export function FilterPanel({
             />
             Breeding outcome labels
           </label>
+
+          <div className="filter-lens-sublabel">In the strain profile</div>
           <label
             className="filter-checkbox"
-            style={{ marginTop: "var(--s2)" }}
             title="Show the scientific classification status (accepted, disputed, synonym, uncertain) in the strain profile"
           >
             <input
@@ -364,7 +380,6 @@ export function FilterPanel({
           </label>
           <label
             className="filter-checkbox"
-            style={{ marginTop: "var(--s2)" }}
             title="Show genetics & breeding notes for cultivar lines with documented hybrid ancestry"
           >
             <input
@@ -376,7 +391,6 @@ export function FilterPanel({
           </label>
           <label
             className="filter-checkbox"
-            style={{ marginTop: "var(--s2)" }}
             title="Show IUCN or endemic conservation notes in the strain profile"
           >
             <input
@@ -427,6 +441,26 @@ export function FilterPanel({
         </svg>
         <p>A free, open-source gift to the freshwater shrimp community.</p>
       </div>
+
+      {/* Mobile-only sticky action bar (HUD pill): clear + dismiss with live count */}
+      {onClose && (
+        <div className="filter-sticky-bar">
+          {activeFilterCount > 0 && (
+            <button type="button" className="filter-sticky-clear" onClick={onClearAll}>
+              Clear all
+            </button>
+          )}
+          <button
+            type="button"
+            className={`filter-sticky-show${stats.visible === 0 ? " is-empty" : ""}`}
+            onClick={onClose}
+          >
+            {stats.visible === 0
+              ? "No matches"
+              : `Show ${stats.visible} result${stats.visible === 1 ? "" : "s"}`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
