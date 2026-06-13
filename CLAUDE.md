@@ -319,6 +319,8 @@ authored, editorial **orbital-atlas index page** (not a generic settings panel).
   prop (`--pill`) + `data-active`/`data-dark-text`; removed hardcoded inline checkbox margins
 - **State**: `useStrainFilters` gains `activeFilterCount` + `clearAllFilters` (preserves display
   toggles via a `FILTER_DEFAULTS` subset); App drives the mobile active-dot from the count
+- **Logo mark**: `ShrimpLogoMark` reduced to the minimalist line-art shrimp from the footer
+  gift-note (pure stroke, no orbit rings), still `accentColor`-reactive — favicon unchanged
 
 ## Next Directions
 - Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
