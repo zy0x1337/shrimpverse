@@ -1447,16 +1447,15 @@ input, select { font: inherit; color: inherit; }
   }
   .filter-section .btn-group::-webkit-scrollbar { display: none; }
 
-  /* Arc legend: compact on mobile — forced single row, hidden shape legend saves ~30px */
+  /* Arc legend: compact on mobile — repositioned to top HUD area */
   .orbit-arc-legend {
-    /* Single row with the production font; wraps cleanly (never clips) if the
-       webfont is unavailable and the wider fallback mono overflows 360px. */
+    bottom: auto;
+    top: calc(var(--s5) + 56px); /* below the compare-badge */
     flex-wrap: wrap;
     justify-content: center;
     gap: 2px 5px;
-    font-size: 0.52rem;
+    font-size: 0.48rem;
     letter-spacing: 0.01em;
-    bottom: var(--s3);
     padding: 0 var(--s1);
     width: 100%;
   }
