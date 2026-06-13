@@ -42,22 +42,70 @@ const PATTERN_OPTIONS = [
   ...patterns.map((p) => ({ value: p, label: p })),
 ];
 
+type IconProps = { className?: string };
+const ICON_BASE = {
+  width: 16,
+  height: 16,
+  viewBox: "0 0 16 16",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+/** Seedling — beginner / "just starting out". */
+function SproutIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...ICON_BASE}>
+      <path d="M8 14V7.5" />
+      <path d="M8 8.5C8 6.3 6.2 4.7 3.6 4.7 3.6 6.9 5.4 8.5 8 8.5Z" />
+      <path d="M8 7.5C8 5.6 9.5 4.2 11.7 4 11.7 5.9 10.2 7.3 8 7.5Z" />
+    </svg>
+  );
+}
+
+/** Erlenmeyer flask — intermediate / "ready for more". */
+function FlaskIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...ICON_BASE}>
+      <path d="M6.3 2v3.6L3 11.6A1.3 1.3 0 0 0 4.1 13.6h7.8A1.3 1.3 0 0 0 13 11.6L9.7 5.6V2" />
+      <path d="M5.5 2h5" />
+      <path d="M4.7 9.5h6.6" />
+    </svg>
+  );
+}
+
+/** Waves — collector / "deep water". */
+function WavesIcon({ className }: IconProps) {
+  return (
+    <svg className={className} {...ICON_BASE}>
+      <path d="M2 6c1.6-1.4 3.2-1.4 4.8 0s3.2 1.4 4.8 0 3.2-1.4 2.4-0.8" />
+      <path d="M2 10.5c1.6-1.4 3.2-1.4 4.8 0s3.2 1.4 4.8 0 3.2-1.4 2.4-0.8" />
+    </svg>
+  );
+}
+
 const GUIDED_PATHS = [
   {
     id: "beginner",
-    label: "🌱 Just starting out",
+    Icon: SproutIcon,
+    label: "Just starting out",
     title: "Easy Neocaridina varieties — hard water, beginner-friendly",
     preset: { level: "Beginner", waterType: "hard", family: "All", pattern: "all", query: "" },
   },
   {
     id: "intermediate",
-    label: "🔬 Ready for more",
+    Icon: FlaskIcon,
+    label: "Ready for more",
     title: "Caridina & soft-water varieties for experienced keepers",
     preset: { level: "Intermediate", waterType: "soft", family: "All", pattern: "all", query: "" },
   },
   {
     id: "collector",
-    label: "🌊 Deep water",
+    Icon: WavesIcon,
+    label: "Deep water",
     title: "Collector-level rarities — Sulawesi, Taiwan Bee, extreme grades",
     preset: { level: "Collector", waterType: "soft", family: "All", pattern: "all", query: "" },
   },
@@ -145,6 +193,7 @@ export function FilterPanel({
           <div className="guided-paths" role="group" aria-label="Guided filter presets">
             {GUIDED_PATHS.map((path) => {
               const active = isPresetActive(state, path.preset);
+              const { Icon } = path;
               return (
                 <button
                   key={path.id}
@@ -153,7 +202,8 @@ export function FilterPanel({
                   aria-pressed={active}
                   title={path.title}
                 >
-                  {path.label}
+                  <Icon />
+                  <span>{path.label}</span>
                 </button>
               );
             })}

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Strain } from "../types/strain";
 import { familyColors } from "../lib/constants";
 import { ShrimpVisual } from "./ShrimpVisual";
+import { useVisualViewportRect } from "../hooks/useVisualViewportRect";
 
 interface Props {
   strain: Strain | null;
@@ -191,6 +192,34 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
     };
   }, [strain, onClose]);
 
+  // Lock body scroll while the dialog is open (same pattern as the mobile
+  // filter drawer in App.tsx).
+  useEffect(() => {
+    if (!strain) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [strain]);
+
+  // When the page is pinch-zoomed, fixed positioning is laid out against the
+  // layout viewport, so the dialog can land partly outside the visible area.
+  // Pin the backdrop to the visual viewport and counter-scale it so the dialog
+  // appears at readable 1:1 size wherever the user is currently looking.
+  const vvRect = useVisualViewportRect(!!strain);
+  const vvStyle = vvRect
+    ? {
+        left: vvRect.offsetLeft,
+        top: vvRect.offsetTop,
+        right: "auto" as const,
+        bottom: "auto" as const,
+        width: vvRect.width * vvRect.scale,
+        height: vvRect.height * vvRect.scale,
+        transform: `scale(${1 / vvRect.scale})`,
+        transformOrigin: "0 0",
+      }
+    : undefined;
+
   if (!strain) return null;
 
   const color      = familyColors[strain.family] ?? "#888";
@@ -209,6 +238,7 @@ export function StrainDialog({ strain, onClose, onTagFilter, expertMode }: Props
       {strain && (
         <motion.div
           className="dialog-backdrop"
+          style={vvStyle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

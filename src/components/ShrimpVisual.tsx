@@ -17,6 +17,29 @@ function sectionOpacity(strain: Strain, section: BodySection): number {
   return 0.96;
 }
 
+/**
+ * Canonical pose (shared by MiniShrimp & ShrimpLogoMark): side profile facing
+ * LEFT — arched cephalothorax over the head, six abdominal segment plates
+ * curling down-and-right into a uropod fan tail, rostrum spiking forward-up,
+ * antennae sweeping up-left, stalked eye at the front.
+ *
+ * The six abdominal segments live here as data so the Rili "window" overlay
+ * can trace a real segment instead of a hand-copied near-duplicate, and the
+ * head→mid→tail colour mapping stays in one place.
+ */
+const ABDOMEN_SEGMENTS: { d: string; section: BodySection }[] = [
+  { d: "M142 74 C142 64 194 64 194 74 C190 108 146 108 142 74 Z", section: "mid" },
+  { d: "M171 72 C171 62 221 62 221 72 C217 104 175 104 171 72 Z", section: "mid" },
+  { d: "M200 74 C200 64 248 64 248 74 C244 104 204 104 200 74 Z", section: "mid" },
+  { d: "M229 80 C229 70 273 70 273 80 C269 108 233 108 229 80 Z", section: "tail" },
+  { d: "M257 90 C257 80 297 80 297 90 C293 114 261 114 257 90 Z", section: "tail" },
+  { d: "M282 102 C282 92 318 92 318 102 C314 122 286 122 282 102 Z", section: "tail" },
+];
+// The Rili mid-body window traces this segment (a "mid" plate).
+const RILI_WINDOW_INDEX = 2;
+// Dorsal ridge — shared by the carapace sheen highlight and the Back-stripe overlay.
+const DORSAL_LINE = "M62 62 C96 44 140 44 174 64 C206 82 232 86 258 96";
+
 export function ShrimpVisual({ strain, className }: ShrimpVisualProps) {
   const uid = useId().replace(/:/g, "");
   const isMottled = strain.pattern === "Mottled";
@@ -60,84 +83,82 @@ export function ShrimpVisual({ strain, className }: ShrimpVisualProps) {
       <ellipse cx="210" cy="156" rx="118" ry="10" fill={`url(#${uid}-ground)`} />
 
       <g filter={`url(#${uid}-soft)`}>
-        {/* Tail fan */}
+        {/* Antennae — sweeping up-left from the head, behind the body */}
+        <g className="shrimp-antennae" stroke={strain.colors[2]} strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.8">
+          <path d="M50 82C24 60 10 38 6 14M58 88C34 70 18 50 12 30" />
+          <path d="M64 78C46 60 34 42 28 24M70 82C52 66 40 50 34 34" />
+        </g>
+
+        {/* Pereiopods — walking legs, two-jointed, peeking below the belly */}
+        <g className="shrimp-legs" stroke={strain.colors[2]} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.72">
+          <path d="M88 110 L82 130 L88 148" />
+          <path d="M112 116 L106 136 L114 150" />
+          <path d="M136 118 L132 138 L140 150" />
+          <path d="M160 116 L158 136 L166 148" />
+          <path d="M180 110 L184 128 L190 142" />
+        </g>
+
+        {/* Pleopods — swimmerets under the abdomen curl */}
+        <g className="shrimp-swimmerets" fill={shell("mid")} opacity="0.82">
+          <ellipse cx="198" cy="112" rx="5" ry="10" transform="rotate(-16 198 112)" />
+          <ellipse cx="224" cy="116" rx="5" ry="10" transform="rotate(-12 224 116)" />
+          <ellipse cx="250" cy="120" rx="5" ry="9" transform="rotate(-8 250 120)" />
+          <ellipse cx="274" cy="124" rx="4.5" ry="8" transform="rotate(-4 274 124)" />
+          <ellipse cx="296" cy="128" rx="4" ry="7" transform="rotate(0 296 128)" />
+        </g>
+
+        {/* Uropod fan tail */}
         <path
           className="shrimp-tail-fan"
-          d="M332 98c18-8 34-10 48-4-6 12-18 22-34 28-10 4-20 4-30 1 8-8 12-16 16-25Z"
+          d="M316 96 C350 86 382 90 394 104 C384 119 360 128 334 126 C322 124 312 114 316 96 Z"
           fill={shell("tail")}
         />
-        <path
-          className="shrimp-segment"
-          d="M300 88c14 18 12 38-2 52-8 8-18 12-30 12-10 0-18-4-24-10 18-6 34-18 44-34 8-12 10-24 12-20Z"
-          fill={shell("tail")}
-        />
-        <path
-          className="shrimp-segment"
-          d="M262 78c10 16 8 34-4 46-8 8-18 12-28 10 12-10 20-22 24-36 4-12 6-22 8-20Z"
-          fill={shell("mid")}
-        />
-        <path
-          className="shrimp-segment"
-          d="M226 72c8 14 6 30-4 40-8 8-16 11-24 9 10-8 16-18 18-30 2-10 6-20 10-19Z"
-          fill={shell("mid")}
-        />
+        <g stroke={strain.colors[2]} strokeWidth="1.6" strokeLinecap="round" opacity="0.45" fill="none">
+          <path d="M322 100 L386 98" />
+          <path d="M322 108 L388 110" />
+          <path d="M324 116 L380 122" />
+        </g>
 
-        {/* Abdomen */}
-        <path
-          className="shrimp-abdomen"
-          d="M188 68c6 12 4 26-6 36-8 8-16 10-24 8 8-8 12-16 14-26 2-8 10-20 16-18Z"
-          fill={shell("mid")}
-        />
+        {/* Abdomen — six overlapping segment plates, posterior drawn first so each
+            anterior segment overlaps the next */}
+        {ABDOMEN_SEGMENTS.map((_, i) => {
+          const s = ABDOMEN_SEGMENTS[ABDOMEN_SEGMENTS.length - 1 - i];
+          return <path key={i} className="shrimp-segment" d={s.d} fill={shell(s.section)} />;
+        })}
 
-        {/* Carapace */}
+        {/* Carapace (cephalothorax) */}
         <path
           className="shrimp-carapace"
-          d="M44 102c10-34 42-58 92-62 38-3 72 8 96 34 14 16 18 36 10 54-8 20-28 34-54 38-44 6-88-4-118-28-12-10-20-24-26-36Z"
+          d="M38 100 C42 66 74 44 118 42 C148 41 170 52 178 74 C182 88 178 102 166 108 C140 122 92 122 60 108 C46 102 38 100 38 100 Z"
           fill={shell("head")}
         />
+
+        {/* Rostrum — serrated snout spiking forward-up */}
+        <path
+          className="shrimp-rostrum"
+          d="M46 84 C30 74 14 62 6 50 C4 58 6 72 16 82 C26 90 38 90 46 84 Z"
+          fill={shell("head")}
+        />
+
+        {/* Dorsal sheen ridge */}
         <path
           className="shrimp-carapace-sheen"
-          d="M72 58c28-18 62-22 96-12 24 8 40 24 46 42"
+          d={DORSAL_LINE}
           fill="none"
           stroke={`url(#${uid}-sheen)`}
           strokeWidth="7"
           strokeLinecap="round"
         />
 
-        {/* Rostrum */}
-        <path
-          className="shrimp-rostrum"
-          d="M34 98c-16-6-28-16-36-30-2 14 4 28 16 38 8 6 18 8 28 6"
-          fill={shell("head")}
-        />
-
-        {/* Legs */}
-        <g className="shrimp-legs" stroke={strain.colors[2]} strokeWidth="2.2" strokeLinecap="round" fill="none" opacity="0.72">
-          <path d="M118 118c-10 10-18 22-20 34M142 122c-8 12-12 24-12 36M166 124c-6 10-8 22-8 32M192 122c-4 10-4 20-2 28M214 118c2 8 4 16 8 22" />
-          <path d="M128 132c-8 6-14 14-16 22M154 136c-6 6-10 14-10 22M180 136c-4 6-6 12-6 18" />
-        </g>
-
-        {/* Antennae */}
-        <g className="shrimp-antennae" stroke={strain.colors[2]} strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.8">
-          <path d="M48 82C18 58 4 34 2 12M54 88C28 72 12 54 6 34" />
-          <path d="M62 76C42 58 30 40 24 24M68 80C50 66 38 50 32 36" />
-        </g>
-
-        {/* Swimmerets */}
-        <g className="shrimp-swimmerets" fill={shell("mid")} opacity="0.85">
-          <ellipse cx="236" cy="108" rx="5" ry="9" transform="rotate(-18 236 108)" />
-          <ellipse cx="258" cy="112" rx="5" ry="9" transform="rotate(-12 258 112)" />
-          <ellipse cx="280" cy="114" rx="5" ry="9" transform="rotate(-8 280 114)" />
-        </g>
-
-        {/* Eye */}
-        <circle cx="78" cy="86" r="5.5" fill={orangeEyes ? "#d97706" : "#101615"} />
-        <circle cx="79.5" cy="84.5" r="1.6" fill="#ffffff" opacity="0.85" />
+        {/* Eye on a short stalk */}
+        <path d="M62 98 L77 88" stroke={strain.colors[2]} strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+        <circle cx="78" cy="86" r="6" fill={orangeEyes ? "#d97706" : "#101615"} />
+        <circle cx="79.8" cy="84.2" r="1.8" fill="#ffffff" opacity="0.85" />
 
         {/* Back stripe */}
         {isBackStripe ? (
           <path
-            d="M98 52c36-8 72-4 104 12 30 14 48 34 54 58"
+            d={DORSAL_LINE}
             fill="none"
             stroke="rgba(255,255,255,0.72)"
             strokeWidth="5"
@@ -148,10 +169,10 @@ export function ShrimpVisual({ strain, className }: ShrimpVisualProps) {
         {/* Mottled wild pattern */}
         {isMottled
           ? [
-              { cx: 118, cy: 88, rx: 10, ry: 6 },
-              { cx: 156, cy: 76, rx: 12, ry: 7 },
-              { cx: 198, cy: 82, rx: 9, ry: 5 },
-              { cx: 142, cy: 102, rx: 8, ry: 5 },
+              { cx: 92, cy: 84, rx: 10, ry: 6 },
+              { cx: 128, cy: 72, rx: 12, ry: 7 },
+              { cx: 158, cy: 90, rx: 9, ry: 5 },
+              { cx: 116, cy: 104, rx: 8, ry: 5 },
             ].map((spot, index) => (
               <ellipse
                 key={index}
@@ -165,10 +186,10 @@ export function ShrimpVisual({ strain, className }: ShrimpVisualProps) {
             ))
           : null}
 
-        {/* Rili mid-body window */}
+        {/* Rili mid-body window — traces a real mid segment */}
         {strain.pattern === "Rili" ? (
           <path
-            d="M214 72c8 14 6 30-4 40-8 8-16 11-24 9 10-8 16-18 18-30 2-10 6-20 10-19Z"
+            d={ABDOMEN_SEGMENTS[RILI_WINDOW_INDEX].d}
             fill="none"
             stroke="rgba(255,255,255,0.55)"
             strokeWidth="1.5"
