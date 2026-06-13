@@ -216,11 +216,11 @@ npm run build && npm run preview
 
 ## Current Status
 
-**11 sessions complete** — Shrimpverse is a polished 2D interactive shrimp atlas (3D shelved):
+**12 sessions complete** — Shrimpverse is a polished 2D interactive shrimp atlas (3D shelved):
 - **49 shrimp varieties** across 15 families (all with genus, species, waterType)
 - **2D orbit explorer** (primary view): dual-ring system, golden sun, hexagonal Caridina nodes, live compatibility arcs
 - **Visual polish**: refined shrimp art (3 scales), SVG icon nav, pinch-zoom dialog fix, compare-badge clarity
-- **Mobile-first**: collapsible sidebar (desktop), right-side panel (desktop), bottom sheet (mobile)
+- **Mobile-first**: collapsible sidebar (desktop), right-side panel (desktop), bottom sheet (mobile), no viewport overflow
 - **Enriched dialog**: taxonomy, water type badges, 6-cell meta grid, focus-trap, WCAG AA contrast
 - **Filters**: waterType (hard/soft/neutral), searchable genus/species, guided quick-start presets
 - **Code quality**: zero import cycles, comprehensive type safety, semantic accessibility
@@ -271,6 +271,19 @@ Four orthogonal visual refinements:
 4. **Quick-start emojis → SVG icons**: 🌱🔬🌊 replaced with inline stroke icons (sprout, flask, waves) in existing codebase style.
 
 5. **Compare badge overlap fix**: Embedded clear button inside badge pill as inline dismiss ×, suppressed standalone corner button in compare mode — badge text and dismiss share one centered row, no overlap.
+
+### ✅ Session 12: Mobile Viewport Overflow Fix
+Eliminated right-edge overflow of HUD elements across all family-name combinations.
+
+**Root cause identified**: All animated HUD elements (compare-badge, active-label, rail-peek, mobile-tap-label) were centered with `left: 50%; transform: translateX(-50%)`. But Framer Motion animates `scale`/`y` on these nodes and **overwrites the inline `transform`**, destroying the centering. Result: left edge anchored at screen-center, long content ("Crystal × Taiwan Bee", "Taiwan Bee × Sulawesi") overflowed the right edge regardless of `max-width`.
+
+**Fix applied to 4 elements**: Changed centering from transform-based to auto-margin (`left: 0; right: 0; margin-inline: auto; width: fit-content`). Framer's transform now composes cleanly, boxes stay capped by `max-width`.
+
+- **Compare-badge text wrapping**: Wrapped names+status in `.orbit-compare-text` (`flex: 1; min-width: 0; text-overflow: ellipsis`) so the × clear button (`flex-shrink: 0`) is always visible even when text overflows
+- **`max-width: 100%`** instead of `100vw` — correct under desktop sidebar offset
+- **Arc-legend repositioned**: Top-right corner with vertical stacking on mobile (from `position: fixed`, no longer bottom-center)
+- **Strain rail mobile**: Proper width constraints, reduced padding/font sizes to fit tighter viewports
+- **Verified at 360px**: All family-name combinations fit, clear button always reachable; desktop delta 0px
 
 ## Next Directions
 - Swipe-to-dismiss gesture on mobile dialog (Framer Motion `drag: "y"`)
